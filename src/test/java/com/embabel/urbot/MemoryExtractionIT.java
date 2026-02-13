@@ -108,46 +108,52 @@ class MemoryExtractionIT {
             logger.info("Response: {}", truncate(response.getContent(), 200));
         }
 
-        // -- Trigger extraction synchronously --
-        // The async @EventListener may also fire concurrently - that's fine,
-        // the IncrementalAnalyzer deduplicates via content hash.
-        logger.info("Triggering proposition extraction...");
+        // -- First extraction --
+        logger.info("=== Extraction 1 ===");
         var event = new ConversationAnalysisRequestEvent(
                 this, testUser, chatSession.getConversation());
         propositionExtraction.extractPropositions(event);
 
-        // -- Assert propositions were persisted --
-        List<Proposition> propositions = propositionRepository
-                .findByContextIdValue(testUser.effectiveContext());
+        var propositions = propositionRepository.findByContextIdValue(testUser.effectiveContext());
+        assertPropositions(propositions, script);
+        int firstRunCount = propositions.size();
+        logger.info("Extraction 1 complete: {} propositions", firstRunCount);
 
+        // -- Second extraction on the same conversation: should not duplicate --
+        logger.info("=== Extraction 2 (deduplication check) ===");
+        propositionExtraction.extractPropositions(event);
+
+        var propositionsAfterSecondRun = propositionRepository
+                .findByContextIdValue(testUser.effectiveContext());
+        logger.info("Extraction 2 complete: {} propositions (was {})",
+                propositionsAfterSecondRun.size(), firstRunCount);
+
+        assertTrue(propositionsAfterSecondRun.size() <= firstRunCount,
+                "Second extraction on the same conversation should not create duplicates. Was "
+                        + firstRunCount + ", now " + propositionsAfterSecondRun.size());
+
+        // Write final propositions to file before cleanup deletes them
+        writePropositions(propositionsAfterSecondRun);
+    }
+
+    private void assertPropositions(List<Proposition> propositions, Script script) {
         logger.info("Found {} propositions for context {}", propositions.size(), testUser.effectiveContext());
         for (Proposition p : propositions) {
             logger.info("  [{}] confidence={} text='{}'", p.getStatus(), p.getConfidence(), p.getText());
         }
 
-        // At least 2 propositions extracted
         assertTrue(propositions.size() >= 2,
                 "Expected at least 2 propositions, got " + propositions.size());
 
-        // All have correct contextId
         for (Proposition p : propositions) {
             assertEquals(testUser.effectiveContext(), p.getContextIdValue(),
                     "Proposition contextId mismatch");
-        }
-
-        // All have ACTIVE status
-        for (Proposition p : propositions) {
             assertEquals(PropositionStatus.ACTIVE, p.getStatus(),
                     "Expected ACTIVE status for proposition: " + p.getText());
-        }
-
-        // All have positive confidence
-        for (Proposition p : propositions) {
             assertTrue(p.getConfidence() > 0,
                     "Expected positive confidence for proposition: " + p.getText());
         }
 
-        // At least 2 of the expected keywords appear across proposition texts
         String allText = propositions.stream()
                 .map(Proposition::getText)
                 .map(t -> t.toLowerCase(Locale.ROOT))
@@ -165,10 +171,7 @@ class MemoryExtractionIT {
                 "Expected at least 2 keyword matches in proposition texts, got " + matchCount
                         + ". All text: " + allText);
 
-        logger.info("Test passed: {} propositions with {} keyword matches", propositions.size(), matchCount);
-
-        // Write propositions to file before cleanup deletes them
-        writePropositions(propositions);
+        logger.info("Assertions passed: {} propositions with {} keyword matches", propositions.size(), matchCount);
     }
 
     private static void writePropositions(List<Proposition> propositions) throws IOException {
