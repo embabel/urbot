@@ -10,11 +10,16 @@ import com.embabel.agent.rag.service.SearchOperations;
 import com.embabel.agent.rag.tools.ToolishRag;
 import com.embabel.chat.Conversation;
 import com.embabel.chat.UserMessage;
+import com.embabel.dice.agent.Memory;
+import com.embabel.dice.projection.memory.MemoryProjector;
+import com.embabel.dice.proposition.PropositionRepository;
+import com.embabel.urbot.event.ConversationAnalysisRequestEvent;
 import com.embabel.urbot.rag.DocumentService;
 import com.embabel.urbot.user.UrbotUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Map;
 
@@ -29,19 +34,27 @@ public class ChatActions {
     private final SearchOperations searchOperations;
     private final UrbotProperties properties;
     private final LlmReference globalDocuments;
+    private final MemoryProjector memoryProjector;
+    private final PropositionRepository propositionRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ChatActions(
             SearchOperations searchOperations,
             @Qualifier("globalDocuments") LlmReference globalDocuments,
-            UrbotProperties properties) {
+            UrbotProperties properties,
+            MemoryProjector memoryProjector,
+            PropositionRepository propositionRepository,
+            ApplicationEventPublisher eventPublisher) {
         this.searchOperations = searchOperations;
         this.globalDocuments = globalDocuments;
         this.properties = properties;
+        this.memoryProjector = memoryProjector;
+        this.propositionRepository = propositionRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     /**
      * Bind user to AgentProcess. Will run once at the start of the process.
-     * Also record that there has been a null last analysis
      */
     @Action
     UrbotUser bindUser(OperationContext context) {
@@ -71,14 +84,23 @@ public class ChatActions {
                                 DocumentService.Context.CONTEXT_KEY,
                                 user.effectiveContext()
                         ));
+
+        var memory = Memory.forContext(user.currentContext())
+                .withRepository(propositionRepository)
+                .withEagerQuery(q -> q.orderedByEffectiveConfidence().withLimit(10))
+                .withProjector(memoryProjector);
+
         var assistantMessage = context.
                 ai()
                 .withLlm(properties.chatLlm())
-                .withReferences(globalDocuments, userDocuments)
+                .withReferences(globalDocuments, userDocuments, memory)
+                .withTools(memory)
                 .rendering("urbot")
                 .respondWithSystemPrompt(conversation, Map.of(
                         "properties", properties
                 ));
         context.sendMessage(conversation.addMessage(assistantMessage));
+
+        eventPublisher.publishEvent(new ConversationAnalysisRequestEvent(this, user, conversation));
     }
 }

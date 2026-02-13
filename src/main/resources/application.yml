@@ -32,6 +32,19 @@ urbot:
 
   objective: general
 
+  proposition-extraction-llm:
+    model: gpt-4.1-mini
+    temperature: 0.0
+  entity-resolution-llm:
+    model: gpt-4.1-mini
+    temperature: 0.0
+  extraction:
+    window-size: 10
+    overlap-size: 2
+    trigger-interval: 6
+  show-extraction-prompts: false
+  show-extraction-responses: false
+
 embabel:
 
   models:

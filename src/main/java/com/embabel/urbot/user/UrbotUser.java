@@ -1,13 +1,18 @@
 package com.embabel.urbot.user;
 
 import com.embabel.agent.api.identity.User;
+import com.embabel.agent.rag.model.NamedEntity;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * User model for Urbot.
+ * Implements NamedEntity so users can be referenced in DICE propositions.
  */
-public class UrbotUser implements User {
+public class UrbotUser implements User, NamedEntity {
 
     private final String id;
     private final String displayName;
@@ -29,22 +34,29 @@ public class UrbotUser implements User {
         return id + "_" + currentContextName;
     }
 
+    /**
+     * Alias for effectiveContext() matching the Memory API convention.
+     */
+    public String currentContext() {
+        return effectiveContext();
+    }
+
     public void setCurrentContextName(String currentContextName) {
         this.currentContextName = currentContextName;
     }
 
     @Override
-    public @NonNull String getId() {
+    public @NotNull String getId() {
         return id;
     }
 
     @Override
-    public @NonNull String getDisplayName() {
+    public @NotNull String getDisplayName() {
         return displayName;
     }
 
     @Override
-    public @NonNull String getUsername() {
+    public @NotNull String getUsername() {
         return username;
     }
 
@@ -56,5 +68,43 @@ public class UrbotUser implements User {
 
     public String getCurrentContextName() {
         return currentContextName;
+    }
+
+    // NamedEntity implementation
+
+    @NotNull
+    @Override
+    public String getName() {
+        return displayName;
+    }
+
+    @NotNull
+    @Override
+    public String getDescription() {
+        return "User: " + displayName;
+    }
+
+    @Nullable
+    @Override
+    public String getUri() {
+        return null;
+    }
+
+    @NotNull
+    @Override
+    public Map<String, Object> getMetadata() {
+        return Map.of();
+    }
+
+    @NotNull
+    @Override
+    public Set<String> labels() {
+        return Set.of("UrbotUser");
+    }
+
+    @NotNull
+    @Override
+    public String embeddableValue() {
+        return getName() + ": " + getDescription();
     }
 }

@@ -587,6 +587,123 @@ vaadin-button[theme~="primary"]:hover {
   display: block;
 }
 
+/* Proposition Card */
+.proposition-card {
+  background: var(--sb-bg-light);
+  border: 1px solid var(--sb-border);
+  border-radius: var(--lumo-border-radius-m);
+  padding: var(--lumo-space-m);
+  margin-bottom: var(--lumo-space-xs);
+}
+
+.proposition-card:hover {
+  border-color: var(--sb-accent);
+}
+
+.proposition-header {
+  align-items: flex-start;
+}
+
+.proposition-text {
+  color: var(--sb-text-primary);
+  font-size: var(--lumo-font-size-s);
+  line-height: 1.5;
+}
+
+.proposition-delete {
+  flex-shrink: 0;
+}
+
+.proposition-meta {
+  align-items: center;
+  margin-top: var(--lumo-space-xs);
+}
+
+.proposition-confidence {
+  font-size: var(--lumo-font-size-xs);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.proposition-confidence.high {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--sb-success);
+}
+
+.proposition-confidence.medium {
+  background: rgba(234, 179, 8, 0.2);
+  color: #eab308;
+}
+
+.proposition-confidence.low {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--sb-error);
+}
+
+.proposition-time {
+  color: var(--sb-text-muted);
+  font-size: var(--lumo-font-size-xs);
+}
+
+.proposition-entities {
+  margin-top: var(--lumo-space-xs);
+  gap: var(--lumo-space-xs);
+  flex-wrap: wrap;
+}
+
+.mention-badge {
+  display: inline-block;
+  background: var(--sb-bg-medium);
+  border: 1px solid var(--sb-border);
+  color: var(--sb-text-secondary);
+  font-size: var(--lumo-font-size-xs);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-family: monospace;
+}
+
+.mention-badge.clickable {
+  cursor: pointer;
+  border-color: var(--sb-accent);
+  color: var(--sb-accent-light);
+}
+
+.mention-badge.clickable:hover {
+  background: var(--sb-accent);
+  color: white;
+}
+
+/* Propositions Panel */
+.panel-title {
+  font-size: var(--lumo-font-size-m);
+  font-weight: 600;
+  color: var(--sb-text-primary);
+}
+
+.panel-count {
+  color: var(--sb-text-muted);
+  font-size: var(--lumo-font-size-s);
+}
+
+.panel-empty-message {
+  color: var(--sb-text-muted);
+  font-size: var(--lumo-font-size-s);
+  text-align: center;
+  padding: var(--lumo-space-l);
+  display: block;
+}
+
+.panel-scroller {
+  border: none;
+}
+
+/* Memory Button Row */
+.memory-button-row {
+  padding: var(--lumo-space-xs) 0;
+  align-items: center;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .side-panel {

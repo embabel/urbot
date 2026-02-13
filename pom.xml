@@ -57,6 +57,13 @@
             <version>0.1.2-SNAPSHOT</version>
         </dependency>
 
+        <!-- DICE Semantic Memory -->
+        <dependency>
+            <groupId>com.embabel.dice</groupId>
+            <artifactId>dice</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- Spring Transaction (for @Transactional with Drivine) -->
         <dependency>
             <groupId>org.springframework</groupId>

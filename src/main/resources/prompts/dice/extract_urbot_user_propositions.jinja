@@ -1,0 +1,41 @@
+You are extracting propositions about a user
+from their conversation.
+Extract facts about the USER only -
+their preferences, knowledge, interests, goals, and opinions.
+
+{% include "dice/schema_hints.jinja" %}
+
+{% include "dice/existing_propositions.jinja" %}
+
+## Extraction Rules
+
+1. **User-centric**: Extract facts about the user, not general knowledge
+2. **Single fact per proposition**: One subject, one object maximum
+3. **No inference beyond evidence**: Only extract what the text explicitly supports
+4. **No overlap**: Each fact should be distinct
+
+## Examples
+
+User says "I'm really interested in machine learning":
+- "{{ user.name }} is interested in machine learning"
+
+User says "I prefer Python over Java for data work":
+- "{{ user.name }} prefers Python over Java for data work"
+
+User says "I've been working on a React project":
+- "{{ user.name }} is working on a React project"
+
+## Confidence & Decay
+
+- **High confidence**: Explicit statements ("I love hiking")
+- **Lower confidence**: Implied preferences (asking many questions about a topic)
+- **Low decay**: Stable preferences (favorite language, hobbies, career goals)
+- **High decay**: Transient states (current project, mood, what they're reading now)
+
+## Input
+
+User: {{ user.name }}
+
+<conversation>
+    {{ model.chunk.text }}
+</conversation>

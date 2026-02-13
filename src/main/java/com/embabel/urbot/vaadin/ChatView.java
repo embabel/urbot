@@ -6,6 +6,9 @@ import com.embabel.agent.api.channel.OutputChannelEvent;
 import com.embabel.agent.api.channel.ProgressOutputChannelEvent;
 import com.embabel.chat.*;
 import com.embabel.urbot.UrbotProperties;
+import com.embabel.urbot.event.ConversationAnalysisRequestEvent;
+import com.embabel.urbot.proposition.extraction.ConversationPropositionExtraction;
+import com.embabel.urbot.proposition.persistence.DrivinePropositionRepository;
 import com.embabel.urbot.rag.DocumentService;
 import com.embabel.urbot.user.UrbotUser;
 import com.embabel.urbot.user.UrbotUserService;
@@ -57,7 +60,8 @@ public class ChatView extends VerticalLayout {
     private UserDrawer userDrawer;
 
     public ChatView(Chatbot chatbot, UrbotProperties properties, DocumentService documentService,
-                    UrbotUserService userService) {
+                    UrbotUserService userService, DrivinePropositionRepository propositionRepository,
+                    ConversationPropositionExtraction propositionExtraction) {
         this.chatbot = chatbot;
         this.properties = properties;
         this.documentService = documentService;
@@ -122,8 +126,20 @@ public class ChatView extends VerticalLayout {
         var globalDrawer = new DocumentsDrawer(documentService, currentUser, this::refreshFooter);
         getElement().appendChild(globalDrawer.getElement());
 
+        // Create onAnalyze runnable that triggers extraction on current conversation
+        Runnable onAnalyze = () -> {
+            var vaadinSession = VaadinSession.getCurrent();
+            var sessionData = (SessionData) vaadinSession.getAttribute("sessionData");
+            if (sessionData != null) {
+                var conversation = sessionData.chatSession().getConversation();
+                propositionExtraction.extractPropositions(
+                        new ConversationAnalysisRequestEvent(this, currentUser, conversation));
+            }
+        };
+
         // User drawer (opened by clicking user profile)
-        userDrawer = new UserDrawer(documentService, currentUser, this::refreshFooter);
+        userDrawer = new UserDrawer(documentService, currentUser, this::refreshFooter,
+                propositionRepository, onAnalyze);
         getElement().appendChild(userDrawer.getElement());
         userSection.setOnClickHandler(userDrawer::open);
     }

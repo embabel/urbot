@@ -1,6 +1,7 @@
 package com.embabel.urbot.user;
 
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -37,13 +38,13 @@ public record DummyUrbotUserService(
 
     @Override
     @Nullable
-    public UrbotUser findByUsername(String username) {
+    public UrbotUser findByUsername(@NonNull String username) {
         return users.stream().filter(u -> Objects.equals(u.getUsername(), username)).findFirst().orElse(null);
     }
 
     @Override
     @Nullable
-    public UrbotUser findByEmail(String email) {
+    public UrbotUser findByEmail(@NonNull String email) {
         return null;
     }
 }
