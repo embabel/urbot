@@ -31,7 +31,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         var title = new H1("Urbot");
         title.addClassName("login-title");
 
-        var subtitle = new Span("RAG-powered document assistant");
+        var subtitle = new Span("Chatbot starting point");
         subtitle.addClassName("login-subtitle");
 
         add(title, subtitle, loginForm);

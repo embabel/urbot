@@ -44,20 +44,20 @@ class UserSection extends HorizontalLayout {
         // Context selector (ComboBox allows creating new contexts by typing)
         contextSelect = new ComboBox<>();
         refreshContexts();
-        contextSelect.setValue(user.getCurrentContext());
+        contextSelect.setValue(user.getCurrentContextName());
         contextSelect.setAllowCustomValue(true);
         contextSelect.setPlaceholder("Context");
         contextSelect.addClassName("context-select");
         contextSelect.addCustomValueSetListener(e -> {
             var newContext = e.getDetail().trim();
             if (!newContext.isEmpty()) {
-                user.setCurrentContext(newContext);
+                user.setCurrentContextName(newContext);
                 contextSelect.setValue(newContext);
             }
         });
         contextSelect.addValueChangeListener(e -> {
             if (e.getValue() != null) {
-                user.setCurrentContext(e.getValue());
+                user.setCurrentContextName(e.getValue());
             }
         });
 

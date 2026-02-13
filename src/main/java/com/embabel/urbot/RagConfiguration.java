@@ -1,37 +1,59 @@
 package com.embabel.urbot;
 
+import com.embabel.agent.rag.ingestion.ChunkTransformer;
 import com.embabel.agent.rag.ingestion.transform.AddTitlesChunkTransformer;
-import com.embabel.agent.rag.lucene.LuceneSearchOperations;
+import com.embabel.agent.rag.neo.drivine.DrivineCypherSearch;
+import com.embabel.agent.rag.neo.drivine.DrivineStore;
 import com.embabel.common.ai.model.DefaultModelSelectionCriteria;
+import com.embabel.common.ai.model.EmbeddingService;
 import com.embabel.common.ai.model.ModelProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.drivine.manager.PersistenceManager;
+import org.drivine.manager.PersistenceManagerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.nio.file.Paths;
+import org.springframework.context.annotation.Primary;
+import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 @EnableConfigurationProperties(UrbotProperties.class)
 class RagConfiguration {
 
-    private final Logger logger = LoggerFactory.getLogger(RagConfiguration.class);
+    @Bean
+    PersistenceManager persistenceManager(PersistenceManagerFactory factory) {
+        return factory.get("neo");
+    }
 
     @Bean
-    LuceneSearchOperations luceneSearchOperations(
-            ModelProvider modelProvider,
+    @Primary
+    EmbeddingService embeddingService(ModelProvider modelProvider) {
+        return modelProvider.getEmbeddingService(DefaultModelSelectionCriteria.INSTANCE);
+    }
+
+    @Bean
+    ChunkTransformer chunkTransformer() {
+        return AddTitlesChunkTransformer.INSTANCE;
+    }
+
+    @Bean
+    @Primary
+    DrivineStore drivineStore(
+            PersistenceManager persistenceManager,
+            PlatformTransactionManager platformTransactionManager,
+            EmbeddingService embeddingService,
+            ChunkTransformer chunkTransformer,
             UrbotProperties properties) {
-        var embeddingService = modelProvider.getEmbeddingService(DefaultModelSelectionCriteria.INSTANCE);
-        var luceneSearchOperations = LuceneSearchOperations
-                .withName("docs")
-                .withEmbeddingService(embeddingService)
-                .withChunkerConfig(properties.chunkerConfig())
-                .withChunkTransformer(AddTitlesChunkTransformer.INSTANCE)
-                .withIndexPath(Paths.get("./.lucene-index"))
-                .buildAndLoadChunks();
-        logger.info("Loaded {} chunks into Lucene RAG store", luceneSearchOperations.info().getChunkCount());
-        return luceneSearchOperations;
+        var store = new DrivineStore(
+                persistenceManager,
+                properties.neoRag(),
+                properties.chunkerConfig(),
+                chunkTransformer,
+                embeddingService,
+                platformTransactionManager,
+                new DrivineCypherSearch(persistenceManager)
+        );
+        store.provision();
+        return store;
     }
 
 }

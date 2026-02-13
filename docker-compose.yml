@@ -1,0 +1,17 @@
+services:
+  neo4j:
+    image: neo4j:5-community
+    container_name: urbot-neo4j
+    ports:
+      - "7891:7687"   # Bolt protocol
+      - "8892:7474"   # HTTP browser
+    environment:
+      - NEO4J_AUTH=neo4j/urbot123
+      - NEO4J_PLUGINS=["apoc"]
+    volumes:
+      - urbot_neo4j_data:/data
+      - urbot_neo4j_logs:/logs
+
+volumes:
+  urbot_neo4j_data:
+  urbot_neo4j_logs:

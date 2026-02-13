@@ -4,7 +4,7 @@ import com.embabel.agent.api.annotation.Action;
 import com.embabel.agent.api.annotation.EmbabelComponent;
 import com.embabel.agent.api.common.ActionContext;
 import com.embabel.agent.api.common.OperationContext;
-import com.embabel.agent.rag.filter.PropertyFilter;
+import com.embabel.agent.filter.PropertyFilter;
 import com.embabel.agent.rag.service.SearchOperations;
 import com.embabel.agent.rag.tools.ToolishRag;
 import com.embabel.chat.Conversation;
@@ -56,16 +56,15 @@ public class ChatActions {
             Conversation conversation,
             UrbotUser user,
             ActionContext context) {
-        // We create the instance of ToolishRag just in time
-        // to limit results to the user's current context
         var toolishRag = new ToolishRag(
                 "docs",
                 "Document knowledge base",
                 searchOperations)
-                .withMetadataFilter(new PropertyFilter.Eq(
-                        DocumentService.Context.CONTEXT_KEY,
-                        user.getCurrentContext()
-                ));
+                .withMetadataFilter(
+                        new PropertyFilter.Eq(
+                                DocumentService.Context.CONTEXT_KEY,
+                                user.effectiveContext()
+                        ));
         var assistantMessage = context.
                 ai()
                 .withLlm(properties.chatLlm())

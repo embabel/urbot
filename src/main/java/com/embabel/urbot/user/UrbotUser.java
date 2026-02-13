@@ -13,21 +13,24 @@ public class UrbotUser implements User {
     private final String displayName;
     private final String username;
 
-    private String currentContext;
+    private String currentContextName;
 
     public UrbotUser(String id, String displayName, String username) {
         this.id = id;
         this.displayName = displayName;
         this.username = username;
-        this.currentContext = "personal";
+        this.currentContextName = "personal";
     }
 
-    public String getCurrentContext() {
-        return currentContext;
+    /**
+     * The effective context is a unique identifier for the user's current context, combining their user ID and the context name.
+     */
+    public String effectiveContext() {
+        return id + "_" + currentContextName;
     }
 
-    public void setCurrentContext(String currentContext) {
-        this.currentContext = currentContext;
+    public void setCurrentContextName(String currentContextName) {
+        this.currentContextName = currentContextName;
     }
 
     @Override
@@ -49,5 +52,9 @@ public class UrbotUser implements User {
     @Nullable
     public String getEmail() {
         return null;
+    }
+
+    public String getCurrentContextName() {
+        return currentContextName;
     }
 }

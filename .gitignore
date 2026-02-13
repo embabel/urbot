@@ -17,6 +17,7 @@ logs/
 
 # Vaadin
 node_modules/
+.vaadin-node-tasks.lock
 src/main/frontend/generated/
 frontend/generated/
 vite.generated.ts
@@ -26,9 +27,6 @@ tsconfig.json
 pnpm-lock.yaml
 package-lock.json
 package.json
-
-# Lucene index
-.lucene-index/
 
 # OS
 .DS_Store

@@ -43,10 +43,24 @@
             <version>${embabel-agent.version}</version>
         </dependency>
 
+        <!-- Drivine for Neo4j persistence -->
+        <dependency>
+            <groupId>org.drivine</groupId>
+            <artifactId>drivine4j-spring-boot-starter</artifactId>
+            <version>0.0.14</version>
+        </dependency>
+
+        <!-- RAG with Neo4j/Drivine backend -->
         <dependency>
             <groupId>com.embabel.agent</groupId>
-            <artifactId>embabel-agent-rag-lucene</artifactId>
-            <version>${embabel-agent.version}</version>
+            <artifactId>embabel-agent-rag-neo-drivine</artifactId>
+            <version>0.1.2-SNAPSHOT</version>
+        </dependency>
+
+        <!-- Spring Transaction (for @Transactional with Drivine) -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
         </dependency>
 
         <dependency>

@@ -28,7 +28,6 @@ import jakarta.annotation.security.PermitAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -83,7 +82,7 @@ public class ChatView extends VerticalLayout {
         var title = new H3("Urbot");
         title.addClassName("chat-title");
 
-        var subtitle = new Span("RAG-powered document assistant");
+        var subtitle = new Span("Chatbot starting point");
         subtitle.addClassName("chat-subtitle");
 
         titleSection.add(title, subtitle);
@@ -113,7 +112,9 @@ public class ChatView extends VerticalLayout {
         add(createInputSection());
 
         // Footer
-        footer = new Footer(documentService.getDocumentCount(), documentService.getChunkCount());
+        footer = new Footer(
+                documentService.getDocumentCount(currentUser.effectiveContext()),
+                documentService.getChunkCount(currentUser.effectiveContext()));
         add(footer);
 
         // Documents drawer
@@ -123,7 +124,9 @@ public class ChatView extends VerticalLayout {
 
     private void refreshFooter() {
         remove(footer);
-        footer = new Footer(documentService.getDocumentCount(), documentService.getChunkCount());
+        footer = new Footer(
+                documentService.getDocumentCount(currentUser.effectiveContext()),
+                documentService.getChunkCount(currentUser.effectiveContext()));
         add(footer);
         userSection.refreshContexts();
     }

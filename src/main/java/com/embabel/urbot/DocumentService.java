@@ -30,15 +30,16 @@ public class DocumentService {
     /**
      * Summary info about an ingested document.
      */
-    public record DocumentInfo(String uri, String title, String context, Instant ingestedAt) {
+    public record DocumentInfo(String uri, String title, String context, int chunkCount, Instant ingestedAt) {
     }
 
     public record Context(UrbotUser user) {
         public static final String CONTEXT_KEY = "context";
+
         public Map<String, Object> metadata() {
             return Map.of(
                     "ingestedBy", user.getId(),
-                    CONTEXT_KEY, user.getCurrentContext()
+                    CONTEXT_KEY, user.effectiveContext()
             );
         }
     }
@@ -55,8 +56,8 @@ public class DocumentService {
         logger.info("Ingesting file: {}", file.getName());
         var document = contentReader.parseFile(file, file.toURI().toString())
                 .withMetadata(context.metadata());
-        contentRepository.writeAndChunkDocument(document);
-        trackDocument(document, context);
+        var chunkIds = contentRepository.writeAndChunkDocument(document);
+        trackDocument(document, context, chunkIds.size());
         logger.info("Ingested file: {}", file.getName());
         return document;
     }
@@ -68,8 +69,8 @@ public class DocumentService {
         logger.info("Ingesting stream: {}", filename);
         var document = contentReader.parseContent(inputStream, uri)
                 .withMetadata(context.metadata());
-        contentRepository.writeAndChunkDocument(document);
-        trackDocument(document, context);
+        var chunkIds = contentRepository.writeAndChunkDocument(document);
+        trackDocument(document, context, chunkIds.size());
         logger.info("Ingested: {}", filename);
         return document;
     }
@@ -81,17 +82,18 @@ public class DocumentService {
         logger.info("Ingesting URL: {}", url);
         var document = contentReader.parseResource(url)
                 .withMetadata(context.metadata());
-        contentRepository.writeAndChunkDocument(document);
-        trackDocument(document, context);
+        var chunkIds = contentRepository.writeAndChunkDocument(document);
+        trackDocument(document, context, chunkIds.size());
         logger.info("Ingested URL: {}", url);
         return document;
     }
 
-    private void trackDocument(NavigableDocument document, Context context) {
+    private void trackDocument(NavigableDocument document, Context context, int chunkCount) {
         documents.add(new DocumentInfo(
                 document.getUri(),
                 document.getTitle(),
-                context.user().getCurrentContext(),
+                context.user().effectiveContext(),
+                chunkCount,
                 Instant.now()
         ));
     }
@@ -101,6 +103,15 @@ public class DocumentService {
      */
     public List<DocumentInfo> getDocuments() {
         return List.copyOf(documents);
+    }
+
+    /**
+     * Get documents filtered by the user's effective context.
+     */
+    public List<DocumentInfo> getDocuments(String effectiveContext) {
+        return documents.stream()
+                .filter(doc -> doc.context().equals(effectiveContext))
+                .toList();
     }
 
     /**
@@ -134,10 +145,29 @@ public class DocumentService {
     }
 
     /**
+     * Get document count for a specific context.
+     */
+    public int getDocumentCount(String effectiveContext) {
+        return (int) documents.stream()
+                .filter(doc -> doc.context().equals(effectiveContext))
+                .count();
+    }
+
+    /**
      * Get total chunk count.
      */
     public int getChunkCount() {
         return contentRepository.info().getChunkCount();
+    }
+
+    /**
+     * Get chunk count for a specific context.
+     */
+    public int getChunkCount(String effectiveContext) {
+        return documents.stream()
+                .filter(doc -> doc.context().equals(effectiveContext))
+                .mapToInt(DocumentInfo::chunkCount)
+                .sum();
     }
 
 }

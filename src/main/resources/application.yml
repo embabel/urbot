@@ -1,5 +1,20 @@
 server:
-  port: 9000
+  port: 8080
+
+# Neo4j Database Configuration (Drivine)
+database:
+  datasources:
+    neo:
+      type: NEO4J
+      host: ${NEO4J_HOST:localhost}
+      port: ${NEO4J_PORT:7891}
+      user-name: ${NEO4J_USERNAME:neo4j}
+      password: ${NEO4J_PASSWORD:urbot123}
+      database-name: ${NEO4J_DATABASE:neo4j}
+
+neo4j:
+  http:
+    port: ${NEO4J_HTTP_PORT:8892}
 
 urbot:
   chunker-config:

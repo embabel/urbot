@@ -78,7 +78,7 @@ public class DocumentsDrawer extends Div {
         contentArea.setSizeFull();
 
         // Create sections (documentsSection first since others reference it)
-        documentsSection = new DocumentListSection(documentService, onDocumentsChanged);
+        documentsSection = new DocumentListSection(documentService, user.effectiveContext(), onDocumentsChanged);
 
         uploadSection = new FileUploadSection(documentService, user, () -> {
             documentsSection.refresh();

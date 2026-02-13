@@ -19,13 +19,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 public class DocumentListSection extends VerticalLayout {
 
     private final DocumentService documentService;
+    private final String effectiveContext;
     private final Runnable onDocumentsChanged;
     private final VerticalLayout documentsList;
     private final Span documentCountSpan;
     private final Span chunkCountSpan;
 
-    public DocumentListSection(DocumentService documentService, Runnable onDocumentsChanged) {
+    public DocumentListSection(DocumentService documentService, String effectiveContext, Runnable onDocumentsChanged) {
         this.documentService = documentService;
+        this.effectiveContext = effectiveContext;
         this.onDocumentsChanged = onDocumentsChanged;
 
         setPadding(true);
@@ -73,12 +75,12 @@ public class DocumentListSection extends VerticalLayout {
     }
 
     public void refresh() {
-        documentCountSpan.setText(String.valueOf(documentService.getDocumentCount()));
-        chunkCountSpan.setText(String.valueOf(documentService.getChunkCount()));
+        documentCountSpan.setText(String.valueOf(documentService.getDocumentCount(effectiveContext)));
+        chunkCountSpan.setText(String.valueOf(documentService.getChunkCount(effectiveContext)));
 
         documentsList.removeAll();
 
-        var documents = documentService.getDocuments();
+        var documents = documentService.getDocuments(effectiveContext);
         if (documents.isEmpty()) {
             var emptyLabel = new Span("No documents indexed yet");
             emptyLabel.addClassName("empty-list-label");
