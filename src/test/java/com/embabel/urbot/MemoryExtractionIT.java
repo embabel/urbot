@@ -23,6 +23,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -60,12 +66,11 @@ class MemoryExtractionIT {
     private DrivinePropositionRepository propositionRepository;
 
     private UrbotUser testUser;
-    private String testContext;
 
     @BeforeEach
     void setUp() {
-        testUser = new UrbotUser("it-test", "Test User", "testuser");
-        testContext = "it_test_memory_" + System.currentTimeMillis();
+        testUser = new UrbotUser("it-test", "Claudia Carter", "ccarter");
+        var testContext = "it_test_memory_" + System.currentTimeMillis();
         testUser.setCurrentContextName(testContext);
 
         logger.info("Test context: {} (effectiveContext={})", testContext, testUser.effectiveContext());
@@ -87,19 +92,14 @@ class MemoryExtractionIT {
 
     @Test
     void chatConversationExtractsPropositionsToNeo4j() throws Exception {
+        var script = loadScript("memory-extraction-script.txt");
+
         // -- Drive conversation --
         BlockingQueue<Message> responseQueue = new ArrayBlockingQueue<>(10);
         OutputChannel outputChannel = new CollectingOutputChannel(responseQueue);
         var chatSession = chatbot.createSession(testUser, outputChannel, null, null);
 
-        String[] messages = {
-                "I'm passionate about playing guitar, been playing since I was 12",
-                "I work as a software engineer building distributed systems in Java",
-                "My favorite food is sushi, I also love hiking on weekends",
-                "I'm currently learning Rust for a side project"
-        };
-
-        for (String text : messages) {
+        for (String text : script.messages()) {
             logger.info("Sending: {}", text);
             chatSession.onUserMessage(new UserMessage(text));
 
@@ -153,9 +153,8 @@ class MemoryExtractionIT {
                 .map(t -> t.toLowerCase(Locale.ROOT))
                 .reduce("", (a, b) -> a + " " + b);
 
-        String[] keywords = {"guitar", "software", "sushi", "hiking", "rust", "java"};
         long matchCount = 0;
-        for (String keyword : keywords) {
+        for (String keyword : script.keywords()) {
             if (allText.contains(keyword)) {
                 logger.info("  Keyword match: {}", keyword);
                 matchCount++;
@@ -167,6 +166,50 @@ class MemoryExtractionIT {
                         + ". All text: " + allText);
 
         logger.info("Test passed: {} propositions with {} keyword matches", propositions.size(), matchCount);
+
+        // Write propositions to file before cleanup deletes them
+        writePropositions(propositions);
+    }
+
+    private static void writePropositions(List<Proposition> propositions) throws IOException {
+        var outputDir = Path.of("target", "it-results");
+        Files.createDirectories(outputDir);
+        var outputFile = outputDir.resolve("propositions-" + Instant.now().toEpochMilli() + ".txt");
+
+        var sb = new StringBuilder();
+        sb.append("# Extracted propositions (").append(propositions.size()).append(")\n");
+        sb.append("# Generated: ").append(Instant.now()).append("\n\n");
+        for (Proposition p : propositions) {
+            sb.append(String.format("[%s] confidence=%.2f  %s%n", p.getStatus(), p.getConfidence(), p.getText()));
+        }
+
+        Files.writeString(outputFile, sb.toString(), StandardCharsets.UTF_8);
+        logger.info("Wrote propositions to {}", outputFile);
+    }
+
+    private record Script(List<String> messages, List<String> keywords) {}
+
+    private static Script loadScript(String resourceName) throws IOException {
+        try (var in = MemoryExtractionIT.class.getClassLoader().getResourceAsStream(resourceName)) {
+            assertNotNull(in, "Script not found on classpath: " + resourceName);
+            var lines = new String(in.readAllBytes(), StandardCharsets.UTF_8).lines().toList();
+
+            var messages = lines.stream()
+                    .filter(l -> !l.isBlank() && !l.startsWith("#") && !l.startsWith("keywords:"))
+                    .toList();
+            var keywords = lines.stream()
+                    .filter(l -> l.startsWith("keywords:"))
+                    .findFirst()
+                    .map(l -> Arrays.stream(l.substring("keywords:".length()).split(","))
+                            .map(String::trim)
+                            .filter(s -> !s.isEmpty())
+                            .toList())
+                    .orElse(List.of());
+
+            assertFalse(messages.isEmpty(), "Script has no messages");
+            assertFalse(keywords.isEmpty(), "Script has no keywords");
+            return new Script(messages, keywords);
+        }
     }
 
     private static String truncate(String s, int maxLen) {

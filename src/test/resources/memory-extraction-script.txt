@@ -1,0 +1,8 @@
+# Chat messages to send (one per line, blank lines and comments ignored)
+I'm passionate about playing guitar, been playing since I was 12
+I work as a software engineer building distributed systems in Java
+My favorite food is sushi, I also love hiking on weekends
+I'm currently learning Rust for a side project
+
+# Keywords to check in extracted propositions (comma-separated)
+keywords: guitar, software, sushi, hiking, rust, java
