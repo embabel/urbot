@@ -1,12 +1,17 @@
-package com.embabel.urbot;
+package com.embabel.urbot.rag;
 
+import com.embabel.agent.api.reference.LlmReference;
+import com.embabel.agent.filter.PropertyFilter;
 import com.embabel.agent.rag.ingestion.ChunkTransformer;
 import com.embabel.agent.rag.ingestion.transform.AddTitlesChunkTransformer;
 import com.embabel.agent.rag.neo.drivine.DrivineCypherSearch;
 import com.embabel.agent.rag.neo.drivine.DrivineStore;
+import com.embabel.agent.rag.service.SearchOperations;
+import com.embabel.agent.rag.tools.ToolishRag;
 import com.embabel.common.ai.model.DefaultModelSelectionCriteria;
 import com.embabel.common.ai.model.EmbeddingService;
 import com.embabel.common.ai.model.ModelProvider;
+import com.embabel.urbot.UrbotProperties;
 import org.drivine.manager.PersistenceManager;
 import org.drivine.manager.PersistenceManagerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -54,6 +59,22 @@ class RagConfiguration {
         );
         store.provision();
         return store;
+    }
+
+    /**
+     * Documents shared between all users
+     */
+    @Bean
+    LlmReference globalDocuments(SearchOperations searchOperations) {
+        return new ToolishRag(
+                "shared_docs",
+                "Shared documents",
+                searchOperations)
+                .withMetadataFilter(
+                        new PropertyFilter.Eq(
+                                DocumentService.Context.CONTEXT_KEY,
+                                DocumentService.Context.GLOBAL_CONTEXT
+                        )).withUnfolding();
     }
 
 }

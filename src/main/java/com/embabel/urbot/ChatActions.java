@@ -4,14 +4,17 @@ import com.embabel.agent.api.annotation.Action;
 import com.embabel.agent.api.annotation.EmbabelComponent;
 import com.embabel.agent.api.common.ActionContext;
 import com.embabel.agent.api.common.OperationContext;
+import com.embabel.agent.api.reference.LlmReference;
 import com.embabel.agent.filter.PropertyFilter;
 import com.embabel.agent.rag.service.SearchOperations;
 import com.embabel.agent.rag.tools.ToolishRag;
 import com.embabel.chat.Conversation;
 import com.embabel.chat.UserMessage;
+import com.embabel.urbot.rag.DocumentService;
 import com.embabel.urbot.user.UrbotUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Map;
 
@@ -25,11 +28,14 @@ public class ChatActions {
 
     private final SearchOperations searchOperations;
     private final UrbotProperties properties;
+    private final LlmReference globalDocuments;
 
     public ChatActions(
             SearchOperations searchOperations,
+            @Qualifier("globalDocuments") LlmReference globalDocuments,
             UrbotProperties properties) {
         this.searchOperations = searchOperations;
+        this.globalDocuments = globalDocuments;
         this.properties = properties;
     }
 
@@ -56,9 +62,9 @@ public class ChatActions {
             Conversation conversation,
             UrbotUser user,
             ActionContext context) {
-        var toolishRag = new ToolishRag(
-                "docs",
-                "Document knowledge base",
+        var userDocuments = new ToolishRag(
+                "user_docs",
+                "User's own documents",
                 searchOperations)
                 .withMetadataFilter(
                         new PropertyFilter.Eq(
@@ -68,8 +74,8 @@ public class ChatActions {
         var assistantMessage = context.
                 ai()
                 .withLlm(properties.chatLlm())
-                .withReference(toolishRag)
-                .withTemplate("urbot")
+                .withReferences(globalDocuments, userDocuments)
+                .rendering("urbot")
                 .respondWithSystemPrompt(conversation, Map.of(
                         "properties", properties
                 ));

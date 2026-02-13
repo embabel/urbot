@@ -1,6 +1,6 @@
 package com.embabel.urbot.vaadin;
 
-import com.embabel.urbot.DocumentService;
+import com.embabel.urbot.rag.DocumentService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;

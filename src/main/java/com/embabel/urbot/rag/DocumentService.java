@@ -1,4 +1,4 @@
-package com.embabel.urbot;
+package com.embabel.urbot.rag;
 
 import com.embabel.agent.rag.ingestion.TikaHierarchicalContentReader;
 import com.embabel.agent.rag.model.NavigableDocument;
@@ -34,7 +34,10 @@ public class DocumentService {
     }
 
     public record Context(UrbotUser user) {
+
         public static final String CONTEXT_KEY = "context";
+
+        public static final String GLOBAL_CONTEXT = "global";
 
         public Map<String, Object> metadata() {
             return Map.of(

@@ -1,6 +1,6 @@
 package com.embabel.urbot.vaadin;
 
-import com.embabel.urbot.DocumentService;
+import com.embabel.urbot.rag.DocumentService;
 import com.embabel.urbot.user.UrbotUser;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.ShortcutRegistration;
