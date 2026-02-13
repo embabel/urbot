@@ -5,6 +5,7 @@ import com.embabel.urbot.user.UrbotUser;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -29,7 +30,7 @@ public class DocumentsDrawer extends Div {
     private final UrlIngestSection urlSection;
     private final DocumentListSection documentsSection;
 
-    public DocumentsDrawer(DocumentService documentService, UrbotUser user, Runnable onDocumentsChanged) {
+    public DocumentsDrawer(DocumentService documentService, UrbotUser user, int neo4jHttpPort, Runnable onDocumentsChanged) {
         var globalContext = DocumentService.Context.global(user);
 
         // Backdrop for closing panel when clicking outside
@@ -57,11 +58,15 @@ public class DocumentsDrawer extends Div {
         var title = new Span("Global Documents");
         title.addClassName("side-panel-title");
 
+        var neoLink = new Anchor("http://localhost:" + neo4jHttpPort, "Neo4j");
+        neoLink.setTarget("_blank");
+        neoLink.addClassName("side-panel-link");
+
         var closeButton = new Button(new Icon(VaadinIcon.CLOSE));
         closeButton.addClassName("side-panel-close");
         closeButton.addClickListener(e -> close());
 
-        header.add(title, closeButton);
+        header.add(title, neoLink, closeButton);
         header.setFlexGrow(1, title);
         sidePanel.add(header);
 

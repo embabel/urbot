@@ -30,6 +30,7 @@ import com.vaadin.flow.server.VaadinSession;
 import jakarta.annotation.security.PermitAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -61,7 +62,8 @@ public class ChatView extends VerticalLayout {
 
     public ChatView(Chatbot chatbot, UrbotProperties properties, DocumentService documentService,
                     UrbotUserService userService, DrivinePropositionRepository propositionRepository,
-                    ConversationPropositionExtraction propositionExtraction) {
+                    ConversationPropositionExtraction propositionExtraction,
+                    @Value("${neo4j.http.port:8892}") int neo4jHttpPort) {
         this.chatbot = chatbot;
         this.properties = properties;
         this.documentService = documentService;
@@ -123,7 +125,7 @@ public class ChatView extends VerticalLayout {
         add(footer);
 
         // Global documents drawer (right edge toggle)
-        var globalDrawer = new DocumentsDrawer(documentService, currentUser, this::refreshFooter);
+        var globalDrawer = new DocumentsDrawer(documentService, currentUser, neo4jHttpPort, this::refreshFooter);
         getElement().appendChild(globalDrawer.getElement());
 
         // Create onAnalyze runnable that triggers extraction on current conversation
