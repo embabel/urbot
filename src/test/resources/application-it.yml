@@ -1,0 +1,12 @@
+spring:
+  main:
+    web-application-type: none
+  autoconfigure:
+    exclude:
+      - com.vaadin.flow.spring.SpringBootAutoConfiguration
+
+urbot:
+  extraction:
+    trigger-interval: 2
+  show-extraction-prompts: true
+  show-extraction-responses: true

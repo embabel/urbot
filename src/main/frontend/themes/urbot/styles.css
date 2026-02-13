@@ -272,6 +272,16 @@ vaadin-button[theme~="primary"]:hover {
   color: var(--sb-text-primary);
 }
 
+.side-panel-link {
+  font-size: var(--lumo-font-size-s);
+  color: var(--sb-accent);
+  text-decoration: none;
+}
+
+.side-panel-link:hover {
+  text-decoration: underline;
+}
+
 .side-panel-content {
   flex: 1;
   overflow-y: auto;
