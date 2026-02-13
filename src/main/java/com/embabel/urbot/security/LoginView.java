@@ -1,5 +1,6 @@
 package com.embabel.urbot.security;
 
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.login.LoginForm;
@@ -31,10 +32,27 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         var title = new H1("Urbot");
         title.addClassName("login-title");
 
-        var subtitle = new Span("Chatbot starting point");
+        var subtitle = new Span("Chatbot template");
         subtitle.addClassName("login-subtitle");
 
-        add(title, subtitle, loginForm);
+        var legend = new Div();
+        legend.addClassName("login-legend");
+        legend.add(new Span("Demo accounts:"));
+        legend.add(createUserRow("alice", "alice", "Admin"));
+        legend.add(createUserRow("ben", "ben", "User"));
+
+        add(title, subtitle, loginForm, legend);
+    }
+
+    private Div createUserRow(String username, String password, String role) {
+        var row = new Div();
+        row.addClassName("login-legend-row");
+        var userSpan = new Span(username + " / " + password);
+        userSpan.addClassName("login-legend-credentials");
+        var roleSpan = new Span(role);
+        roleSpan.addClassName("login-legend-role");
+        row.add(userSpan, roleSpan);
+        return row;
     }
 
     @Override

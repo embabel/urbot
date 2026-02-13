@@ -1,9 +1,13 @@
 package com.embabel.urbot.rag;
 
+import com.embabel.agent.filter.PropertyFilter;
 import com.embabel.agent.rag.ingestion.TikaHierarchicalContentReader;
+import com.embabel.agent.rag.model.Chunk;
+import com.embabel.agent.rag.model.ContentRoot;
 import com.embabel.agent.rag.model.NavigableDocument;
 import com.embabel.agent.rag.store.ChunkingContentElementRepository;
 import com.embabel.urbot.user.UrbotUser;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -33,16 +37,28 @@ public class DocumentService {
     public record DocumentInfo(String uri, String title, String context, int chunkCount, Instant ingestedAt) {
     }
 
-    public record Context(UrbotUser user) {
+    public record Context(UrbotUser user, String overrideContext) {
 
         public static final String CONTEXT_KEY = "context";
 
         public static final String GLOBAL_CONTEXT = "global";
 
+        public Context(UrbotUser user) {
+            this(user, null);
+        }
+
+        public static Context global(UrbotUser user) {
+            return new Context(user, GLOBAL_CONTEXT);
+        }
+
+        public String effectiveContext() {
+            return overrideContext != null ? overrideContext : user.effectiveContext();
+        }
+
         public Map<String, Object> metadata() {
             return Map.of(
                     "ingestedBy", user.getId(),
-                    CONTEXT_KEY, user.effectiveContext()
+                    CONTEXT_KEY, effectiveContext()
             );
         }
     }
@@ -50,6 +66,26 @@ public class DocumentService {
     public DocumentService(ChunkingContentElementRepository contentRepository) {
         this.contentRepository = contentRepository;
         this.contentReader = new TikaHierarchicalContentReader();
+    }
+
+    @PostConstruct
+    void loadDocumentsFromDatabase() {
+        try {
+            for (var root : contentRepository.findAll(ContentRoot.class)) {
+                var context = (String) root.getMetadata().get(Context.CONTEXT_KEY);
+                if (context == null) continue;
+                documents.add(new DocumentInfo(
+                        root.getUri(),
+                        root.getTitle(),
+                        context,
+                        0,
+                        root.getIngestionTimestamp()
+                ));
+            }
+            logger.info("Loaded {} documents from database", documents.size());
+        } catch (Exception e) {
+            logger.warn("Failed to load documents from database: {}", e.getMessage());
+        }
     }
 
     /**
@@ -95,7 +131,7 @@ public class DocumentService {
         documents.add(new DocumentInfo(
                 document.getUri(),
                 document.getTitle(),
-                context.user().effectiveContext(),
+                context.effectiveContext(),
                 chunkCount,
                 Instant.now()
         ));
@@ -134,7 +170,10 @@ public class DocumentService {
         logger.info("Deleting document: {}", uri);
         var result = contentRepository.deleteRootAndDescendants(uri);
         if (result != null) {
-            documents.removeIf(doc -> doc.uri().equals(uri));
+            documents.stream()
+                    .filter(doc -> doc.uri().equals(uri))
+                    .findFirst()
+                    .ifPresent(documents::remove);
             return true;
         }
         return false;
@@ -151,9 +190,8 @@ public class DocumentService {
      * Get document count for a specific context.
      */
     public int getDocumentCount(String effectiveContext) {
-        return (int) documents.stream()
-                .filter(doc -> doc.context().equals(effectiveContext))
-                .count();
+        return contentRepository.count(ContentRoot.class,
+                new PropertyFilter.Eq(Context.CONTEXT_KEY, effectiveContext));
     }
 
     /**
@@ -167,10 +205,8 @@ public class DocumentService {
      * Get chunk count for a specific context.
      */
     public int getChunkCount(String effectiveContext) {
-        return documents.stream()
-                .filter(doc -> doc.context().equals(effectiveContext))
-                .mapToInt(DocumentInfo::chunkCount)
-                .sum();
+        return contentRepository.count(Chunk.class,
+                new PropertyFilter.Eq(Context.CONTEXT_KEY, effectiveContext));
     }
 
 }

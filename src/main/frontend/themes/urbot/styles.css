@@ -435,6 +435,43 @@ vaadin-button[theme~="primary"]:hover {
   margin-bottom: var(--lumo-space-l);
 }
 
+/* Login Legend */
+.login-legend {
+  margin-top: var(--lumo-space-m);
+  background: var(--sb-bg-light);
+  border: 1px solid var(--sb-border);
+  border-radius: var(--lumo-border-radius-m);
+  padding: var(--lumo-space-m);
+  min-width: 250px;
+}
+
+.login-legend > span {
+  display: block;
+  color: var(--sb-text-secondary);
+  font-size: var(--lumo-font-size-s);
+  margin-bottom: var(--lumo-space-s);
+}
+
+.login-legend-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--lumo-space-xs) 0;
+}
+
+.login-legend-credentials {
+  color: var(--sb-text-primary);
+  font-family: monospace;
+  font-size: var(--lumo-font-size-s);
+}
+
+.login-legend-role {
+  color: var(--sb-text-muted);
+  font-size: var(--lumo-font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 /* User Section */
 .profile-chip {
   background: var(--sb-bg-light);
@@ -460,6 +497,16 @@ vaadin-button[theme~="primary"]:hover {
 .user-name {
   color: var(--sb-text-primary);
   font-size: var(--lumo-font-size-s);
+}
+
+.profile-chip-clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profile-chip-clickable:hover {
+  border-color: var(--sb-accent);
+  background: var(--sb-bg-medium);
 }
 
 .logout-button {

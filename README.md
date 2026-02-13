@@ -4,7 +4,7 @@
 ![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white)
 ![Vaadin](https://img.shields.io/badge/Vaadin-00B4F0?style=for-the-badge&logo=vaadin&logoColor=white)
 ![Apache Maven](https://img.shields.io/badge/Apache%20Maven-C71A36?style=for-the-badge&logo=Apache%20Maven&logoColor=white)
-![Apache Lucene](https://img.shields.io/badge/Apache%20Lucene-009639?style=for-the-badge&logo=apache&logoColor=white)
+![Neo4j](https://img.shields.io/badge/Neo4j-008CC1?style=for-the-badge&logo=neo4j&logoColor=white)
 ![Jinja](https://img.shields.io/badge/jinja-white.svg?style=for-the-badge&logo=jinja&logoColor=black)
 ![ChatGPT](https://img.shields.io/badge/chatGPT-74aa9c?style=for-the-badge&logo=openai&logoColor=white)
 ![Claude](https://img.shields.io/badge/Claude-D97757?style=for-the-badge&logo=claude&logoColor=white)
@@ -19,7 +19,7 @@
 
 **A RAG-powered document chatbot with a Vaadin web interface, built on the [Embabel Agent Framework](https://embabel.com).**
 
-Upload documents, ask questions, and get intelligent answers grounded in your content -- powered by agentic Retrieval-Augmented Generation with Apache Lucene vector search.
+Upload documents, ask questions, and get intelligent answers grounded in your content -- powered by agentic Retrieval-Augmented Generation with Neo4j graph-backed vector search.
 
 ---
 
@@ -29,7 +29,8 @@ Upload documents, ask questions, and get intelligent answers grounded in your co
 graph TB
     subgraph UI["Vaadin Web UI"]
         CV[Chat View]
-        DD[Documents Drawer]
+        UD[User Drawer<br/>Personal Documents]
+        GD[Global Drawer<br/>Global Documents]
     end
 
     subgraph App["Spring Boot Application"]
@@ -42,14 +43,15 @@ graph TB
         end
     end
 
-    subgraph Store["Lucene Vector Store"]
-        EMB[Embeddings + Semantic Search]
+    subgraph Store["Neo4j + Drivine"]
+        EMB[Vector Embeddings + Graph Search]
     end
 
     LLM[(LLM Provider<br/>OpenAI / Anthropic)]
 
     CV --> CA
-    DD --> TP
+    UD --> TP
+    GD --> TP
     TP --> CH
     CH --> EMB
     CA --> EMB
@@ -66,7 +68,7 @@ sequenceDiagram
     participant C as ChatActions
     participant L as LLM
     participant T as ToolishRag
-    participant S as Lucene Store
+    participant S as Neo4j Store
 
     U->>C: Ask a question
     C->>L: Send message + tools + system prompt
@@ -74,7 +76,7 @@ sequenceDiagram
     Note over L: LLM reasons about approach
 
     L->>T: Call vectorSearch("relevant query")
-    T->>S: Embed query + similarity search
+    T->>S: Embed query + similarity search<br/>(filtered by user context)
     S-->>T: Matching chunks with metadata
     T-->>L: Retrieved context
 
@@ -96,6 +98,17 @@ Key aspects of the agentic approach:
 - **Context-aware filtering** -- Results are scoped to the user's current workspace context
 - **Template-driven prompts** -- Jinja2 templates separate persona, objective, and guardrails
 
+## Document Contexts
+
+Urbot supports two document scopes:
+
+| Scope | Access | Ingestion | Description |
+|---|---|---|---|
+| **Personal** | Per-user context | User Drawer (click profile) | Documents scoped to a user's named context (e.g. `2_personal`). Users can create and switch between multiple contexts. |
+| **Global** | Shared across all users | Global Drawer (`...` toggle) | Documents available to everyone, stored under the `global` context. |
+
+RAG search filters results to the user's current effective context, so personal and global documents are searched independently based on which context is active.
+
 ## Technology Stack
 
 | Layer | Technology | Role |
@@ -103,7 +116,7 @@ Key aspects of the agentic approach:
 | **UI** | [Vaadin 24](https://vaadin.com/) | Server-side Java web framework with real-time push updates |
 | **Backend** | [Spring Boot 3](https://spring.io/projects/spring-boot) | Application framework, dependency injection, security |
 | **Agent Framework** | [Embabel Agent](https://embabel.com) | Agentic AI orchestration with Utility AI pattern |
-| **Vector Search** | [Apache Lucene](https://lucene.apache.org/) | Disk-persisted vector embeddings and semantic search |
+| **Graph + Vector Store** | [Neo4j](https://neo4j.com/) via [Drivine](https://github.com/liberation-data/drivine) | Graph-backed vector embeddings, semantic search, and document relationships |
 | **Document Parsing** | [Apache Tika](https://tika.apache.org/) | Extract text from PDF, DOCX, HTML, and 1000+ formats |
 | **LLM** | OpenAI / Anthropic | Chat completion and text embedding models |
 | **Auth** | Spring Security | Form-based authentication with role-based access |
@@ -114,7 +127,7 @@ Urbot is built on the [Embabel Agent Framework](https://embabel.com), which prov
 
 - **`AgentProcessChatbot`** -- Wires actions into a conversational agent using the Utility AI pattern, where the LLM autonomously selects which `@Action` methods to invoke
 - **`ToolishRag`** -- Exposes vector search as an LLM-callable tool, enabling agentic retrieval
-- **`LuceneSearchOperations`** -- Pluggable RAG backend (Lucene, pgvector, and Neo4j are also available)
+- **`DrivineStore`** -- Neo4j-backed RAG store with vector indexes and graph relationships (Lucene and pgvector backends are also available)
 - **Jinja2 prompt templates** -- Composable system prompts with persona/objective/guardrails separation
 
 ### Vaadin UI
@@ -122,24 +135,27 @@ Urbot is built on the [Embabel Agent Framework](https://embabel.com), which prov
 The frontend is built entirely in server-side Java using Vaadin Flow:
 
 - **ChatView** -- Main chat interface with message bubbles, markdown rendering, and real-time tool call progress indicators
-- **DocumentsDrawer** -- Slide-out panel for uploading files, ingesting URLs, and managing documents
+- **UserDrawer** -- Click the profile chip to manage personal documents, switch contexts, and log out
+- **DocumentsDrawer** -- Right-side toggle panel for uploading and managing global documents
 - **Dark theme** -- Custom Lumo theme with responsive design
 - **Push updates** -- Async responses stream to the browser via long polling
 
-### Lucene Vector Store
+### Neo4j Vector Store
 
-Documents are chunked, embedded, and indexed in a local Lucene store:
+Documents are chunked, embedded, and stored in Neo4j via Drivine:
 
 - **Chunking** -- 800-character chunks with 100-character overlap for context continuity
 - **Embeddings** -- Generated via OpenAI `text-embedding-3-small` (configurable)
 - **Metadata filtering** -- Chunks tagged with user/context metadata for scoped search
-- **Persistent index** -- Stored at `./.lucene-index/`, survives restarts
+- **Graph relationships** -- Document → section → chunk hierarchy preserved as graph edges
+- **Persistent storage** -- Neo4j container via Docker Compose, survives restarts
 
 ## Features
 
 - **Document upload** -- PDF, DOCX, XLSX, TXT, MD, HTML, ODT, RTF (up to 10MB)
 - **URL ingestion** -- Fetch and index web pages directly
-- **Multi-context workspaces** -- Organize documents into separate searchable contexts
+- **Personal & global documents** -- Personal documents scoped per user context; global documents shared across all users
+- **Multi-context workspaces** -- Create and switch between named contexts to organize personal documents
 - **Markdown chat** -- Responses render with full markdown and code highlighting
 - **Tool call visibility** -- See real-time progress as the agent searches your documents
 - **Session persistence** -- Conversation history preserved across page reloads
@@ -149,39 +165,43 @@ Documents are chunked, embedded, and indexed in a local Lucene store:
 
 ```
 src/main/java/com/embabel/urbot/
-├── UrbotApplication.java        # Spring Boot entry point
-├── ChatActions.java                 # @Action methods for agentic RAG chat
-├── ChatConfiguration.java           # Utility AI chatbot wiring
-├── RagConfiguration.java            # Lucene vector store setup
-├── DocumentService.java             # Document ingestion and management
-├── UrbotProperties.java          # Externalized configuration
+├── UrbotApplication.java           # Spring Boot entry point + Drivine bootstrap
+├── ChatActions.java                # @Action methods for agentic RAG chat
+├── ChatConfiguration.java          # Utility AI chatbot wiring
+├── RagConfiguration.java           # Neo4j/Drivine vector store setup
+├── UrbotProperties.java            # Externalized configuration
+├── rag/
+│   └── DocumentService.java        # Document ingestion, context management
 ├── security/
-│   ├── SecurityConfiguration.java   # Spring Security setup
-│   └── LoginView.java               # Login page
+│   ├── SecurityConfiguration.java  # Spring Security setup
+│   └── LoginView.java              # Login page
 ├── user/
-│   ├── UrbotUser.java            # User model with context
-│   └── UrbotUserService.java     # User service interface
+│   ├── UrbotUser.java              # User model with context
+│   └── UrbotUserService.java       # User service interface
 └── vaadin/
-    ├── ChatView.java                # Main chat interface
-    ├── ChatMessageBubble.java       # User/assistant message rendering
-    ├── DocumentsDrawer.java         # Document management panel
-    ├── DocumentListSection.java     # Document list component
-    ├── FileUploadSection.java       # File upload component
-    ├── UrlIngestSection.java        # URL ingestion component
-    ├── UserSection.java             # User profile and context selector
-    └── Footer.java                  # Document/chunk statistics
+    ├── ChatView.java               # Main chat interface
+    ├── ChatMessageBubble.java      # User/assistant message rendering
+    ├── DocumentsDrawer.java        # Global document management panel
+    ├── UserDrawer.java             # Personal document management + context selector
+    ├── DocumentListSection.java    # Document list component
+    ├── FileUploadSection.java      # File upload component (reusable)
+    ├── UrlIngestSection.java       # URL ingestion component (reusable)
+    ├── UserSection.java            # Clickable user profile chip
+    └── Footer.java                 # Document/chunk statistics
 
 src/main/resources/
-├── application.yml                  # Server, LLM, and chunking config
+├── application.yml                 # Server, LLM, Neo4j, and chunking config
 └── prompts/
-    ├── urbot.jinja               # Main prompt template
+    ├── urbot.jinja                 # Main prompt template
     ├── elements/
-    │   ├── guardrails.jinja         # Safety guidelines
-    │   └── personalization.jinja    # Dynamic persona/objective loader
+    │   ├── guardrails.jinja        # Safety guidelines
+    │   └── personalization.jinja   # Dynamic persona/objective loader
     ├── personas/
-    │   └── assistant.jinja          # Default assistant persona
+    │   └── assistant.jinja         # Default assistant persona
     └── objectives/
-        └── general.jinja            # General knowledge base objective
+        └── general.jinja           # General knowledge base objective
+
+docker-compose.yml                  # Neo4j container with vector index support
 ```
 
 ## Getting Started
@@ -190,13 +210,19 @@ src/main/resources/
 
 - Java 21+
 - Maven 3.9+
+- Docker (for Neo4j)
 - An OpenAI or Anthropic API key
 
 ### Run
 
 ```bash
+# Start Neo4j
+docker compose up -d
+
+# Set your API key
 export OPENAI_API_KEY=sk-...    # or ANTHROPIC_API_KEY for Claude
 
+# Start the application
 mvn spring-boot:run
 ```
 
@@ -209,8 +235,8 @@ Open [http://localhost:9000](http://localhost:9000) and log in:
 
 ### Upload Documents and Chat
 
-1. Click the documents icon to open the side panel
-2. Upload files or paste a URL to ingest
+1. Click your **profile chip** (top right) to open the personal documents drawer -- upload files or paste URLs scoped to your current context
+2. Click the **`...` toggle** on the right edge to open the global documents drawer -- uploads here are shared across all users
 3. Ask questions -- the agent will search your documents and synthesize answers
 
 ## Configuration
@@ -240,6 +266,16 @@ embabel:
       model: gpt-4.1-mini
     default-embedding-model:
       model: text-embedding-3-small
+
+# Neo4j connection (matches docker-compose.yml)
+database:
+  datasources:
+    neo:
+      type: NEO4J
+      host: localhost
+      port: 7891
+      user-name: neo4j
+      password: urbot123
 ```
 
 LLM provider is selected automatically based on which API key is set:
@@ -257,4 +293,4 @@ Urbot is one of several example applications built on the Embabel Agent Framewor
 
 ## License
 
-Apache 2.0 -- Copyright 2024-2025 Embabel Software, Inc.
+Apache 2.0 -- Copyright 2024-2026 Embabel Software, Inc.

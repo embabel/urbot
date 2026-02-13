@@ -1,7 +1,6 @@
 package com.embabel.urbot.vaadin;
 
 import com.embabel.urbot.rag.DocumentService;
-import com.embabel.urbot.user.UrbotUser;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Span;
@@ -25,8 +24,8 @@ public class UrlIngestSection extends VerticalLayout {
     private final Button ingestButton;
     private final DocumentService.Context context;
 
-    public UrlIngestSection(DocumentService documentService, UrbotUser user, Runnable onSuccess) {
-        this.context = new DocumentService.Context(user);
+    public UrlIngestSection(DocumentService documentService, DocumentService.Context context, Runnable onSuccess) {
+        this.context = context;
         setPadding(true);
         setSpacing(true);
 

@@ -1,32 +1,27 @@
 package com.embabel.urbot.vaadin;
 
-import com.embabel.urbot.rag.DocumentService;
 import com.embabel.urbot.user.UrbotUser;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 /**
- * User section component showing avatar, name, context selector, and logout button.
+ * User section component showing clickable avatar and name.
+ * Clicking opens the UserDrawer for personal document management.
  */
 class UserSection extends HorizontalLayout {
 
-    private final ComboBox<String> contextSelect;
-    private final DocumentService documentService;
+    private Runnable onClickHandler;
 
-    UserSection(UrbotUser user, DocumentService documentService) {
-        this.documentService = documentService;
-
+    UserSection(UrbotUser user) {
         setAlignItems(FlexComponent.Alignment.CENTER);
         setSpacing(true);
 
         // Profile chip with avatar and name
         var profileChip = new HorizontalLayout();
         profileChip.addClassName("profile-chip");
+        profileChip.addClassName("profile-chip-clickable");
         profileChip.setAlignItems(FlexComponent.Alignment.CENTER);
         profileChip.setSpacing(false);
 
@@ -40,43 +35,17 @@ class UserSection extends HorizontalLayout {
         userName.addClassName("user-name");
 
         profileChip.add(avatar, userName);
-
-        // Context selector (ComboBox allows creating new contexts by typing)
-        contextSelect = new ComboBox<>();
-        refreshContexts();
-        contextSelect.setValue(user.getCurrentContextName());
-        contextSelect.setAllowCustomValue(true);
-        contextSelect.setPlaceholder("Context");
-        contextSelect.addClassName("context-select");
-        contextSelect.addCustomValueSetListener(e -> {
-            var newContext = e.getDetail().trim();
-            if (!newContext.isEmpty()) {
-                user.setCurrentContextName(newContext);
-                contextSelect.setValue(newContext);
-            }
-        });
-        contextSelect.addValueChangeListener(e -> {
-            if (e.getValue() != null) {
-                user.setCurrentContextName(e.getValue());
+        profileChip.getElement().addEventListener("click", e -> {
+            if (onClickHandler != null) {
+                onClickHandler.run();
             }
         });
 
-        // Logout button
-        var logoutButton = new Button("Logout", e -> {
-            getUI().ifPresent(ui -> ui.getPage().setLocation("/logout"));
-        });
-        logoutButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
-        logoutButton.addClassName("logout-button");
-
-        add(profileChip, contextSelect, logoutButton);
+        add(profileChip);
     }
 
-    /**
-     * Refresh the context dropdown from document metadata.
-     */
-    void refreshContexts() {
-        var contexts = documentService.contexts();
-        contextSelect.setItems(contexts);
+    void setOnClickHandler(Runnable handler) {
+        this.onClickHandler = handler;
     }
 
     private String getInitials(String name) {

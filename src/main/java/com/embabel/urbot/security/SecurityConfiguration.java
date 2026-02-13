@@ -1,5 +1,8 @@
 package com.embabel.urbot.security;
 
+import com.embabel.urbot.user.DummyUrbotUserService;
+import com.embabel.urbot.user.UrbotUser;
+import com.embabel.urbot.user.UrbotUserService;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import java.util.List;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -35,18 +39,26 @@ class SecurityConfiguration extends VaadinWebSecurity {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        var admin = User.withDefaultPasswordEncoder()
-                .username("admin")
-                .password("admin")
+        var alice = User.withDefaultPasswordEncoder()
+                .username("alice")
+                .password("alice")
                 .roles("ADMIN", "USER")
                 .build();
 
-        var user = User.withDefaultPasswordEncoder()
-                .username("user")
-                .password("user")
+        var ben = User.withDefaultPasswordEncoder()
+                .username("ben")
+                .password("ben")
                 .roles("USER")
                 .build();
 
-        return new InMemoryUserDetailsManager(admin, user);
+        return new InMemoryUserDetailsManager(alice, ben);
+    }
+
+    @Bean
+    UrbotUserService userService() {
+        return new DummyUrbotUserService(java.util.List.of(
+                new UrbotUser("1", "Alice Agu", "alice"),
+                new UrbotUser("2", "Ben Blossom", "ben")
+        ));
     }
 }

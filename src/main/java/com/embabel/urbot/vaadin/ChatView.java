@@ -54,6 +54,7 @@ public class ChatView extends VerticalLayout {
     private Button sendButton;
     private Footer footer;
     private UserSection userSection;
+    private UserDrawer userDrawer;
 
     public ChatView(Chatbot chatbot, UrbotProperties properties, DocumentService documentService,
                     UrbotUserService userService) {
@@ -82,13 +83,13 @@ public class ChatView extends VerticalLayout {
         var title = new H3("Urbot");
         title.addClassName("chat-title");
 
-        var subtitle = new Span("Chatbot starting point");
+        var subtitle = new Span("Chatbot template");
         subtitle.addClassName("chat-subtitle");
 
         titleSection.add(title, subtitle);
 
-        // User section (right)
-        userSection = new UserSection(currentUser, documentService);
+        // User section (right) - clickable to open personal documents drawer
+        userSection = new UserSection(currentUser);
         headerRow.add(titleSection, userSection);
         add(headerRow);
 
@@ -117,9 +118,14 @@ public class ChatView extends VerticalLayout {
                 documentService.getChunkCount(currentUser.effectiveContext()));
         add(footer);
 
-        // Documents drawer
-        var drawer = new DocumentsDrawer(documentService, currentUser, this::refreshFooter);
-        getElement().appendChild(drawer.getElement());
+        // Global documents drawer (right edge toggle)
+        var globalDrawer = new DocumentsDrawer(documentService, currentUser, this::refreshFooter);
+        getElement().appendChild(globalDrawer.getElement());
+
+        // User drawer (opened by clicking user profile)
+        userDrawer = new UserDrawer(documentService, currentUser, this::refreshFooter);
+        getElement().appendChild(userDrawer.getElement());
+        userSection.setOnClickHandler(userDrawer::open);
     }
 
     private void refreshFooter() {
@@ -128,7 +134,6 @@ public class ChatView extends VerticalLayout {
                 documentService.getDocumentCount(currentUser.effectiveContext()),
                 documentService.getChunkCount(currentUser.effectiveContext()));
         add(footer);
-        userSection.refreshContexts();
     }
 
     private record SessionData(ChatSession chatSession, BlockingQueue<Message> responseQueue) {

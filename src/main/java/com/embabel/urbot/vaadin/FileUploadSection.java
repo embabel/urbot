@@ -1,7 +1,6 @@
 package com.embabel.urbot.vaadin;
 
 import com.embabel.urbot.rag.DocumentService;
-import com.embabel.urbot.user.UrbotUser;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -18,11 +17,9 @@ public class FileUploadSection extends VerticalLayout {
 
     private static final Logger logger = LoggerFactory.getLogger(FileUploadSection.class);
 
-    public FileUploadSection(DocumentService documentService, UrbotUser user, Runnable onSuccess) {
+    public FileUploadSection(DocumentService documentService, DocumentService.Context context, Runnable onSuccess) {
         setPadding(true);
         setSpacing(true);
-
-        var context = new DocumentService.Context(user);
 
         var instructions = new Span("Upload documents to add to the knowledge base");
         instructions.addClassName("section-instructions");

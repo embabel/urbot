@@ -12,6 +12,8 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
+import java.util.function.Supplier;
+
 /**
  * Document list section for the documents drawer.
  * Shows list of indexed documents with their context.
@@ -19,15 +21,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 public class DocumentListSection extends VerticalLayout {
 
     private final DocumentService documentService;
-    private final String effectiveContext;
+    private final Supplier<String> effectiveContextSupplier;
     private final Runnable onDocumentsChanged;
     private final VerticalLayout documentsList;
     private final Span documentCountSpan;
     private final Span chunkCountSpan;
 
-    public DocumentListSection(DocumentService documentService, String effectiveContext, Runnable onDocumentsChanged) {
+    public DocumentListSection(DocumentService documentService, Supplier<String> effectiveContextSupplier, Runnable onDocumentsChanged) {
         this.documentService = documentService;
-        this.effectiveContext = effectiveContext;
+        this.effectiveContextSupplier = effectiveContextSupplier;
         this.onDocumentsChanged = onDocumentsChanged;
 
         setPadding(true);
@@ -75,12 +77,13 @@ public class DocumentListSection extends VerticalLayout {
     }
 
     public void refresh() {
-        documentCountSpan.setText(String.valueOf(documentService.getDocumentCount(effectiveContext)));
-        chunkCountSpan.setText(String.valueOf(documentService.getChunkCount(effectiveContext)));
+        var ctx = effectiveContextSupplier.get();
+        documentCountSpan.setText(String.valueOf(documentService.getDocumentCount(ctx)));
+        chunkCountSpan.setText(String.valueOf(documentService.getChunkCount(ctx)));
 
         documentsList.removeAll();
 
-        var documents = documentService.getDocuments(effectiveContext);
+        var documents = documentService.getDocuments(ctx);
         if (documents.isEmpty()) {
             var emptyLabel = new Span("No documents indexed yet");
             emptyLabel.addClassName("empty-list-label");
