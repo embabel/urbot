@@ -14,6 +14,10 @@ their preferences, knowledge, interests, goals, and opinions.
 3. **No inference beyond evidence**: Only extract what the text explicitly supports
 4. **No overlap**: Each fact should be distinct
 
+{% include "dice/canonical_form.jinja" %}
+
+- **Start with the user's full name** as the subject: "{{ user.name }} ..."
+
 ## Examples
 
 User says "I'm really interested in machine learning":

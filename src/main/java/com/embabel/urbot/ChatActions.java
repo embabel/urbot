@@ -93,6 +93,7 @@ public class ChatActions {
         var assistantMessage = context.
                 ai()
                 .withLlm(properties.chatLlm())
+                .withId("chat_response")
                 .withReferences(globalDocuments, userDocuments, memory)
                 .withTools(memory)
                 .rendering("urbot")

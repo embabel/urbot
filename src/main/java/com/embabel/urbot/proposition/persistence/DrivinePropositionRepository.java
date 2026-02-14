@@ -511,4 +511,21 @@ public class DrivinePropositionRepository implements PropositionRepository {
         logger.info("Deleted {} propositions for context {}", count, contextId);
         return count.intValue();
     }
+
+    @Transactional
+    public int clearByContextPrefix(@NonNull String contextIdPrefix) {
+        var countSpec = QuerySpecification
+                .withStatement("MATCH (p:Proposition) WHERE p.contextId STARTS WITH $prefix RETURN count(p) AS count")
+                .bind(Map.of("prefix", contextIdPrefix))
+                .transform(Long.class);
+        Long count = persistenceManager.getOne(countSpec);
+
+        var deleteSpec = QuerySpecification
+                .withStatement("MATCH (p:Proposition) WHERE p.contextId STARTS WITH $prefix DETACH DELETE p")
+                .bind(Map.of("prefix", contextIdPrefix));
+        persistenceManager.execute(deleteSpec);
+
+        logger.info("Deleted {} propositions for contexts starting with '{}'", count, contextIdPrefix);
+        return count.intValue();
+    }
 }

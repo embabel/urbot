@@ -59,6 +59,9 @@ class ConversationEvalIT {
 
     private static final Logger logger = LoggerFactory.getLogger(ConversationEvalIT.class);
 
+    private static final String USER_ID = "it-eval";
+    private static final String CONTEXT_PREFIX = USER_ID + "_it_eval_";
+
     @Autowired
     private Chatbot chatbot;
 
@@ -72,16 +75,17 @@ class ConversationEvalIT {
 
     @BeforeEach
     void setUp() {
-        testUser = new UrbotUser("it-eval", "Claudia Carter", "ccarter");
+        // Clean ALL eval contexts (catches orphans from timed-out or crashed runs)
+        int deleted = propositionRepository.clearByContextPrefix(CONTEXT_PREFIX);
+        if (deleted > 0) {
+            logger.info("Cleaned up {} stale propositions from prior eval runs", deleted);
+        }
+
+        testUser = new UrbotUser(USER_ID, "Claudia Carter", "ccarter");
         var testContext = "it_eval_" + System.currentTimeMillis();
         testUser.setCurrentContextName(testContext);
 
         logger.info("Eval test context: {} (effectiveContext={})", testContext, testUser.effectiveContext());
-
-        int deleted = propositionRepository.clearByContext(testUser.effectiveContext());
-        if (deleted > 0) {
-            logger.info("Cleaned up {} stale propositions", deleted);
-        }
     }
 
     @AfterEach
@@ -181,11 +185,18 @@ class ConversationEvalIT {
         // on the first call if it determines the window isn't ready, so retry once.
         var event = new ConversationAnalysisRequestEvent(
                 this, testUser, chatSession.getConversation());
-        propositionExtraction.extractPropositions(event);
 
-        if (propositionRepository.findByContextIdValue(testUser.effectiveContext()).isEmpty()) {
-            logger.info("First extraction yielded 0 propositions, retrying...");
+        int before = propositionRepository.findByContextIdValue(testUser.effectiveContext()).size();
+        propositionExtraction.extractPropositions(event);
+        int after = propositionRepository.findByContextIdValue(testUser.effectiveContext()).size();
+
+        if (after == before) {
+            logger.info("Extraction yielded 0 new propositions for this seed, retrying...");
             propositionExtraction.extractPropositions(event);
+            int afterRetry = propositionRepository.findByContextIdValue(testUser.effectiveContext()).size();
+            logger.info("After retry: {} new propositions", afterRetry - before);
+        } else {
+            logger.info("Extracted {} new propositions from seed", after - before);
         }
     }
 
