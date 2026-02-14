@@ -32,6 +32,8 @@ urbot:
 
   objective: general
 
+  behaviour: default
+
   proposition-extraction-llm:
     model: gpt-4.1-mini
     temperature: 0.0

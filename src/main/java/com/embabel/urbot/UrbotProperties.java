@@ -22,13 +22,14 @@ import java.util.List;
  * @param showExtractionPrompts    whether to log extraction prompts
  * @param showExtractionResponses  whether to log extraction responses
  * @param initialDocuments         list of document URIs to ingest into the global context at startup
- *                                  if not already loaded. Each entry can be a URL (e.g., "https://example.com/doc.pdf")
- *                                  or a file path (absolute or relative to the working directory).
+ *                                 if not already loaded. Each entry can be a URL (e.g., "https://example.com/doc.pdf")
+ *                                 or a file path (absolute or relative to the working directory).
  */
 @ConfigurationProperties(prefix = "urbot")
 public record UrbotProperties(
         @NestedConfigurationProperty LlmOptions chatLlm,
         String objective,
+        String behaviour,
         @NestedConfigurationProperty Voice voice,
         @NestedConfigurationProperty ContentChunker.Config chunkerConfig,
         @NestedConfigurationProperty NeoRagServiceProperties neoRag,
