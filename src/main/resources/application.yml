@@ -36,7 +36,7 @@ urbot:
 
   proposition-extraction:
     entity-packages:
-        - com.embabel.personal
+        - com.embabel.domain.personal
 
     extraction-llm:
       model: gpt-4.1-mini

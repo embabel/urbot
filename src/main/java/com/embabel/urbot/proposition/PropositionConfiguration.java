@@ -72,7 +72,10 @@ class PropositionConfiguration {
                 .withPredicatesForSubject(
                         UrbotUser.class, KnowledgeType.SEMANTIC,
                         "likes", "dislikes", "knows", "is_interested_in", "works_on", "prefers"
-                );
+                )
+                .withSemanticBetween("UrbotUser", "Pet", "owns", "user owns a pet")
+                .withSemanticBetween("UrbotUser", "Company", "works_at", "user works at a company")
+                .withSemanticBetween("UrbotUser", "Goal", "is_working_toward", "user is working toward a goal");
     }
 
     @Bean

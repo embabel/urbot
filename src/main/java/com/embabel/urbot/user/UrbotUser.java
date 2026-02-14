@@ -6,6 +6,7 @@ import com.embabel.agent.filter.PropertyFilter;
 import com.embabel.agent.rag.model.NamedEntity;
 import com.embabel.agent.rag.service.SearchOperations;
 import com.embabel.agent.rag.tools.ToolishRag;
+import com.embabel.domain.common.Person;
 import com.embabel.urbot.rag.DocumentService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +18,7 @@ import java.util.Set;
  * User model for Urbot.
  * Implements NamedEntity so users can be referenced in DICE propositions.
  */
-public class UrbotUser implements User, NamedEntity {
+public class UrbotUser implements User, NamedEntity, Person {
 
     private final String id;
     private final String displayName;
