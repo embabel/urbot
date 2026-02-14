@@ -6,6 +6,8 @@ import com.embabel.common.ai.model.LlmOptions;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
+import java.util.List;
+
 /**
  * Properties for chatbot
  *
@@ -19,6 +21,9 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
  * @param extraction               extraction window configuration
  * @param showExtractionPrompts    whether to log extraction prompts
  * @param showExtractionResponses  whether to log extraction responses
+ * @param initialDocuments         list of document URIs to ingest into the global context at startup
+ *                                  if not already loaded. Each entry can be a URL (e.g., "https://example.com/doc.pdf")
+ *                                  or a file path (absolute or relative to the working directory).
  */
 @ConfigurationProperties(prefix = "urbot")
 public record UrbotProperties(
@@ -31,7 +36,8 @@ public record UrbotProperties(
         @NestedConfigurationProperty LlmOptions entityResolutionLlm,
         @NestedConfigurationProperty Extraction extraction,
         boolean showExtractionPrompts,
-        boolean showExtractionResponses
+        boolean showExtractionResponses,
+        List<String> initialDocuments
 ) {
 
     public UrbotProperties {

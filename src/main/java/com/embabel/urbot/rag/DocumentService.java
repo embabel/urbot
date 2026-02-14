@@ -6,6 +6,7 @@ import com.embabel.agent.rag.model.Chunk;
 import com.embabel.agent.rag.model.ContentRoot;
 import com.embabel.agent.rag.model.NavigableDocument;
 import com.embabel.agent.rag.store.ChunkingContentElementRepository;
+import com.embabel.urbot.UrbotProperties;
 import com.embabel.urbot.user.UrbotUser;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -17,7 +18,9 @@ import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Service for managing document ingestion and retrieval.
@@ -29,6 +32,7 @@ public class DocumentService {
 
     private final ChunkingContentElementRepository contentRepository;
     private final TikaHierarchicalContentReader contentReader;
+    private final UrbotProperties properties;
     private final List<DocumentInfo> documents = new CopyOnWriteArrayList<>();
 
     /**
@@ -63,9 +67,10 @@ public class DocumentService {
         }
     }
 
-    public DocumentService(ChunkingContentElementRepository contentRepository) {
+    public DocumentService(ChunkingContentElementRepository contentRepository, UrbotProperties properties) {
         this.contentRepository = contentRepository;
         this.contentReader = new TikaHierarchicalContentReader();
+        this.properties = properties;
     }
 
     @PostConstruct
@@ -85,6 +90,39 @@ public class DocumentService {
             logger.info("Loaded {} documents from database", documents.size());
         } catch (Exception e) {
             logger.warn("Failed to load documents from database: {}", e.getMessage());
+        }
+        ingestInitialDocuments();
+    }
+
+    private void ingestInitialDocuments() {
+        var initialDocs = properties.initialDocuments();
+        if (initialDocs == null || initialDocs.isEmpty()) {
+            return;
+        }
+
+        Set<String> existingUris = documents.stream()
+                .map(DocumentInfo::uri)
+                .collect(Collectors.toSet());
+
+        var systemUser = new UrbotUser("system", "System", "system");
+        var context = Context.global(systemUser);
+
+        for (String uri : initialDocs) {
+            if (existingUris.contains(uri)) {
+                logger.info("Initial document already loaded, skipping: {}", uri);
+                continue;
+            }
+            try {
+                var file = new File(uri);
+                if (file.exists()) {
+                    ingestFile(file, context);
+                } else {
+                    ingestUrl(uri, context);
+                }
+                logger.info("Ingested initial document: {}", uri);
+            } catch (Exception e) {
+                logger.warn("Failed to ingest initial document {}: {}", uri, e.getMessage());
+            }
         }
     }
 
