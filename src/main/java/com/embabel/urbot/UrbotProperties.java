@@ -5,6 +5,7 @@ import com.embabel.agent.rag.neo.drivine.NeoRagServiceProperties;
 import com.embabel.common.ai.model.LlmOptions;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.util.List;
 
@@ -24,10 +25,12 @@ import java.util.List;
  * @param initialDocuments         list of document URIs to ingest into the global context at startup
  *                                 if not already loaded. Each entry can be a URL (e.g., "https://example.com/doc.pdf")
  *                                 or a file path (absolute or relative to the working directory).
+ * @param messagesToEmbed          how many recent messages to include in the context for RAG retrieval and proposition extraction
  */
 @ConfigurationProperties(prefix = "urbot")
 public record UrbotProperties(
         @NestedConfigurationProperty LlmOptions chatLlm,
+        @DefaultValue("20") int messagesToEmbed,
         String objective,
         String behaviour,
         @NestedConfigurationProperty Voice voice,

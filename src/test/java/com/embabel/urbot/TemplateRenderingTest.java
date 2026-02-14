@@ -76,7 +76,7 @@ class TemplateRenderingTest {
     @Test
     void urbotSystemPromptRenders() {
         var properties = new UrbotProperties(
-                null, "general", "default",
+                null, 20, "general", "default",
                 new UrbotProperties.Voice("assistant", 200),
                 null, null, null, null, null,
                 false, false, List.of()

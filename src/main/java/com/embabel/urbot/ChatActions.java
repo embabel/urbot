@@ -7,7 +7,9 @@ import com.embabel.agent.api.common.OperationContext;
 import com.embabel.agent.api.reference.LlmReference;
 import com.embabel.agent.rag.service.SearchOperations;
 import com.embabel.chat.Conversation;
+import com.embabel.chat.SimpleMessageFormatter;
 import com.embabel.chat.UserMessage;
+import com.embabel.chat.WindowingConversationFormatter;
 import com.embabel.dice.agent.Memory;
 import com.embabel.dice.projection.memory.MemoryProjector;
 import com.embabel.dice.proposition.PropositionRepository;
@@ -75,10 +77,14 @@ public class ChatActions {
             Conversation conversation,
             UrbotUser user,
             ActionContext context) {
+        var recentContext = new WindowingConversationFormatter(
+                SimpleMessageFormatter.INSTANCE
+        ).format(conversation.last(properties.messagesToEmbed()));
+
         var memory = Memory.forContext(user.currentContext())
                 .withRepository(propositionRepository)
-                // .withEagerQuery(q -> q.orderedByEffectiveConfidence().withLimit(10))
-                .withProjector(memoryProjector);
+                .withProjector(memoryProjector)
+                .withEagerSearchAbout(recentContext, 10);
 
         var runner = context.
                 ai()
