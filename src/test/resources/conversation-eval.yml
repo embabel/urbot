@@ -1,0 +1,27 @@
+# Conversation evaluation config for urbot memory recall.
+# Seeds build memory; eval tasks test recall in a fresh session.
+
+seeds:
+  - conversation:
+      - content: "I'm passionate about playing guitar, been playing since I was 12"
+      - content: "I work as a software engineer building distributed systems in Java"
+      - content: "My favorite food is sushi, I also love hiking on weekends"
+      - content: "I'm currently learning Rust for a side project"
+
+tasks:
+  - type: question
+    task: "What do you remember about my hobbies?"
+    acceptanceCriteria: "Must mention guitar and/or hiking"
+  - type: question
+    task: "What programming languages do I work with?"
+    acceptanceCriteria: "Must mention Java and/or Rust"
+  - type: question
+    task: "Summarize what you know about me"
+    acceptanceCriteria: "Must reference at least 3 facts about the user"
+
+facts:
+  - "Claudia Carter plays guitar since age 12"
+  - "Claudia Carter is a software engineer working on distributed systems in Java"
+  - "Claudia Carter's favorite food is sushi"
+  - "Claudia Carter likes hiking on weekends"
+  - "Claudia Carter is learning Rust for a side project"
