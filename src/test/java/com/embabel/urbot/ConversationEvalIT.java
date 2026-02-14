@@ -17,10 +17,7 @@ import com.embabel.urbot.user.UrbotUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.module.kotlin.KotlinModule;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.openai.OpenAiChatModel;
@@ -57,7 +54,7 @@ import static org.junit.jupiter.api.Assertions.*;
         webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
 @ActiveProfiles("it")
-@Timeout(value = 5, unit = TimeUnit.MINUTES)
+@Timeout(value = 15, unit = TimeUnit.MINUTES)
 class ConversationEvalIT {
 
     private static final Logger logger = LoggerFactory.getLogger(ConversationEvalIT.class);
@@ -96,9 +93,21 @@ class ConversationEvalIT {
     }
 
     @Test
-    void conversationMemoryRecallScoredByLlmJudge() throws Exception {
-        var config = loadConfig("conversation-eval.yml");
+    @DisplayName("Short memory recall evaluation")
+    void shortMemoryRecall() throws Exception {
+        testEvalConfig(loadConfig("eval/short-conversation-eval.yml"));
+    }
 
+    @Test
+    @DisplayName("Long memory recall evaluation")
+    void longMemoryRecall() throws Exception {
+        testEvalConfig(loadConfig("eval/long-conversation-eval.yml"));
+    }
+
+    /**
+     * Runs the full seed → eval → score pipeline for a given config.
+     */
+    void testEvalConfig(EvalConfig config) throws Exception {
         // -- Phase 1: Seed memory --
         logger.info("=== Phase 1: Seeding memory ({} seeds) ===", config.seeds().size());
         seedMemory(config);
@@ -180,6 +189,11 @@ class ConversationEvalIT {
         }
     }
 
+    /**
+     * Creates a NEW chat session (no shared chat history with the seed phase).
+     * The bot can only answer from persisted propositions in Neo4j,
+     * loaded via {@code Memory.forContext(user.currentContext())} in ChatActions.
+     */
     private List<TimedOpenAiCompatibleMessage> evaluateRecall(EvalConfig config) throws Exception {
         BlockingQueue<Message> responseQueue = new ArrayBlockingQueue<>(10);
         OutputChannel outputChannel = new CollectingOutputChannel(responseQueue);
@@ -248,7 +262,8 @@ class ConversationEvalIT {
      * YAML config with seeds, eval tasks, and ground truth facts.
      * Uses eval module types: {@link Seed}, {@link Task}.
      */
-    record EvalConfig(List<Seed> seeds, List<Task> tasks, List<String> facts) {}
+    record EvalConfig(List<Seed> seeds, List<Task> tasks, List<String> facts) {
+    }
 
     private static final ObjectMapper YAML = new ObjectMapper(new YAMLFactory())
             .registerModule(new KotlinModule.Builder().build());

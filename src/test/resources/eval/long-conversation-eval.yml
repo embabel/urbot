@@ -1,0 +1,139 @@
+# Long conversation evaluation: many topics seeded across many exchanges.
+# Tests that the bot retains and recalls diverse facts from an extended conversation.
+
+seeds:
+  # --- Work & tech ---
+  - conversation:
+      - content: "I work as a software engineer building distributed systems in Java"
+      - content: "My team just migrated our main service from a monolith to microservices. Took about 8 months"
+      - content: "I'm currently learning Rust for a side project — building a CLI tool for log analysis"
+      - content: "I've been at my company, Meridian Labs, for about 3 years now"
+
+  # --- Music & creative hobbies ---
+  - conversation:
+      - content: "I'm passionate about playing guitar, been playing since I was 12"
+      - content: "I play a Fender Telecaster mostly, but I also have an acoustic Martin D-28"
+      - content: "I've been in a covers band called The Resets for a couple of years. We play at local bars maybe once a month"
+      - content: "I also enjoy woodworking as a way to unplug. I built a walnut bookshelf last month and I'm starting on a dining table next"
+
+  # --- Travel: past trips ---
+  - conversation:
+      - content: "We just got back from two weeks in Japan — Tokyo and Kyoto. Kyoto was my favorite, the temples were incredible"
+      - content: "Before Japan we did a week in Iceland last winter. The Northern Lights were unreal"
+      - content: "I usually travel with my partner Sam. We try to do at least one big trip a year"
+
+  # --- Travel: future plans ---
+  - conversation:
+      - content: "Next year we're planning a road trip through Portugal. I've always wanted to visit Lisbon and Porto"
+      - content: "We're also thinking about doing the Camino de Santiago someday, maybe the Portuguese route since we'll already be there"
+      - content: "Sam really wants to go to New Zealand at some point. It's on the list"
+
+  # --- Exercise & fitness ---
+  - conversation:
+      - content: "I've been getting into rock climbing lately, mostly bouldering at an indoor gym called Crux"
+      - content: "On weekday evenings I usually go for a run, about 5k along the river trail near my apartment"
+      - content: "I signed up for a half marathon in October, it'll be my first one"
+      - content: "I also do yoga once a week, mostly for flexibility since climbing makes everything tight"
+
+  # --- Food & drink ---
+  - conversation:
+      - content: "My favorite food is sushi — there's this amazing omakase place near us called Kura"
+      - content: "I'm a huge coffee snob — I roast my own beans at home with a Behmor roaster"
+      - content: "For breakfast I almost always have oatmeal with blueberries, boring but I love it"
+      - content: "We've been trying to cook more Thai food at home. Green curry is our best dish so far"
+      - content: "I can't stand cilantro though, it tastes like soap to me"
+
+  # --- Reading & media ---
+  - conversation:
+      - content: "I've been reading a lot of sci-fi recently. Just finished Project Hail Mary and loved it"
+      - content: "Before that I read the Murderbot Diaries series — so good, really funny AI protagonist"
+      - content: "I'm also into podcasts. I listen to Lex Fridman and Hardcore History pretty regularly"
+      - content: "For TV, Sam and I just binged Shogun together. Incredible show"
+
+  # --- Weekend routines & local life ---
+  - conversation:
+      - content: "Saturday mornings are sacred — farmers market then coffee at this little place called Bean & Leaf"
+      - content: "We live in a neighborhood called Riverside, been here about two years. Love how walkable it is"
+      - content: "Sunday afternoons I usually spend in my workshop or reading on the porch if the weather's nice"
+
+  # --- Pets & family ---
+  - conversation:
+      - content: "We have a rescue dog named Miso — she's a beagle mix, about 4 years old"
+      - content: "My sister lives in Denver, we try to visit each other a couple times a year"
+      - content: "My parents are retired and living in Tucson. They moved there from Chicago about five years ago"
+
+  # --- Personal goals ---
+  - conversation:
+      - content: "One of my goals this year is to get better at public speaking. I signed up for a local Toastmasters group"
+      - content: "I'm also trying to read 30 books this year. I'm at about 12 so far so I need to pick up the pace"
+      - content: "Long term I'd love to start my own company someday, something in developer tools"
+
+facts:
+  - "Claudia Carter is a software engineer building distributed systems in Java"
+  - "Claudia Carter's team migrated from a monolith to microservices over 8 months"
+  - "Claudia Carter is learning Rust for a side project — a CLI tool for log analysis"
+  - "Claudia Carter works at Meridian Labs, has been there about 3 years"
+  - "Claudia Carter plays guitar since age 12"
+  - "Claudia Carter plays a Fender Telecaster and owns a Martin D-28 acoustic"
+  - "Claudia Carter is in a covers band called The Resets that plays at local bars"
+  - "Claudia Carter does woodworking — built a walnut bookshelf, starting a dining table"
+  - "Claudia Carter traveled to Japan — visited Tokyo and Kyoto, preferred Kyoto"
+  - "Claudia Carter visited Iceland and saw the Northern Lights"
+  - "Claudia Carter travels with partner Sam, at least one big trip per year"
+  - "Claudia Carter is planning a road trip through Portugal next year (Lisbon and Porto)"
+  - "Claudia Carter is considering the Camino de Santiago, Portuguese route"
+  - "Claudia Carter's partner Sam wants to visit New Zealand"
+  - "Claudia Carter does indoor bouldering at a gym called Crux"
+  - "Claudia Carter runs 5k on weekday evenings along a river trail"
+  - "Claudia Carter is training for a half marathon in October, her first"
+  - "Claudia Carter does yoga once a week for flexibility"
+  - "Claudia Carter's favorite food is sushi — loves an omakase place called Kura"
+  - "Claudia Carter roasts coffee beans at home with a Behmor roaster"
+  - "Claudia Carter eats oatmeal with blueberries for breakfast"
+  - "Claudia Carter has been cooking Thai food at home, green curry is the best dish"
+  - "Claudia Carter dislikes cilantro — it tastes like soap"
+  - "Claudia Carter recently read and loved Project Hail Mary"
+  - "Claudia Carter read and enjoyed the Murderbot Diaries series"
+  - "Claudia Carter listens to Lex Fridman and Hardcore History podcasts"
+  - "Claudia Carter and Sam watched Shogun together"
+  - "Claudia Carter goes to the farmers market and Bean & Leaf cafe on Saturday mornings"
+  - "Claudia Carter lives in a neighborhood called Riverside"
+  - "Claudia Carter spends Sunday afternoons in the workshop or reading on the porch"
+  - "Claudia Carter has a rescue beagle mix named Miso, about 4 years old"
+  - "Claudia Carter's sister lives in Denver"
+  - "Claudia Carter's parents are retired in Tucson, moved from Chicago"
+  - "Claudia Carter joined Toastmasters for public speaking"
+  - "Claudia Carter has a goal to read 30 books this year"
+  - "Claudia Carter wants to start a company in developer tools someday"
+
+tasks:
+  - type: question
+    task: "Where did I go on my last vacation?"
+    acceptanceCriteria: "Must mention Japan and ideally Tokyo/Kyoto. Bonus for noting Kyoto was the favorite"
+  - type: question
+    task: "What are my travel plans?"
+    acceptanceCriteria: "Must mention Portugal and/or Lisbon/Porto. May also mention Camino de Santiago or New Zealand"
+  - type: question
+    task: "What sports or physical activities do I do?"
+    acceptanceCriteria: "Must mention at least 3 of: hiking, rock climbing/bouldering, running, half marathon, yoga"
+  - type: question
+    task: "What do you know about my food preferences?"
+    acceptanceCriteria: "Must mention at least 3 of: sushi, oatmeal with blueberries, Thai food/green curry, coffee roasting, dislike of cilantro, Kura restaurant"
+  - type: question
+    task: "What do I do to relax outside of work?"
+    acceptanceCriteria: "Must mention at least 3 of: guitar, woodworking, reading sci-fi, farmers market, podcasts, band"
+  - type: question
+    task: "Tell me about my pets and family"
+    acceptanceCriteria: "Must mention at least 2 of: dog Miso (beagle mix), sister in Denver, parents retired in Tucson"
+  - type: question
+    task: "What are my personal goals?"
+    acceptanceCriteria: "Must mention at least 2 of: Toastmasters/public speaking, read 30 books, start a company in developer tools"
+  - type: question
+    task: "What music stuff am I into?"
+    acceptanceCriteria: "Must mention at least 2 of: guitar since age 12, Fender Telecaster, Martin D-28, band called The Resets"
+  - type: question
+    task: "What do I do on weekends?"
+    acceptanceCriteria: "Must mention at least 2 of: farmers market, Bean & Leaf cafe, workshop/woodworking, reading on the porch"
+  - type: question
+    task: "Give me a full summary of everything you know about me"
+    acceptanceCriteria: "Must cover at least 7 distinct topics: work, music, travel, exercise, food, reading/media, family/pets, goals. Should feel comprehensive"
