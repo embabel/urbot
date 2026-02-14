@@ -1,7 +1,12 @@
 package com.embabel.urbot.user;
 
 import com.embabel.agent.api.identity.User;
+import com.embabel.agent.api.reference.LlmReference;
+import com.embabel.agent.filter.PropertyFilter;
 import com.embabel.agent.rag.model.NamedEntity;
+import com.embabel.agent.rag.service.SearchOperations;
+import com.embabel.agent.rag.tools.ToolishRag;
+import com.embabel.urbot.rag.DocumentService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -106,5 +111,19 @@ public class UrbotUser implements User, NamedEntity {
     @Override
     public String embeddableValue() {
         return getName() + ": " + getDescription();
+    }
+
+    @NotNull
+    public LlmReference personalDocs(SearchOperations searchOperations) {
+        return new ToolishRag(
+                "user_docs",
+                "User's own documents",
+                searchOperations)
+                .withMetadataFilter(
+                        new PropertyFilter.Eq(
+                                DocumentService.Context.CONTEXT_KEY,
+                                effectiveContext()
+                        )
+                ).withUnfolding();
     }
 }

@@ -5,16 +5,13 @@ import com.embabel.agent.api.annotation.EmbabelComponent;
 import com.embabel.agent.api.common.ActionContext;
 import com.embabel.agent.api.common.OperationContext;
 import com.embabel.agent.api.reference.LlmReference;
-import com.embabel.agent.filter.PropertyFilter;
 import com.embabel.agent.rag.service.SearchOperations;
-import com.embabel.agent.rag.tools.ToolishRag;
 import com.embabel.chat.Conversation;
 import com.embabel.chat.UserMessage;
 import com.embabel.dice.agent.Memory;
 import com.embabel.dice.projection.memory.MemoryProjector;
 import com.embabel.dice.proposition.PropositionRepository;
 import com.embabel.urbot.event.ConversationAnalysisRequestEvent;
-import com.embabel.urbot.rag.DocumentService;
 import com.embabel.urbot.user.UrbotUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,26 +75,17 @@ public class ChatActions {
             Conversation conversation,
             UrbotUser user,
             ActionContext context) {
-        var userDocuments = new ToolishRag(
-                "user_docs",
-                "User's own documents",
-                searchOperations)
-                .withMetadataFilter(
-                        new PropertyFilter.Eq(
-                                DocumentService.Context.CONTEXT_KEY,
-                                user.effectiveContext()
-                        ));
-
         var memory = Memory.forContext(user.currentContext())
                 .withRepository(propositionRepository)
-                .withEagerQuery(q -> q.orderedByEffectiveConfidence().withLimit(10))
+                // .withEagerQuery(q -> q.orderedByEffectiveConfidence().withLimit(10))
                 .withProjector(memoryProjector);
 
         var runner = context.
                 ai()
                 .withLlm(properties.chatLlm())
                 .withId("chat_response")
-                .withReferences(globalDocuments, userDocuments, memory)
+                .withTool(memory)
+                .withReferences(globalDocuments, user.personalDocs(searchOperations))
                 .withTools(memory);
 
         for (var tool : mcpTools.tools()) {

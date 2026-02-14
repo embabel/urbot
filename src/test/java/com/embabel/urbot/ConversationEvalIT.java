@@ -147,10 +147,25 @@ class ConversationEvalIT {
     // ---- Phase helpers ----
 
     private void seedMemory(EvalConfig config) throws Exception {
+        boolean firstSeedChecked = false;
+
         for (var seed : config.seeds()) {
             switch (seed) {
                 case ConversationSeed cs -> seedFromConversation(cs);
                 case TextSeed ts -> fail("TextSeed not yet supported in urbot IT: " + ts.getText());
+            }
+
+            // Fail fast after first seed: if extraction is broken (e.g., template errors),
+            // don't waste time seeding 9 more conversations.
+            if (!firstSeedChecked) {
+                firstSeedChecked = true;
+                Thread.sleep(5000);
+                int count = propositionRepository.findByContextIdValue(testUser.effectiveContext()).size();
+                if (count == 0) {
+                    fail("No propositions extracted after first seed — likely a template error in extraction prompts. "
+                            + "Check logs for InvalidTemplateException.");
+                }
+                logger.info("Fail-fast check passed: {} propositions after first seed", count);
             }
         }
 
