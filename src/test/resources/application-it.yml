@@ -6,7 +6,7 @@ spring:
       - com.vaadin.flow.spring.SpringBootAutoConfiguration
 
 urbot:
-  extraction:
+  proposition-extraction:
     trigger-interval: 2
-  show-extraction-prompts: true
-  show-extraction-responses: true
+    show-prompts: true
+    show-responses: true

@@ -2,6 +2,7 @@ package com.embabel.urbot.proposition;
 
 import com.embabel.agent.api.common.AiBuilder;
 import com.embabel.agent.core.DataDictionary;
+import com.embabel.agent.rag.model.NamedEntity;
 import com.embabel.agent.rag.neo.drivine.DrivineNamedEntityDataRepository;
 import com.embabel.agent.rag.service.NamedEntityDataRepository;
 import com.embabel.common.ai.model.EmbeddingService;
@@ -46,9 +47,14 @@ class PropositionConfiguration {
 
     @Bean
     @Primary
-    DataDictionary urbotSchema() {
-        var schema = DataDictionary.fromClasses("urbot", UrbotUser.class);
-        logger.info("Created urbot domain schema with {} types", schema.getDomainTypes().size());
+    DataDictionary urbotSchema(UrbotProperties properties) {
+        var packages = properties.propositionExtraction().entityPackages();
+        var schema = DataDictionary.fromClasses("urbot", UrbotUser.class)
+                .plus(NamedEntity.dataDictionaryFromPackages(
+                        packages.toArray(String[]::new)
+                ));
+        logger.info("Created urbot domain schema with {} types from packages {}",
+                schema.getDomainTypes().size(), packages);
         return schema;
     }
 
@@ -84,13 +90,14 @@ class PropositionConfiguration {
             AiBuilder aiBuilder,
             PropositionRepository propositionRepository,
             UrbotProperties properties) {
+        var extraction = properties.propositionExtraction();
         var ai = aiBuilder
-                .withShowPrompts(properties.showExtractionPrompts())
-                .withShowLlmResponses(properties.showExtractionResponses())
+                .withShowPrompts(extraction.showPrompts())
+                .withShowLlmResponses(extraction.showResponses())
                 .ai();
-        logger.info("Creating LlmPropositionExtractor with model: {}", properties.propositionExtractionLlm());
+        logger.info("Creating LlmPropositionExtractor with model: {}", extraction.extractionLlm());
         return LlmPropositionExtractor
-                .withLlm(properties.propositionExtractionLlm())
+                .withLlm(extraction.extractionLlm())
                 .withAi(ai)
                 .withPropositionRepository(propositionRepository)
                 .withSchemaAdherence(SchemaAdherence.DEFAULT)
@@ -118,10 +125,11 @@ class PropositionConfiguration {
             NamedEntityDataRepository repository,
             AiBuilder aiBuilder,
             UrbotProperties properties) {
-        var llmOptions = properties.entityResolutionLlm();
+        var extraction = properties.propositionExtraction();
+        var llmOptions = extraction.entityResolutionLlm();
         var ai = aiBuilder
-                .withShowPrompts(properties.showExtractionPrompts())
-                .withShowLlmResponses(properties.showExtractionResponses())
+                .withShowPrompts(extraction.showPrompts())
+                .withShowLlmResponses(extraction.showResponses())
                 .ai();
 
         var llmBakeoff = LlmCandidateBakeoff
@@ -148,12 +156,13 @@ class PropositionConfiguration {
     PropositionReviser propositionReviser(
             AiBuilder aiBuilder,
             UrbotProperties properties) {
+        var extraction = properties.propositionExtraction();
         var ai = aiBuilder
-                .withShowPrompts(properties.showExtractionPrompts())
-                .withShowLlmResponses(properties.showExtractionResponses())
+                .withShowPrompts(extraction.showPrompts())
+                .withShowLlmResponses(extraction.showResponses())
                 .ai();
         return LlmPropositionReviser
-                .withLlm(properties.propositionExtractionLlm())
+                .withLlm(extraction.extractionLlm())
                 .withAi(ai);
     }
 

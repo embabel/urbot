@@ -34,18 +34,21 @@ urbot:
 
   behaviour: default
 
-  proposition-extraction-llm:
-    model: gpt-4.1-mini
-    temperature: 0.0
-  entity-resolution-llm:
-    model: gpt-4.1-mini
-    temperature: 0.0
-  extraction:
+  proposition-extraction:
+    entity-packages:
+        - com.embabel.personal
+
+    extraction-llm:
+      model: gpt-4.1-mini
+      temperature: 0.0
+    entity-resolution-llm:
+      model: gpt-4.1-mini
+      temperature: 0.0
     window-size: 10
     overlap-size: 2
     trigger-interval: 6
-  show-extraction-prompts: false
-  show-extraction-responses: false
+    show-prompts: false
+    show-responses: false
 
 spring:
   ai:

@@ -78,8 +78,7 @@ class TemplateRenderingTest {
         var properties = new UrbotProperties(
                 null, 20, "general", "default",
                 new UrbotProperties.Voice("assistant", 200),
-                null, null, null, null, null,
-                false, false, List.of()
+                null, null, null, List.of()
         );
 
         var result = renderer.renderLoadedTemplate(

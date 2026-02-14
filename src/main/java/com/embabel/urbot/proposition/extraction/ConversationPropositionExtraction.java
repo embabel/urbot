@@ -68,7 +68,7 @@ public class ConversationPropositionExtraction {
         this.graphProjector = graphProjector;
         this.graphRelationshipPersister = graphRelationshipPersister;
 
-        var extraction = properties.extraction();
+        var extraction = properties.propositionExtraction();
         var config = new WindowConfig(
                 extraction.windowSize(),
                 extraction.overlapSize(),
