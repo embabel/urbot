@@ -37,6 +37,7 @@ public class ChatActions {
     private final MemoryProjector memoryProjector;
     private final PropositionRepository propositionRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final McpToolsConfiguration.McpTools mcpTools;
 
     public ChatActions(
             SearchOperations searchOperations,
@@ -44,13 +45,15 @@ public class ChatActions {
             UrbotProperties properties,
             MemoryProjector memoryProjector,
             PropositionRepository propositionRepository,
-            ApplicationEventPublisher eventPublisher) {
+            ApplicationEventPublisher eventPublisher,
+            McpToolsConfiguration.McpTools mcpTools) {
         this.searchOperations = searchOperations;
         this.globalDocuments = globalDocuments;
         this.properties = properties;
         this.memoryProjector = memoryProjector;
         this.propositionRepository = propositionRepository;
         this.eventPublisher = eventPublisher;
+        this.mcpTools = mcpTools;
     }
 
     /**
@@ -90,12 +93,18 @@ public class ChatActions {
                 .withEagerQuery(q -> q.orderedByEffectiveConfidence().withLimit(10))
                 .withProjector(memoryProjector);
 
-        var assistantMessage = context.
+        var runner = context.
                 ai()
                 .withLlm(properties.chatLlm())
                 .withId("chat_response")
                 .withReferences(globalDocuments, userDocuments, memory)
-                .withTools(memory)
+                .withTools(memory);
+
+        for (var tool : mcpTools.tools()) {
+            runner = runner.withTool(tool);
+        }
+
+        var assistantMessage = runner
                 .rendering("urbot")
                 .respondWithSystemPrompt(conversation, Map.of(
                         "properties", properties

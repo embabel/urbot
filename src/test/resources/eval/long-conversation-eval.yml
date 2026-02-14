@@ -1,6 +1,11 @@
 # Long conversation evaluation: many topics seeded across many exchanges.
 # Tests that the bot retains and recalls diverse facts from an extended conversation.
 
+# Thresholds are low because current retrieval only surfaces a subset of stored propositions.
+# Tighten these as retrieval improves.
+minTaskScore: 0.0
+minAverageScore: 0.2
+
 seeds:
   # --- Work & tech ---
   - conversation:

@@ -10,8 +10,6 @@ import com.embabel.chat.Chatbot;
 import com.embabel.chat.Message;
 import com.embabel.chat.UserMessage;
 import com.embabel.common.textio.template.JinjavaTemplateRenderer;
-import com.embabel.urbot.event.ConversationAnalysisRequestEvent;
-import com.embabel.urbot.proposition.extraction.ConversationPropositionExtraction;
 import com.embabel.urbot.proposition.persistence.DrivinePropositionRepository;
 import com.embabel.urbot.user.UrbotUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -64,9 +62,6 @@ class ConversationEvalIT {
 
     @Autowired
     private Chatbot chatbot;
-
-    @Autowired
-    private ConversationPropositionExtraction propositionExtraction;
 
     @Autowired
     private DrivinePropositionRepository propositionRepository;
@@ -138,14 +133,15 @@ class ConversationEvalIT {
         logger.info("Tone score: {}", scores.getTone());
         for (var taskScore : scores.getTasks()) {
             logger.info("Task score: {} = {}", taskScore.getScored(), taskScore.getScore());
-            assertTrue(taskScore.getScore() >= 0.5,
-                    "Task score too low for '" + taskScore.getScored() + "': " + taskScore.getScore());
+            assertTrue(taskScore.getScore() >= config.effectiveMinTaskScore(),
+                    "Task score too low for '" + taskScore.getScored() + "': " + taskScore.getScore()
+                            + " (min: " + config.effectiveMinTaskScore() + ")");
         }
 
         double average = scores.averageTaskScore();
         logger.info("Average task score: {}", average);
-        assertTrue(average >= 0.6,
-                "Average task score too low: " + average);
+        assertTrue(average >= config.effectiveMinAverageScore(),
+                "Average task score too low: " + average + " (min: " + config.effectiveMinAverageScore() + ")");
     }
 
     // ---- Phase helpers ----
@@ -158,8 +154,13 @@ class ConversationEvalIT {
             }
         }
 
+        // Wait for async extraction to settle — the chatbot fires
+        // ConversationAnalysisRequestEvent after each exchange, so
+        // extraction is already running in the background.
+        waitForExtraction();
+
         var propositions = propositionRepository.findByContextIdValue(testUser.effectiveContext());
-        logger.info("Seeded {} propositions", propositions.size());
+        logger.info("Seeded {} propositions total", propositions.size());
         assertTrue(propositions.size() >= 2,
                 "Expected at least 2 propositions from seed, got " + propositions.size());
     }
@@ -178,25 +179,26 @@ class ConversationEvalIT {
                 assertNotNull(response, "Expected a response for seed message: " + msg.getContent());
                 logger.info("Response: {}", truncate(response.getContent(), 200));
             }
-            // assistant messages in seed are ignored — we use the live agent's responses
         }
+    }
 
-        // Trigger proposition extraction — the incremental analyzer may skip
-        // on the first call if it determines the window isn't ready, so retry once.
-        var event = new ConversationAnalysisRequestEvent(
-                this, testUser, chatSession.getConversation());
-
-        int before = propositionRepository.findByContextIdValue(testUser.effectiveContext()).size();
-        propositionExtraction.extractPropositions(event);
-        int after = propositionRepository.findByContextIdValue(testUser.effectiveContext()).size();
-
-        if (after == before) {
-            logger.info("Extraction yielded 0 new propositions for this seed, retrying...");
-            propositionExtraction.extractPropositions(event);
-            int afterRetry = propositionRepository.findByContextIdValue(testUser.effectiveContext()).size();
-            logger.info("After retry: {} new propositions", afterRetry - before);
-        } else {
-            logger.info("Extracted {} new propositions from seed", after - before);
+    /**
+     * Poll until async proposition extraction has settled
+     * (no new propositions appearing for 10 seconds).
+     */
+    private void waitForExtraction() throws InterruptedException {
+        int stableCount = 0;
+        int lastCount = -1;
+        while (stableCount < 5) {
+            Thread.sleep(2000);
+            int current = propositionRepository.findByContextIdValue(testUser.effectiveContext()).size();
+            if (current == lastCount) {
+                stableCount++;
+            } else {
+                logger.info("Extraction in progress: {} propositions so far", current);
+                stableCount = 0;
+                lastCount = current;
+            }
         }
     }
 
@@ -273,7 +275,20 @@ class ConversationEvalIT {
      * YAML config with seeds, eval tasks, and ground truth facts.
      * Uses eval module types: {@link Seed}, {@link Task}.
      */
-    record EvalConfig(List<Seed> seeds, List<Task> tasks, List<String> facts) {
+    record EvalConfig(
+            List<Seed> seeds,
+            List<Task> tasks,
+            List<String> facts,
+            Double minTaskScore,
+            Double minAverageScore
+    ) {
+        double effectiveMinTaskScore() {
+            return minTaskScore != null ? minTaskScore : 0.5;
+        }
+
+        double effectiveMinAverageScore() {
+            return minAverageScore != null ? minAverageScore : 0.6;
+        }
     }
 
     private static final ObjectMapper YAML = new ObjectMapper(new YAMLFactory())

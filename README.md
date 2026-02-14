@@ -212,6 +212,7 @@ docker-compose.yml                  # Neo4j container with vector index support
 - Maven 3.9+
 - Docker (for Neo4j)
 - An OpenAI or Anthropic API key
+- (Optional) A [Brave Search API key](https://brave.com/search/api/) for web search via MCP
 
 ### Run
 
@@ -221,6 +222,9 @@ docker compose up -d
 
 # Set your API key
 export OPENAI_API_KEY=sk-...    # or ANTHROPIC_API_KEY for Claude
+
+# Optional: enable Brave web search MCP tool
+export BRAVE_API_KEY=BSA...
 
 # Start the application
 mvn spring-boot:run
@@ -281,6 +285,18 @@ database:
 LLM provider is selected automatically based on which API key is set:
 - `OPENAI_API_KEY` activates OpenAI models
 - `ANTHROPIC_API_KEY` activates Anthropic Claude models
+
+### MCP Tools
+
+Urbot supports [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) tools, which are automatically discovered from configured MCP servers and made available to the LLM during chat.
+
+**Brave Search** is included by default. To enable it:
+
+1. Get an API key from [brave.com/search/api](https://brave.com/search/api/) (free tier available)
+2. Set `BRAVE_API_KEY` in your environment
+3. Ensure Docker is running (the Brave MCP server runs as a container)
+
+Additional MCP servers can be added under `spring.ai.mcp.client.stdio.connections` in `application.yml`. Any tools they expose will automatically be available to the chatbot.
 
 ## Related Projects
 

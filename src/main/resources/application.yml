@@ -45,6 +45,29 @@ urbot:
   show-extraction-prompts: false
   show-extraction-responses: false
 
+spring:
+  ai:
+    mcp:
+      client:
+        enabled: true
+        name: urbot
+        version: 1.0.0
+        request-timeout: 30s
+        type: SYNC
+        stdio:
+          connections:
+            brave-search-mcp:
+              command: docker
+              args:
+                - run
+                - -i
+                - --rm
+                - -e
+                - BRAVE_API_KEY
+                - mcp/brave-search
+              env:
+                BRAVE_API_KEY: ${BRAVE_API_KEY:}
+
 embabel:
 
   models:
