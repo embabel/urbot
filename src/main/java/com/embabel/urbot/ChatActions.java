@@ -95,7 +95,6 @@ public class ChatActions {
                     .withRepository(propositionRepository)
                     .withProjector(memoryProjector)
                     .withEagerSearchAbout(recentContext, 10));
-
         }
 
         var assistantMessage = context.
@@ -106,7 +105,8 @@ public class ChatActions {
                 .withReferences(globalDocuments, user.personalDocs(searchOperations))
                 .rendering("urbot")
                 .respondWithSystemPrompt(conversation, Map.of(
-                        "properties", properties
+                        "properties", properties,
+                        "user", user
                 ));
         context.sendMessage(conversation.addMessage(assistantMessage));
 
