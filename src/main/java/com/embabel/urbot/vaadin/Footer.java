@@ -8,7 +8,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
  */
 public class Footer extends HorizontalLayout {
 
-    public Footer(int documentCount, int chunkCount) {
+    public Footer() {
         setWidthFull();
         setPadding(false);
         setSpacing(true);
@@ -18,12 +18,6 @@ public class Footer extends HorizontalLayout {
         var copyright = new Span("© Embabel 2026");
         copyright.addClassName("footer-copyright");
 
-        var separator = new Span("·");
-        separator.addClassName("footer-separator");
-
-        var stats = new Span(documentCount + " documents · " + chunkCount + " chunks");
-        stats.addClassName("footer-stats");
-
-        add(copyright, separator, stats);
+        add(copyright);
     }
 }

@@ -2,8 +2,10 @@ package com.embabel.urbot.security;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.login.LoginForm;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -29,11 +31,25 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
         loginForm.setAction("login");
 
+        var logo = new Image("images/weltenchronik.jpg", "Urbot");
+        logo.setWidth("80px");
+        logo.addClassName("login-logo");
+
+        var titleText = new VerticalLayout();
+        titleText.setPadding(false);
+        titleText.setSpacing(false);
+
         var title = new H1("Urbot");
         title.addClassName("login-title");
 
         var subtitle = new Span("Chatbot with RAG and memory");
         subtitle.addClassName("login-subtitle");
+
+        titleText.add(title, subtitle);
+
+        var header = new HorizontalLayout(logo, titleText);
+        header.setAlignItems(Alignment.CENTER);
+        header.setSpacing(true);
 
         var legend = new Div();
         legend.addClassName("login-legend");
@@ -41,7 +57,11 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         legend.add(createUserRow("alice", "alice", "Admin"));
         legend.add(createUserRow("ben", "ben", "User"));
 
-        add(title, subtitle, loginForm, legend);
+        var formRow = new HorizontalLayout(loginForm, legend);
+        formRow.setAlignItems(Alignment.CENTER);
+        formRow.setSpacing(true);
+
+        add(header, formRow);
     }
 
     private Div createUserRow(String username, String password, String role) {

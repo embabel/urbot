@@ -18,6 +18,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -81,10 +82,19 @@ public class ChatView extends VerticalLayout {
         headerRow.setJustifyContentMode(JustifyContentMode.BETWEEN);
         headerRow.setPadding(false);
 
-        // Title section (left)
-        var titleSection = new VerticalLayout();
+        // Title section (left) with logo
+        var titleSection = new HorizontalLayout();
         titleSection.setPadding(false);
-        titleSection.setSpacing(false);
+        titleSection.setSpacing(true);
+        titleSection.setAlignItems(Alignment.CENTER);
+
+        var logo = new Image("images/weltenchronik.jpg", "Urbot");
+        logo.setWidth("48px");
+        logo.addClassName("chat-logo");
+
+        var titleText = new VerticalLayout();
+        titleText.setPadding(false);
+        titleText.setSpacing(false);
 
         var title = new H3("Urbot");
         title.addClassName("chat-title");
@@ -92,7 +102,8 @@ public class ChatView extends VerticalLayout {
         var subtitle = new Span("Chatbot with RAG and memory");
         subtitle.addClassName("chat-subtitle");
 
-        titleSection.add(title, subtitle);
+        titleText.add(title, subtitle);
+        titleSection.add(logo, titleText);
 
         // User section (right) - clickable to open personal documents drawer
         userSection = new UserSection(currentUser);
@@ -119,9 +130,7 @@ public class ChatView extends VerticalLayout {
         add(createInputSection());
 
         // Footer
-        footer = new Footer(
-                documentService.getDocumentCount(currentUser.effectiveContext()),
-                documentService.getChunkCount(currentUser.effectiveContext()));
+        footer = new Footer();
         add(footer);
 
         // Global documents drawer (right edge toggle)
@@ -147,11 +156,7 @@ public class ChatView extends VerticalLayout {
     }
 
     private void refreshFooter() {
-        remove(footer);
-        footer = new Footer(
-                documentService.getDocumentCount(currentUser.effectiveContext()),
-                documentService.getChunkCount(currentUser.effectiveContext()));
-        add(footer);
+        // no-op: footer is static
     }
 
     private record SessionData(ChatSession chatSession, BlockingQueue<Message> responseQueue) {
