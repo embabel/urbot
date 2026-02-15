@@ -1,0 +1,19 @@
+About Me - Alice Agu
+
+I'm a software engineer based in Portland, Oregon. I work at Crescendo Labs, a mid-size startup building developer tools for observability. My official title is Senior Platform Engineer, and I've been there about two and a half years. Before that I was at Datawise in Seattle for four years.
+
+My main programming languages are Kotlin and TypeScript. I've been getting into Rust lately and working through the Rustlings exercises on weekends. At work I mostly deal with Kubernetes, Kafka, and our internal deployment platform called Launchpad.
+
+I have a dog named Biscuit. He's a three-year-old golden retriever and extremely food-motivated. I adopted him from Oregon Humane Society in 2023. I also have two cats, Mochi and Tempura, both domestic shorthairs.
+
+I'm originally from Lagos, Nigeria and moved to the US for grad school. I got my MS in Computer Science from Georgia Tech in 2017, specializing in distributed systems. My undergrad was at the University of Lagos in electrical engineering.
+
+Outside of work I'm training for the Portland Marathon in October. My current best half-marathon time is 1:52 and I'm hoping to finish the full under four hours. I run with a group called the Sellwood Striders on Tuesday and Thursday mornings.
+
+I'm a big fan of science fiction. My favorite books are The Left Hand of Darkness by Ursula K. Le Guin and Kindred by Octavia Butler. I'm currently reading the Remembrance of Earth's Past trilogy by Liu Cixin. I also enjoy board games, especially Wingspan and Terraforming Mars.
+
+I'm vegetarian and love cooking West African food with a vegetarian twist. My go-to dish to make for friends is jollof rice with roasted plantains. I also make a pretty good black bean moi moi.
+
+My current side project is a CLI tool called "driftwood" that detects configuration drift across Kubernetes clusters. It's written in Rust and I'm hoping to open-source it by the end of the year. I'm also mentoring two junior engineers at work, Priya and Marcus, which I find really rewarding.
+
+My partner Jamie is a high school biology teacher. We've been together for five years and recently moved into a house in the Sellwood neighborhood. We're planning a trip to Japan next spring to see the cherry blossoms.

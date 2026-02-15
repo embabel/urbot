@@ -8,7 +8,6 @@ import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -17,6 +16,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 
@@ -35,10 +35,11 @@ public class UserDrawer extends Div {
     private final DocumentListSection documentsSection;
     private final DocumentService documentService;
     private final UrbotUser user;
-    private final PropositionsPanel propositionsPanel;
+    private final MemorySection memorySection;
 
     public UserDrawer(DocumentService documentService, UrbotUser user, Runnable onDocumentsChanged,
-                      DrivinePropositionRepository propositionRepository, Runnable onAnalyze) {
+                      DrivinePropositionRepository propositionRepository, Runnable onAnalyze,
+                      Consumer<MemorySection.RememberRequest> onRemember) {
         this.documentService = documentService;
         this.user = user;
         var personalContext = new DocumentService.Context(user);
@@ -70,14 +71,11 @@ public class UserDrawer extends Div {
         header.setFlexGrow(1, title);
         sidePanel.add(header);
 
-        // Create documents section and propositions panel early (referenced by context change listeners)
+        // Create documents section and memory section early (referenced by context change listeners)
         documentsSection = new DocumentListSection(documentService,
                 user::effectiveContext, onDocumentsChanged);
-        propositionsPanel = new PropositionsPanel(propositionRepository);
-        propositionsPanel.setContextId(user.effectiveContext());
-        propositionsPanel.setOnDelete(id -> {
-            propositionRepository.delete(id);
-        });
+        memorySection = new MemorySection(propositionRepository,
+                user::effectiveContext, onAnalyze, onRemember);
 
         // Context selector section
         var contextSection = new HorizontalLayout();
@@ -102,8 +100,8 @@ public class UserDrawer extends Div {
                 contextSelect.setValue(newContext);
                 documentsSection.refresh();
                 onDocumentsChanged.run();
-                propositionsPanel.setContextId(user.effectiveContext());
-                propositionsPanel.refresh();
+                memorySection.setContextId(user.effectiveContext());
+                memorySection.refresh();
             }
         });
         contextSelect.addValueChangeListener(e -> {
@@ -111,8 +109,8 @@ public class UserDrawer extends Div {
                 user.setCurrentContextName(e.getValue());
                 documentsSection.refresh();
                 onDocumentsChanged.run();
-                propositionsPanel.setContextId(user.effectiveContext());
-                propositionsPanel.refresh();
+                memorySection.setContextId(user.effectiveContext());
+                memorySection.refresh();
             }
         });
         refreshContexts();
@@ -153,51 +151,12 @@ public class UserDrawer extends Div {
             onDocumentsChanged.run();
         });
 
-        // Memory section
-        var memoryButtonRow = new HorizontalLayout();
-        memoryButtonRow.setWidthFull();
-        memoryButtonRow.setSpacing(true);
-        memoryButtonRow.addClassName("memory-button-row");
-
-        var analyzeButton = new Button("Analyze", VaadinIcon.COG.create());
-        analyzeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
-        analyzeButton.addClickListener(e -> {
-            onAnalyze.run();
-            // Schedule a refresh after extraction has time to complete
-            getUI().ifPresent(ui -> propositionsPanel.scheduleRefresh(ui, 5000));
-        });
-
-        var clearAllButton = new Button("Clear All", VaadinIcon.TRASH.create());
-        clearAllButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ERROR);
-        clearAllButton.addClickListener(e -> {
-            var dialog = new ConfirmDialog();
-            dialog.setHeader("Clear All Memories");
-            dialog.setText("Are you sure you want to delete all memories for this context? This cannot be undone.");
-            dialog.setCancelable(true);
-            dialog.setConfirmText("Clear All");
-            dialog.setConfirmButtonTheme("error primary");
-            dialog.addConfirmListener(event -> {
-                propositionRepository.clearByContext(user.effectiveContext());
-                propositionsPanel.refresh();
-            });
-            dialog.open();
-        });
-
-        memoryButtonRow.add(analyzeButton, clearAllButton);
-
-        var memoryContent = new VerticalLayout();
-        memoryContent.setPadding(true);
-        memoryContent.setSpacing(true);
-        memoryContent.setSizeFull();
-        memoryContent.add(memoryButtonRow, propositionsPanel);
-        memoryContent.setFlexGrow(1, propositionsPanel);
-
         // Documents visible by default; others hidden
         uploadSection.setVisible(false);
         urlSection.setVisible(false);
-        memoryContent.setVisible(false);
+        memorySection.setVisible(false);
 
-        contentArea.add(documentsSection, uploadSection, urlSection, memoryContent);
+        contentArea.add(documentsSection, uploadSection, urlSection, memorySection);
         sidePanel.add(contentArea);
         sidePanel.setFlexGrow(1, contentArea);
 
@@ -206,12 +165,12 @@ public class UserDrawer extends Div {
             documentsSection.setVisible(event.getSelectedTab() == documentsTab);
             uploadSection.setVisible(event.getSelectedTab() == uploadTab);
             urlSection.setVisible(event.getSelectedTab() == urlTab);
-            memoryContent.setVisible(event.getSelectedTab() == memoryTab);
+            memorySection.setVisible(event.getSelectedTab() == memoryTab);
             if (event.getSelectedTab() == documentsTab) {
                 documentsSection.refresh();
             }
             if (event.getSelectedTab() == memoryTab) {
-                propositionsPanel.refresh();
+                memorySection.refresh();
             }
         });
 

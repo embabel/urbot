@@ -81,3 +81,9 @@ embabel:
 
     default-embedding-model:
       model: text-embedding-3-small
+
+  agent:
+    platform:
+      http-client:
+        connect-timeout: 30s
+        read-timeout: 10m

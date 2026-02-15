@@ -10,7 +10,7 @@ import com.embabel.chat.UserMessage;
 import com.embabel.dice.proposition.Proposition;
 import com.embabel.dice.proposition.PropositionStatus;
 import com.embabel.urbot.event.ConversationAnalysisRequestEvent;
-import com.embabel.urbot.proposition.extraction.ConversationPropositionExtraction;
+import com.embabel.urbot.proposition.extraction.IncrementalPropositionExtraction;
 import com.embabel.urbot.proposition.persistence.DrivinePropositionRepository;
 import com.embabel.urbot.user.UrbotUser;
 import org.junit.jupiter.api.AfterEach;
@@ -60,7 +60,7 @@ class MemoryExtractionIT {
     private Chatbot chatbot;
 
     @Autowired
-    private ConversationPropositionExtraction propositionExtraction;
+    private IncrementalPropositionExtraction propositionExtraction;
 
     @Autowired
     private DrivinePropositionRepository propositionRepository;
