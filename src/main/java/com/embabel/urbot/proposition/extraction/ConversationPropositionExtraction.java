@@ -41,6 +41,7 @@ public class ConversationPropositionExtraction {
     private static final Logger logger = LoggerFactory.getLogger(ConversationPropositionExtraction.class);
 
     private final IncrementalAnalyzer<Message, ChunkPropositionResult> analyzer;
+    private final WindowConfig windowConfig;
     private final DataDictionary dataDictionary;
     private final Relations relations;
     private final PropositionRepository propositionRepository;
@@ -68,8 +69,8 @@ public class ConversationPropositionExtraction {
         this.graphProjector = graphProjector;
         this.graphRelationshipPersister = graphRelationshipPersister;
 
-        var extraction = properties.propositionExtraction();
-        var config = new WindowConfig(
+        var extraction = properties.memory();
+        this.windowConfig = new WindowConfig(
                 extraction.windowSize(),
                 extraction.overlapSize(),
                 extraction.triggerInterval()
@@ -78,7 +79,7 @@ public class ConversationPropositionExtraction {
                 propositionPipeline,
                 chunkHistoryStore,
                 MessageFormatter.INSTANCE,
-                config
+                windowConfig
         );
     }
 
@@ -101,8 +102,8 @@ public class ConversationPropositionExtraction {
                 event.conversation.getMessages().size());
         try {
             var messages = event.conversation.getMessages();
-            if (messages.size() < 2) {
-                logger.info("Not enough messages for extraction (need at least 2)");
+            if (messages.size() < windowConfig.getOverlapSize()) {
+                logger.info("Not enough messages for extraction (need at least {})", windowConfig.getOverlapSize());
                 return;
             }
 

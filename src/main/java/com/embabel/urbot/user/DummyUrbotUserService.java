@@ -11,6 +11,7 @@ import java.util.UUID;
 
 /**
  * Hardcoded user service implementation for development/demo purposes.
+ * DO NOT USE IN PRODUCTION - implement UrbotUserService with proper user and password management.
  */
 public record DummyUrbotUserService(
         List<UrbotUser> users

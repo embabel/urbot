@@ -48,7 +48,7 @@ class PropositionConfiguration {
     @Bean
     @Primary
     DataDictionary urbotSchema(UrbotProperties properties) {
-        var packages = properties.propositionExtraction().entityPackages();
+        var packages = properties.memory().entityPackages();
         var schema = DataDictionary.fromClasses("urbot", UrbotUser.class)
                 .plus(NamedEntity.dataDictionaryFromPackages(
                         packages.toArray(String[]::new)
@@ -93,7 +93,7 @@ class PropositionConfiguration {
             AiBuilder aiBuilder,
             PropositionRepository propositionRepository,
             UrbotProperties properties) {
-        var extraction = properties.propositionExtraction();
+        var extraction = properties.memory();
         var ai = aiBuilder
                 .withShowPrompts(extraction.showPrompts())
                 .withShowLlmResponses(extraction.showResponses())
@@ -128,7 +128,7 @@ class PropositionConfiguration {
             NamedEntityDataRepository repository,
             AiBuilder aiBuilder,
             UrbotProperties properties) {
-        var extraction = properties.propositionExtraction();
+        var extraction = properties.memory();
         var llmOptions = extraction.entityResolutionLlm();
         var ai = aiBuilder
                 .withShowPrompts(extraction.showPrompts())
@@ -159,7 +159,7 @@ class PropositionConfiguration {
     PropositionReviser propositionReviser(
             AiBuilder aiBuilder,
             UrbotProperties properties) {
-        var extraction = properties.propositionExtraction();
+        var extraction = properties.memory();
         var ai = aiBuilder
                 .withShowPrompts(extraction.showPrompts())
                 .withShowLlmResponses(extraction.showResponses())

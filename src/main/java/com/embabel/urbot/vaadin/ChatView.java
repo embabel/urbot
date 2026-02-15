@@ -68,7 +68,7 @@ public class ChatView extends VerticalLayout {
         this.properties = properties;
         this.documentService = documentService;
         this.currentUser = userService.getAuthenticatedUser();
-        this.persona = properties.voice().persona();
+        this.persona = properties.persona();
 
         setSizeFull();
         setPadding(true);

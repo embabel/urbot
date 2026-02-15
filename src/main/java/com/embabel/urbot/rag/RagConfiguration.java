@@ -58,7 +58,7 @@ class RagConfiguration {
         var store = new DrivineStore(
                 persistenceManager,
                 properties.neoRag(),
-                properties.chunkerConfig(),
+                properties.ingestion(),
                 chunkTransformer,
                 embeddingService,
                 platformTransactionManager,

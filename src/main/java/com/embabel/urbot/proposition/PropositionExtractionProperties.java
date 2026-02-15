@@ -19,6 +19,7 @@ import java.util.List;
  * @param entityPackages      packages to scan for NamedEntity classes to include in the data dictionary
  */
 public record PropositionExtractionProperties(
+        @DefaultValue("true") boolean enabled,
         @NestedConfigurationProperty LlmOptions extractionLlm,
         @NestedConfigurationProperty LlmOptions entityResolutionLlm,
         @DefaultValue("10") int windowSize,

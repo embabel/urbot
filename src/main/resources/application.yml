@@ -17,7 +17,8 @@ neo4j:
     port: ${NEO4J_HTTP_PORT:8892}
 
 urbot:
-  chunker-config:
+  # For document ingestion underpinning RAG
+  ingestion:
     max-chunk-size: 800
     overlap-size: 100
     embedding-batch-size: 800
@@ -26,15 +27,14 @@ urbot:
     model: gpt-4.1-mini
     temperature: 0.0
 
-  voice:
-    persona: assistant
-    max-words: 250
-
-  objective: general
-
+  persona: assistant
+  max-words: 80
+  objective: qa
   behaviour: default
 
-  proposition-extraction:
+  memory:
+    enabled: true
+
     entity-packages:
         - com.embabel.domain.personal
 
@@ -44,7 +44,7 @@ urbot:
     entity-resolution-llm:
       model: gpt-4.1-mini
       temperature: 0.0
-    window-size: 10
+    window-size: 20
     overlap-size: 2
     trigger-interval: 6
     show-prompts: false

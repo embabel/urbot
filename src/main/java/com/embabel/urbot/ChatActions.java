@@ -5,7 +5,9 @@ import com.embabel.agent.api.annotation.EmbabelComponent;
 import com.embabel.agent.api.common.ActionContext;
 import com.embabel.agent.api.common.OperationContext;
 import com.embabel.agent.api.reference.LlmReference;
+import com.embabel.agent.api.tool.Tool;
 import com.embabel.agent.rag.service.SearchOperations;
+import com.embabel.agent.tools.mcp.McpToolFactory;
 import com.embabel.chat.Conversation;
 import com.embabel.chat.SimpleMessageFormatter;
 import com.embabel.chat.UserMessage;
@@ -20,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -36,7 +39,7 @@ public class ChatActions {
     private final MemoryProjector memoryProjector;
     private final PropositionRepository propositionRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final McpToolsConfiguration.McpTools mcpTools;
+    private final McpToolFactory mcpToolFactory;
 
     public ChatActions(
             SearchOperations searchOperations,
@@ -45,14 +48,14 @@ public class ChatActions {
             MemoryProjector memoryProjector,
             PropositionRepository propositionRepository,
             ApplicationEventPublisher eventPublisher,
-            McpToolsConfiguration.McpTools mcpTools) {
+            McpToolFactory mcpToolFactory) {
         this.searchOperations = searchOperations;
         this.globalDocuments = globalDocuments;
         this.properties = properties;
         this.memoryProjector = memoryProjector;
         this.propositionRepository = propositionRepository;
         this.eventPublisher = eventPublisher;
-        this.mcpTools = mcpTools;
+        this.mcpToolFactory = mcpToolFactory;
     }
 
     /**
@@ -81,30 +84,34 @@ public class ChatActions {
                 SimpleMessageFormatter.INSTANCE
         ).format(conversation.last(properties.messagesToEmbed()));
 
-        var memory = Memory.forContext(user.currentContext())
-                .withRepository(propositionRepository)
-                .withProjector(memoryProjector)
-                .withEagerSearchAbout(recentContext, 10);
+        var tools = new LinkedList<Tool>();
+        tools.add(mcpToolFactory.unfolding(
+                "mcp_tools",
+                "External tools via MCP. Invoke to access available tools.",
+                callback -> true
+        ));
+        if (properties.memory().enabled()) {
+            tools.add(Memory.forContext(user.currentContext())
+                    .withRepository(propositionRepository)
+                    .withProjector(memoryProjector)
+                    .withEagerSearchAbout(recentContext, 10));
 
-        var runner = context.
+        }
+
+        var assistantMessage = context.
                 ai()
                 .withLlm(properties.chatLlm())
                 .withId("chat_response")
-                .withTool(memory)
+                .withTools(tools)
                 .withReferences(globalDocuments, user.personalDocs(searchOperations))
-                .withTools(memory);
-
-        for (var tool : mcpTools.tools()) {
-            runner = runner.withTool(tool);
-        }
-
-        var assistantMessage = runner
                 .rendering("urbot")
                 .respondWithSystemPrompt(conversation, Map.of(
                         "properties", properties
                 ));
         context.sendMessage(conversation.addMessage(assistantMessage));
 
-        eventPublisher.publishEvent(new ConversationAnalysisRequestEvent(this, user, conversation));
+        if (properties.memory().enabled()) {
+            eventPublisher.publishEvent(new ConversationAnalysisRequestEvent(this, user, conversation));
+        }
     }
 }
