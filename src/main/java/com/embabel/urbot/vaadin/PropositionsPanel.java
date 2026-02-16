@@ -1,6 +1,6 @@
 package com.embabel.urbot.vaadin;
 
-import com.embabel.dice.proposition.EntityMention;
+import com.embabel.agent.rag.model.NamedEntity;
 import com.embabel.dice.proposition.Proposition;
 import com.embabel.dice.proposition.PropositionRepository;
 import com.vaadin.flow.component.button.Button;
@@ -13,6 +13,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import java.util.Comparator;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Panel showing the knowledge base of extracted propositions.
@@ -20,14 +21,16 @@ import java.util.function.Consumer;
 public class PropositionsPanel extends VerticalLayout {
 
     private final PropositionRepository propositionRepository;
+    private final Function<String, NamedEntity> entityResolver;
     private final VerticalLayout propositionsContent;
     private final Span propositionCountSpan;
-    private Consumer<EntityMention> onMentionClick;
     private Consumer<String> onDelete;
     private String contextId;
 
-    public PropositionsPanel(PropositionRepository propositionRepository) {
+    public PropositionsPanel(PropositionRepository propositionRepository,
+                             Function<String, NamedEntity> entityResolver) {
         this.propositionRepository = propositionRepository;
+        this.entityResolver = entityResolver;
 
         setPadding(false);
         setSpacing(true);
@@ -84,10 +87,7 @@ public class PropositionsPanel extends VerticalLayout {
         propositions.stream()
                 .sorted(Comparator.comparing(Proposition::getCreated).reversed())
                 .forEach(prop -> {
-                    var card = new PropositionCard(prop);
-                    if (onMentionClick != null) {
-                        card.setOnMentionClick(onMentionClick);
-                    }
+                    var card = new PropositionCard(prop, entityResolver);
                     if (onDelete != null) {
                         card.setOnDelete(p -> {
                             onDelete.accept(p.getId());
@@ -96,10 +96,6 @@ public class PropositionsPanel extends VerticalLayout {
                     }
                     propositionsContent.add(card);
                 });
-    }
-
-    public void setOnMentionClick(Consumer<EntityMention> handler) {
-        this.onMentionClick = handler;
     }
 
     public void setOnDelete(Consumer<String> handler) {

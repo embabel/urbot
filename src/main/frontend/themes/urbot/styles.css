@@ -447,39 +447,18 @@ vaadin-button[theme~="primary"]:hover {
 
 /* Login Legend */
 .login-legend {
-  margin-top: var(--lumo-space-m);
   background: var(--sb-bg-light);
   border: 1px solid var(--sb-border);
   border-radius: var(--lumo-border-radius-m);
-  padding: var(--lumo-space-m);
-  min-width: 250px;
-}
-
-.login-legend > span {
-  display: block;
-  color: var(--sb-text-secondary);
-  font-size: var(--lumo-font-size-s);
-  margin-bottom: var(--lumo-space-s);
-}
-
-.login-legend-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--lumo-space-xs) 0;
+  padding: var(--lumo-space-xs) var(--lumo-space-m);
 }
 
 .login-legend-credentials {
+  display: block;
   color: var(--sb-text-primary);
   font-family: monospace;
   font-size: var(--lumo-font-size-s);
-}
-
-.login-legend-role {
-  color: var(--sb-text-muted);
-  font-size: var(--lumo-font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  padding: var(--lumo-space-xs) 0;
 }
 
 /* User Section */

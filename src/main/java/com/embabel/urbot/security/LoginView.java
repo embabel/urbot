@@ -53,26 +53,16 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
         var legend = new Div();
         legend.addClassName("login-legend");
-        legend.add(new Span("Demo accounts:"));
-        legend.add(createUserRow("alice", "alice", "Admin"));
-        legend.add(createUserRow("ben", "ben", "User"));
+        legend.add(createCredential("alice", "alice"));
+        legend.add(createCredential("ben", "ben"));
 
-        var formRow = new HorizontalLayout(loginForm, legend);
-        formRow.setAlignItems(Alignment.CENTER);
-        formRow.setSpacing(true);
-
-        add(header, formRow);
+        add(header, loginForm, legend);
     }
 
-    private Div createUserRow(String username, String password, String role) {
-        var row = new Div();
-        row.addClassName("login-legend-row");
-        var userSpan = new Span(username + " / " + password);
-        userSpan.addClassName("login-legend-credentials");
-        var roleSpan = new Span(role);
-        roleSpan.addClassName("login-legend-role");
-        row.add(userSpan, roleSpan);
-        return row;
+    private Span createCredential(String username, String password) {
+        var span = new Span(username + " / " + password);
+        span.addClassName("login-legend-credentials");
+        return span;
     }
 
     @Override

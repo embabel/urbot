@@ -1,6 +1,6 @@
 package com.embabel.urbot.vaadin;
 
-import com.embabel.dice.proposition.EntityMention;
+import com.embabel.agent.rag.model.NamedEntity;
 import com.embabel.urbot.proposition.persistence.DrivinePropositionRepository;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -36,6 +37,7 @@ public class MemorySection extends VerticalLayout {
 
     public MemorySection(
             DrivinePropositionRepository propositionRepository,
+            Function<String, NamedEntity> entityResolver,
             Supplier<String> contextIdSupplier,
             Runnable onAnalyze,
             Consumer<RememberRequest> onRemember) {
@@ -43,25 +45,9 @@ public class MemorySection extends VerticalLayout {
         this.contextIdSupplier = contextIdSupplier;
 
         // Create propositions panel early (referenced by button listeners)
-        propositionsPanel = new PropositionsPanel(propositionRepository);
+        propositionsPanel = new PropositionsPanel(propositionRepository, entityResolver);
         propositionsPanel.setContextId(contextIdSupplier.get());
         propositionsPanel.setOnDelete(id -> propositionRepository.delete(id));
-        propositionsPanel.setOnMentionClick(mention -> {
-            var dialog = new ConfirmDialog();
-            dialog.setHeader(mention.getSpan());
-            var details = new StringBuilder();
-            details.append("Type: ").append(mention.getType()).append("\n");
-            if (mention.getResolvedId() != null) {
-                details.append("ID: ").append(mention.getResolvedId()).append("\n");
-            }
-            if (mention.getRole() != null) {
-                details.append("Role: ").append(mention.getRole()).append("\n");
-            }
-            dialog.setText(details.toString());
-            dialog.setConfirmText("OK");
-            dialog.setCancelable(false);
-            dialog.open();
-        });
 
         setPadding(true);
         setSpacing(true);

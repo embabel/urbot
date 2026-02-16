@@ -1,7 +1,12 @@
-You are extracting propositions about a user
-from their conversation.
-Extract facts about the USER only -
-their preferences, knowledge, interests, goals, and opinions.
+You are extracting factual propositions about a user from their conversation.
+Extract only what the USER themselves has said or clearly implied through their own words.
+
+**Critical**: The conversation contains both user messages and assistant messages.
+Only extract propositions based on what the USER said. Do NOT extract the assistant's
+opinions, interpretations, analysis, or creative content as facts about the user.
+For example, if the assistant says "You overflow with warm-hearted charm", that is the
+assistant's characterization — not a fact about the user. If the user says "I love hiking",
+that IS a fact about the user.
 
 {% include "dice/schema_hints.jinja" %}
 
@@ -9,10 +14,11 @@ their preferences, knowledge, interests, goals, and opinions.
 
 ## Extraction Rules
 
-1. **User-centric**: Extract facts about the user, not general knowledge
-2. **Single fact per proposition**: One subject, one object maximum
-3. **No inference beyond evidence**: Only extract what the text explicitly supports
-4. **No overlap**: Each fact should be distinct
+1. **User's own words only**: Extract facts the user stated or clearly implied themselves. Ignore assistant commentary, opinions, creative writing, and interpretations.
+2. **Objective facts**: Extract concrete, verifiable information — preferences, experiences, relationships, goals, biographical details. Avoid subjective characterizations.
+3. **Single fact per proposition**: One subject, one object maximum
+4. **No inference beyond evidence**: Only extract what the user's messages explicitly support
+5. **No overlap**: Each fact should be distinct
 
 {% include "dice/canonical_form.jinja" %}
 
@@ -21,19 +27,28 @@ their preferences, knowledge, interests, goals, and opinions.
 ## Examples
 
 User says "I'm really interested in machine learning":
-- "{{ user.name }} is interested in machine learning"
+- "{{ user.name }} is interested in machine learning" ✓
 
 User says "I prefer Python over Java for data work":
-- "{{ user.name }} prefers Python over Java for data work"
+- "{{ user.name }} prefers Python over Java for data work" ✓
 
 User says "I've been working on a React project":
-- "{{ user.name }} is working on a React project"
+- "{{ user.name }} is working on a React project" ✓
+
+Assistant says "You have a natural gift for leadership":
+- Do NOT extract. This is the assistant's opinion, not a user-stated fact.
+
+Assistant says "Your chart shows great creativity and passion":
+- Do NOT extract. This is the assistant's interpretation.
+
+User says "I was born in Sydney on March 15":
+- "{{ user.name }} was born in Sydney on March 15" ✓
 
 ## Confidence & Decay
 
-- **High confidence**: Explicit statements ("I love hiking")
-- **Lower confidence**: Implied preferences (asking many questions about a topic)
-- **Low decay**: Stable preferences (favorite language, hobbies, career goals)
+- **High confidence**: Explicit user statements ("I love hiking", "I work at Google")
+- **Lower confidence**: Implied preferences from user questions (asking many questions about a topic)
+- **Low decay**: Stable facts (biographical details, long-term preferences, career, hobbies)
 - **High decay**: Transient states (current project, mood, what they're reading now)
 
 ## Input

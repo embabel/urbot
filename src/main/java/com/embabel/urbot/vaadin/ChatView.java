@@ -7,6 +7,8 @@ import com.embabel.agent.api.channel.ProgressOutputChannelEvent;
 import com.embabel.chat.*;
 import com.embabel.urbot.UrbotProperties;
 import com.embabel.urbot.event.ConversationAnalysisRequestEvent;
+import com.embabel.agent.rag.model.NamedEntity;
+import com.embabel.agent.rag.service.NamedEntityDataRepository;
 import com.embabel.urbot.proposition.extraction.IncrementalPropositionExtraction;
 import com.embabel.urbot.proposition.persistence.DrivinePropositionRepository;
 import com.embabel.urbot.rag.DocumentService;
@@ -34,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -64,6 +67,7 @@ public class ChatView extends VerticalLayout {
 
     public ChatView(Chatbot chatbot, UrbotProperties properties, DocumentService documentService,
                     UrbotUserService userService, DrivinePropositionRepository propositionRepository,
+                    NamedEntityDataRepository entityRepository,
                     IncrementalPropositionExtraction propositionExtraction,
                     @Value("${neo4j.http.port:8892}") int neo4jHttpPort) {
         this.chatbot = chatbot;
@@ -154,9 +158,15 @@ public class ChatView extends VerticalLayout {
                 propositionExtraction.rememberFile(
                         request.inputStream(), request.filename(), currentUser);
 
+        // Entity resolver with fallback for native Drivine-persisted user
+        Function<String, NamedEntity> entityResolver = id -> {
+            if (id.equals(currentUser.getId())) return currentUser;
+            return entityRepository.findEntityById(id);
+        };
+
         // User drawer (opened by clicking user profile)
         userDrawer = new UserDrawer(documentService, currentUser, this::refreshFooter,
-                propositionRepository, onAnalyze, onRemember);
+                propositionRepository, entityResolver, onAnalyze, onRemember);
         getElement().appendChild(userDrawer.getElement());
         userSection.setOnClickHandler(userDrawer::open);
     }

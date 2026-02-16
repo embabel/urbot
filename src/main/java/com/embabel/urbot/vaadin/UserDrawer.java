@@ -1,5 +1,6 @@
 package com.embabel.urbot.vaadin;
 
+import com.embabel.agent.rag.model.NamedEntity;
 import com.embabel.urbot.proposition.persistence.DrivinePropositionRepository;
 import com.embabel.urbot.rag.DocumentService;
 import com.embabel.urbot.user.UrbotUser;
@@ -17,6 +18,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 
@@ -38,7 +40,9 @@ public class UserDrawer extends Div {
     private final MemorySection memorySection;
 
     public UserDrawer(DocumentService documentService, UrbotUser user, Runnable onDocumentsChanged,
-                      DrivinePropositionRepository propositionRepository, Runnable onAnalyze,
+                      DrivinePropositionRepository propositionRepository,
+                      Function<String, NamedEntity> entityResolver,
+                      Runnable onAnalyze,
                       Consumer<MemorySection.RememberRequest> onRemember) {
         this.documentService = documentService;
         this.user = user;
@@ -74,7 +78,7 @@ public class UserDrawer extends Div {
         // Create documents section and memory section early (referenced by context change listeners)
         documentsSection = new DocumentListSection(documentService,
                 user::effectiveContext, onDocumentsChanged);
-        memorySection = new MemorySection(propositionRepository,
+        memorySection = new MemorySection(propositionRepository, entityResolver,
                 user::effectiveContext, onAnalyze, onRemember);
 
         // Context selector section
