@@ -90,8 +90,12 @@ public class ChatActions {
                 "External tools via MCP. Invoke to access available tools.",
                 callback -> true
         ));
+
+        var references = new LinkedList<LlmReference>();
+        references.add(globalDocuments);
+        references.add(user.personalDocs(searchOperations));
         if (properties.memory().enabled()) {
-            tools.add(Memory.forContext(user.currentContext())
+            references.add(Memory.forContext(user.currentContext())
                     .withRepository(propositionRepository)
                     .withProjector(memoryProjector)
                     .withEagerSearchAbout(recentContext, 10));
@@ -102,7 +106,7 @@ public class ChatActions {
                 .withLlm(properties.chatLlm())
                 .withId("chat_response")
                 .withTools(tools)
-                .withReferences(globalDocuments, user.personalDocs(searchOperations))
+                .withReferences(references.toArray(new LlmReference[0]))
                 .rendering("urbot")
                 .respondWithSystemPrompt(conversation, Map.of(
                         "properties", properties,
