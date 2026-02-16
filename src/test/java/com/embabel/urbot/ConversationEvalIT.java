@@ -157,10 +157,15 @@ class ConversationEvalIT {
 
             // Fail fast after first seed: if extraction is broken (e.g., template errors),
             // don't waste time seeding 9 more conversations.
+            // Poll rather than fixed sleep — extraction is async and timing varies.
             if (!firstSeedChecked) {
                 firstSeedChecked = true;
-                Thread.sleep(5000);
-                int count = propositionRepository.findByContextIdValue(testUser.effectiveContext()).size();
+                int count = 0;
+                for (int attempt = 0; attempt < 10; attempt++) {
+                    Thread.sleep(3000);
+                    count = propositionRepository.findByContextIdValue(testUser.effectiveContext()).size();
+                    if (count > 0) break;
+                }
                 if (count == 0) {
                     fail("No propositions extracted after first seed — likely a template error in extraction prompts. "
                             + "Check logs for InvalidTemplateException.");

@@ -6,7 +6,9 @@ spring:
       - com.vaadin.flow.spring.SpringBootAutoConfiguration
 
 urbot:
-  proposition-extraction:
-    trigger-interval: 2
+  memory:
+    window-size: 20
+    overlap-size: 2
+    trigger-interval: 6
     show-prompts: true
     show-responses: true

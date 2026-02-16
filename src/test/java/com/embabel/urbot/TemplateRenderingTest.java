@@ -17,6 +17,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -75,18 +76,20 @@ class TemplateRenderingTest {
 
     @Test
     void urbotSystemPromptRenders() {
+        var user = new UrbotUser("test-user", "Test User", "tuser");
         var properties = new UrbotProperties(
-                null, 20, "general", "default",
-                new UrbotProperties.Voice("assistant", 200),
-                null, null, null, List.of()
+                null, 20, "qa", "default",
+                "assistant", 200,
+                null, null, null, List.of(), List.of()
         );
 
         var result = renderer.renderLoadedTemplate(
                 "urbot",
-                Map.of("properties", properties)
+                Map.of("properties", properties, "user", user)
         );
 
-        assertTrue(result.length() > 0, "System prompt should not be empty");
+        assertFalse(result.isEmpty(), "System prompt should not be empty");
         assertTrue(result.contains("200"), "Should contain maxWords from voice config");
+        assertTrue(result.contains("Test User"), "Should contain user name");
     }
 }
