@@ -12,6 +12,7 @@ import com.embabel.chat.Conversation;
 import com.embabel.chat.SimpleMessageFormatter;
 import com.embabel.chat.UserMessage;
 import com.embabel.chat.WindowingConversationFormatter;
+import com.embabel.common.core.types.Named;
 import com.embabel.dice.agent.Memory;
 import com.embabel.dice.projection.memory.MemoryProjector;
 import com.embabel.dice.proposition.PropositionRepository;
@@ -63,8 +64,9 @@ public class ChatActions {
         this.eventPublisher = eventPublisher;
         this.mcpToolFactory = mcpToolFactory;
 
-        logger.info("ChatActions initialized with {} global references and {} global tools",
-                globalReferences.size(), globalTools.size());
+        logger.info("ChatActions initialized. Global references: [{}], Global tools: [{}]",
+                globalReferences.stream().map(Named::getName).collect(java.util.stream.Collectors.joining(", ")),
+                globalTools.stream().map(t -> t.getDefinition().getName()).collect(java.util.stream.Collectors.joining(", ")));
     }
 
     /**

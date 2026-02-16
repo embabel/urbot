@@ -2,8 +2,21 @@
 
 This directory contains bot-specific implementations under `com.embabel.bot.<botname>`.
 
-The `com.embabel.bot` package is included in the component scan via
-`@SpringBootApplication(scanBasePackages = ...)` in `UrbotApplication`.
+Bot packages are **not** scanned by default. You must configure `urbot.bot-packages`
+to tell urbot which packages to scan. Typically set this in `application.yml` or
+a profile-specific properties file:
+
+```yaml
+urbot:
+  bot-packages:
+    - com.embabel.bot
+```
+
+Or in `application-astrid.properties`:
+
+```properties
+urbot.bot-packages=com.embabel.bot
+```
 
 ## Extension Mechanism
 
@@ -67,6 +80,7 @@ Key `urbot.*` properties:
 | `urbot.chat-llm.model` | LLM model ID | `gpt-4.1-mini` |
 | `urbot.chat-llm.temperature` | LLM temperature | `0.0` |
 | `urbot.memory.enabled` | Enable memory/proposition extraction | `true` |
+| `urbot.bot-packages` | Packages to scan for bot components | _(none)_ |
 
 ### 3. Custom Templates
 
@@ -148,6 +162,7 @@ public class AstridConfiguration {
 **`application-astrid.properties`:**
 
 ```properties
+urbot.bot-packages=com.embabel.bot
 urbot.persona=astrid
 urbot.objective=astrid
 urbot.max-words=50

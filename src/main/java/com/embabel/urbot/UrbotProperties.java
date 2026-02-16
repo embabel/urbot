@@ -22,6 +22,8 @@ import java.util.List;
  * @param ingestion        configuration for ingestion
  * @param neoRag           Neo4j RAG service configuration
  * @param memory           proposition extraction configuration
+ * @param botPackages      additional packages to scan for bot components (e.g., "com.embabel.bot").
+ *                         Beans in these packages should be gated with {@code @Profile}.
  * @param initialDocuments list of document URIs to ingest into the global context at startup
  *                         if not already loaded. Each entry can be a URL (e.g., "https://example.com/doc.pdf")
  *                         or a file path (absolute or relative to the working directory).
@@ -37,6 +39,7 @@ public record UrbotProperties(
         @NestedConfigurationProperty ContentChunker.Config ingestion,
         @NestedConfigurationProperty NeoRagServiceProperties neoRag,
         @NestedConfigurationProperty PropositionExtractionProperties memory,
+        @DefaultValue("") List<String> botPackages,
         List<String> initialDocuments
 ) {
 

@@ -20,8 +20,7 @@ import org.drivine.autoconfigure.EnableDrivinePropertiesConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-// We pick up components under bot that have the present profile
-@SpringBootApplication(scanBasePackages = {"com.embabel.urbot", "com.embabel.bot"})
+@SpringBootApplication
 @EnableDrivine
 @EnableDrivinePropertiesConfig
 class UrbotApplication {
