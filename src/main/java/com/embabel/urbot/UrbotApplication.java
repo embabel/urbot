@@ -19,8 +19,10 @@ import org.drivine.autoconfigure.EnableDrivine;
 import org.drivine.autoconfigure.EnableDrivinePropertiesConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
+@Import(BotPackageScanConfiguration.class)
 @EnableDrivine
 @EnableDrivinePropertiesConfig
 class UrbotApplication {
