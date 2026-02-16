@@ -51,6 +51,10 @@ urbot:
     show-responses: false
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
   ai:
     mcp:
       client:
