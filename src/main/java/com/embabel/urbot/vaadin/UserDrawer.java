@@ -128,13 +128,13 @@ public class UserDrawer extends Div {
         contextSection.setFlexGrow(1, contextSelect);
         sidePanel.add(contextSection);
 
-        // Tabs - Documents, Upload, URL, Memory
+        // Tabs - Memory, Documents, Upload, URL
+        var memoryTab = new Tab(VaadinIcon.LIGHTBULB.create(), new Span("Memory"));
         var documentsTab = new Tab(VaadinIcon.FILE_TEXT.create(), new Span("Documents"));
         var uploadTab = new Tab(VaadinIcon.UPLOAD.create(), new Span("Upload"));
         var urlTab = new Tab(VaadinIcon.GLOBE.create(), new Span("URL"));
-        var memoryTab = new Tab(VaadinIcon.LIGHTBULB.create(), new Span("Memory"));
 
-        var tabs = new Tabs(documentsTab, uploadTab, urlTab, memoryTab);
+        var tabs = new Tabs(memoryTab, documentsTab, uploadTab, urlTab);
         tabs.setWidthFull();
         sidePanel.add(tabs);
 
@@ -154,12 +154,12 @@ public class UserDrawer extends Div {
             onDocumentsChanged.run();
         });
 
-        // Documents visible by default; others hidden
+        // Memory visible by default; others hidden
+        documentsSection.setVisible(false);
         uploadSection.setVisible(false);
         urlSection.setVisible(false);
-        memorySection.setVisible(false);
 
-        contentArea.add(documentsSection, uploadSection, urlSection, memorySection);
+        contentArea.add(memorySection, documentsSection, uploadSection, urlSection);
         sidePanel.add(contentArea);
         sidePanel.setFlexGrow(1, contentArea);
 
@@ -183,7 +183,7 @@ public class UserDrawer extends Div {
     }
 
     public void open() {
-        documentsSection.refresh();
+        memorySection.refresh();
         refreshContexts();
         sidePanel.addClassName("open");
         backdrop.addClassName("visible");

@@ -27,6 +27,9 @@ import java.util.Map;
 
 /**
  * The platform can use any action to respond to user messages.
+ * Picks up references and tools configured as Spring beans.
+ * Thus extensibility works via profile--simply add beans
+ * under com.embabel.bot
  */
 @EmbabelComponent
 public class ChatActions {
