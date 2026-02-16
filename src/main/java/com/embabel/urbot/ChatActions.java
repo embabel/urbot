@@ -19,10 +19,10 @@ import com.embabel.urbot.event.ConversationAnalysisRequestEvent;
 import com.embabel.urbot.user.UrbotUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,7 +35,8 @@ public class ChatActions {
 
     private final SearchOperations searchOperations;
     private final UrbotProperties properties;
-    private final LlmReference globalDocuments;
+    private final List<LlmReference> globalReferences;
+    private final List<Tool> globalTools;
     private final MemoryProjector memoryProjector;
     private final PropositionRepository propositionRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -43,19 +44,24 @@ public class ChatActions {
 
     public ChatActions(
             SearchOperations searchOperations,
-            @Qualifier("globalDocuments") LlmReference globalDocuments,
+            List<LlmReference> globalReferences,
+            List<Tool> globalTools,
             UrbotProperties properties,
             MemoryProjector memoryProjector,
             PropositionRepository propositionRepository,
             ApplicationEventPublisher eventPublisher,
             McpToolFactory mcpToolFactory) {
         this.searchOperations = searchOperations;
-        this.globalDocuments = globalDocuments;
+        this.globalReferences = globalReferences;
+        this.globalTools = globalTools;
         this.properties = properties;
         this.memoryProjector = memoryProjector;
         this.propositionRepository = propositionRepository;
         this.eventPublisher = eventPublisher;
         this.mcpToolFactory = mcpToolFactory;
+
+        logger.info("ChatActions initialized with {} global references and {} global tools",
+                globalReferences.size(), globalTools.size());
     }
 
     /**
@@ -84,15 +90,14 @@ public class ChatActions {
                 SimpleMessageFormatter.INSTANCE
         ).format(conversation.last(properties.messagesToEmbed()));
 
-        var tools = new LinkedList<Tool>();
+        var tools = new LinkedList<>(globalTools);
         tools.add(mcpToolFactory.unfolding(
                 "mcp_tools",
                 "External tools via MCP. Invoke to access available tools.",
                 callback -> true
         ));
 
-        var references = new LinkedList<LlmReference>();
-        references.add(globalDocuments);
+        var references = new LinkedList<>(globalReferences);
         references.add(user.personalDocs(searchOperations));
         if (properties.memory().enabled()) {
             references.add(Memory.forContext(user.currentContext())
@@ -106,7 +111,7 @@ public class ChatActions {
                 .withLlm(properties.chatLlm())
                 .withId("chat_response")
                 .withTools(tools)
-                .withReferences(references.toArray(new LlmReference[0]))
+                .withReferences(references)
                 .rendering("urbot")
                 .respondWithSystemPrompt(conversation, Map.of(
                         "properties", properties,
