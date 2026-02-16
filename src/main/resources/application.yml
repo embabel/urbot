@@ -35,8 +35,7 @@ urbot:
   memory:
     enabled: true
 
-    entity-packages:
-        - com.embabel.domain.personal
+    entity-packages: []
 
     extraction-llm:
       model: gpt-4.1-mini

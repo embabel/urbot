@@ -106,7 +106,20 @@ You are Astrid, a warm and insightful astrologer.
 {% include "elements/thorough_memory" %}
 ```
 
-### 4. Tools and References
+### 4. Domain Objects
+
+Bots can define domain-specific `NamedEntity` subclasses in their package.
+These are automatically picked up for proposition extraction and memory
+when the bot package is listed in `urbot.memory.entity-packages`:
+
+```properties
+urbot.memory.entity-packages=com.embabel.bot.astrid
+```
+
+Any `NamedEntity` classes found in that package are added to the data dictionary,
+so DICE can extract, store, and resolve entities of those types from conversation.
+
+### 5. Tools and References
 
 Define any `Tool` or `LlmReference` beans in your profile configuration.
 These are picked up by `ChatActions` when wired into the prompt runner.

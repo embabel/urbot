@@ -25,9 +25,9 @@ public record PropositionExtractionProperties(
         @DefaultValue("10") int windowSize,
         @DefaultValue("2") int overlapSize,
         @DefaultValue("6") int triggerInterval,
-        boolean showPrompts,
-        boolean showResponses,
-        List<String> entityPackages
+        @DefaultValue("false") boolean showPrompts,
+        @DefaultValue("false") boolean showResponses,
+        @DefaultValue("") List<String> entityPackages
 ) {
     public PropositionExtractionProperties {
         if (windowSize <= 0) windowSize = 10;

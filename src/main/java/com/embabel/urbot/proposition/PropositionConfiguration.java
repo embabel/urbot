@@ -35,6 +35,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.EnableAsync;
 
+import java.util.List;
+
 /**
  * Configuration for proposition extraction from chat conversations.
  * Sets up the DICE pipeline components for extracting and storing propositions.
@@ -47,9 +49,23 @@ class PropositionConfiguration {
 
     @Bean
     @Primary
-    DataDictionary urbotSchema(UrbotProperties properties) {
+    DataDictionary compositeSchema(List<DataDictionary> dictionaries) {
+        return dictionaries.stream()
+                .reduce(DataDictionary::plus)
+                .orElseThrow();
+    }
+
+    /**
+     * Always has UrbotUser, plus any additional types from packages specified in properties
+     * and from bot packages.
+     */
+    @Bean
+    DataDictionary urbotDomainSchema(UrbotProperties properties) {
         var packages = properties.memory().entityPackages();
         var schema = DataDictionary.fromClasses("urbot", UrbotUser.class)
+                .plus(NamedEntity.dataDictionaryFromPackages(
+                        properties.botPackages().toArray(String[]::new)
+                ))
                 .plus(NamedEntity.dataDictionaryFromPackages(
                         packages.toArray(String[]::new)
                 ));

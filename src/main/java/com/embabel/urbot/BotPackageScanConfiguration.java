@@ -28,7 +28,7 @@ class BotPackageScanConfiguration implements ImportBeanDefinitionRegistrar, Envi
     }
 
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+    public void registerBeanDefinitions(@NonNull AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         var packages = environment.getProperty("urbot.bot-packages", String[].class);
         if (packages == null || packages.length == 0) {
             return;
