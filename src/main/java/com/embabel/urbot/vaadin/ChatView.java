@@ -4,11 +4,12 @@ import com.embabel.agent.api.channel.MessageOutputChannelEvent;
 import com.embabel.agent.api.channel.OutputChannel;
 import com.embabel.agent.api.channel.OutputChannelEvent;
 import com.embabel.agent.api.channel.ProgressOutputChannelEvent;
+import com.embabel.agent.core.DataDictionary;
+import com.embabel.agent.rag.model.NamedEntity;
+import com.embabel.agent.rag.service.NamedEntityDataRepository;
 import com.embabel.chat.*;
 import com.embabel.urbot.UrbotProperties;
 import com.embabel.urbot.event.ConversationAnalysisRequestEvent;
-import com.embabel.agent.rag.model.NamedEntity;
-import com.embabel.agent.rag.service.NamedEntityDataRepository;
 import com.embabel.urbot.proposition.extraction.IncrementalPropositionExtraction;
 import com.embabel.urbot.proposition.persistence.DrivinePropositionRepository;
 import com.embabel.urbot.rag.DocumentService;
@@ -35,11 +36,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Vaadin-based chat view for the RAG chatbot.
@@ -57,17 +58,18 @@ public class ChatView extends VerticalLayout {
     private final DocumentService documentService;
     private final UrbotUser currentUser;
 
-    private VerticalLayout messagesLayout;
-    private Scroller messagesScroller;
+    private final VerticalLayout messagesLayout;
+    private final Scroller messagesScroller;
     private TextField inputField;
     private Button sendButton;
-    private Footer footer;
-    private UserSection userSection;
-    private UserDrawer userDrawer;
+    private final Footer footer;
+    private final UserSection userSection;
+    private final UserDrawer userDrawer;
 
     public ChatView(Chatbot chatbot, UrbotProperties properties, DocumentService documentService,
                     UrbotUserService userService, DrivinePropositionRepository propositionRepository,
                     NamedEntityDataRepository entityRepository,
+                    DataDictionary dataDictionary,
                     IncrementalPropositionExtraction propositionExtraction,
                     @Value("${neo4j.http.port:8892}") int neo4jHttpPort) {
         this.chatbot = chatbot;
@@ -139,7 +141,7 @@ public class ChatView extends VerticalLayout {
         add(footer);
 
         // Global documents drawer (right edge toggle)
-        var globalDrawer = new DocumentsDrawer(documentService, currentUser, neo4jHttpPort, this::refreshFooter);
+        var globalDrawer = new GlobalDrawer(documentService, currentUser, neo4jHttpPort, dataDictionary, this::refreshFooter);
         getElement().appendChild(globalDrawer.getElement());
 
         // Create onAnalyze runnable that triggers extraction on current conversation

@@ -757,6 +757,69 @@ vaadin-login-form-wrapper::part(form-title) {
   font-weight: 600;
 }
 
+/* Schema Section */
+.schema-type-card {
+  background: var(--sb-bg-light);
+  border: 1px solid var(--sb-border);
+  border-radius: var(--lumo-border-radius-m);
+  padding: var(--lumo-space-m);
+  margin-bottom: var(--lumo-space-s);
+}
+
+.schema-type-card:hover {
+  border-color: var(--sb-accent);
+}
+
+.schema-type-label {
+  display: block;
+  color: var(--sb-heading);
+  font-weight: 600;
+  font-size: var(--lumo-font-size-m);
+}
+
+.schema-type-desc {
+  display: block;
+  color: var(--sb-text-secondary);
+  font-size: var(--lumo-font-size-s);
+  margin-top: var(--lumo-space-xs);
+}
+
+.schema-props {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lumo-space-xs);
+  margin-top: var(--lumo-space-s);
+}
+
+.schema-prop {
+  display: inline-block;
+  background: var(--sb-bg-medium);
+  border: 1px solid var(--sb-border);
+  color: var(--sb-text-secondary);
+  font-size: var(--lumo-font-size-xs);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-family: monospace;
+}
+
+.schema-rels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lumo-space-xs);
+  margin-top: var(--lumo-space-xs);
+}
+
+.schema-rel {
+  display: inline-block;
+  background: rgba(159, 119, 205, 0.15);
+  border: 1px solid var(--sb-accent);
+  color: var(--sb-accent-light);
+  font-size: var(--lumo-font-size-xs);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-family: monospace;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .side-panel {
