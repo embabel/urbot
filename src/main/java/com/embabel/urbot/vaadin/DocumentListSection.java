@@ -53,7 +53,7 @@ public class DocumentListSection extends VerticalLayout {
         // Documents list section
         var docsTitle = new H4("Documents");
         docsTitle.addClassName("section-title");
-        docsTitle.getStyle().set("margin-top", "var(--lumo-space-m)");
+        docsTitle.addClassName("spaced");
 
         documentsList = new VerticalLayout();
         documentsList.setPadding(false);

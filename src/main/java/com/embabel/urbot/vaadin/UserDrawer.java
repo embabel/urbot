@@ -89,8 +89,7 @@ public class UserDrawer extends Div {
         contextSection.setAlignItems(VerticalLayout.Alignment.CENTER);
 
         var contextLabel = new Span("Context:");
-        contextLabel.getStyle().set("color", "var(--sb-text-secondary)");
-        contextLabel.getStyle().set("font-size", "var(--lumo-font-size-s)");
+        contextLabel.addClassName("context-label");
 
         contextSelect = new ComboBox<>();
         contextSelect.setAllowCustomValue(true);

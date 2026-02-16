@@ -1,16 +1,19 @@
-/* Urbot - Clean Dark Theme */
+/* Urbot - Dark Theme (Embabel docs palette) */
 
 :root {
-  /* Dark color palette */
-  --sb-bg-dark: #0f0f14;
-  --sb-bg-medium: #1a1a22;
-  --sb-bg-light: #242430;
-  --sb-accent: #6366f1;
-  --sb-accent-light: #818cf8;
-  --sb-text-primary: #f1f5f9;
-  --sb-text-secondary: #94a3b8;
-  --sb-text-muted: #64748b;
-  --sb-border: rgba(148, 163, 184, 0.2);
+  /* Dark color palette — aligned with docs.embabel.com */
+  --sb-bg-dark: #000000;
+  --sb-bg-medium: #131313;
+  --sb-bg-light: #252525;
+  --sb-accent: #9f77cd;
+  --sb-accent-light: #b89fdb;
+  --sb-link: #4da6ff;
+  --sb-link-hover: #80bfff;
+  --sb-heading: #63c0f5;
+  --sb-text-primary: #f4f4f4;
+  --sb-text-secondary: #e0e0e0;
+  --sb-text-muted: #888888;
+  --sb-border: #444444;
   --sb-error: #ef4444;
   --sb-success: #22c55e;
 
@@ -24,8 +27,8 @@
   --lumo-secondary-text-color: var(--sb-text-secondary);
   --lumo-tertiary-text-color: var(--sb-text-muted);
   --lumo-contrast: var(--sb-text-primary);
-  --lumo-contrast-10pct: rgba(241, 245, 249, 0.1);
-  --lumo-contrast-20pct: rgba(241, 245, 249, 0.2);
+  --lumo-contrast-10pct: rgba(244, 244, 244, 0.1);
+  --lumo-contrast-20pct: rgba(244, 244, 244, 0.2);
   --lumo-shade: var(--sb-bg-dark);
   --lumo-error-color: var(--sb-error);
   --lumo-success-color: var(--sb-success);
@@ -51,7 +54,7 @@ vaadin-vertical-layout {
 
 /* Header */
 .chat-title {
-  color: var(--sb-text-primary);
+  color: var(--sb-heading);
   font-weight: 600;
   margin: 0;
 }
@@ -157,6 +160,14 @@ vaadin-vertical-layout {
   color: var(--sb-text-secondary);
 }
 
+.chat-bubble.assistant .chat-bubble-text a {
+  color: var(--sb-link);
+}
+
+.chat-bubble.assistant .chat-bubble-text a:hover {
+  color: var(--sb-link-hover);
+}
+
 /* Error message */
 .chat-bubble-error {
   background: rgba(239, 68, 68, 0.2);
@@ -257,7 +268,7 @@ vaadin-button[theme~="primary"]:hover {
 .side-panel-title {
   font-size: var(--lumo-font-size-l);
   font-weight: 600;
-  color: var(--sb-text-primary);
+  color: var(--sb-heading);
 }
 
 .side-panel-close {
@@ -274,11 +285,12 @@ vaadin-button[theme~="primary"]:hover {
 
 .side-panel-link {
   font-size: var(--lumo-font-size-s);
-  color: var(--sb-accent);
+  color: var(--sb-link);
   text-decoration: none;
 }
 
 .side-panel-link:hover {
+  color: var(--sb-link-hover);
   text-decoration: underline;
 }
 
@@ -356,9 +368,13 @@ vaadin-button[theme~="primary"]:hover {
 }
 
 .section-title {
-  color: var(--sb-text-primary);
+  color: var(--sb-heading);
   margin: 0 0 var(--lumo-space-m) 0;
   font-size: var(--lumo-font-size-l);
+}
+
+.section-title.spaced {
+  margin-top: var(--lumo-space-m);
 }
 
 /* Stats Container */
@@ -434,7 +450,7 @@ vaadin-button[theme~="primary"]:hover {
 }
 
 .login-title {
-  color: var(--sb-text-primary);
+  color: var(--sb-heading);
   font-weight: 600;
   margin-bottom: 0;
 }
@@ -443,6 +459,21 @@ vaadin-button[theme~="primary"]:hover {
   color: var(--sb-text-secondary);
   font-size: var(--lumo-font-size-s);
   margin-bottom: var(--lumo-space-l);
+}
+
+/* Login Form — override Lumo's gray card background */
+vaadin-login-form-wrapper {
+  background: var(--sb-bg-light);
+  border: 1px solid var(--sb-border);
+  border-radius: var(--lumo-border-radius-l);
+}
+
+vaadin-login-form-wrapper::part(form) {
+  background: transparent;
+}
+
+vaadin-login-form-wrapper::part(form-title) {
+  color: var(--sb-heading);
 }
 
 /* Login Legend */
@@ -505,6 +536,12 @@ vaadin-button[theme~="primary"]:hover {
 
 .logout-button:hover {
   color: var(--sb-text-primary);
+}
+
+/* Context Label */
+.context-label {
+  color: var(--sb-text-secondary);
+  font-size: var(--lumo-font-size-s);
 }
 
 /* Context Selector */
@@ -667,7 +704,7 @@ vaadin-button[theme~="primary"]:hover {
 .panel-title {
   font-size: var(--lumo-font-size-m);
   font-weight: 600;
-  color: var(--sb-text-primary);
+  color: var(--sb-heading);
 }
 
 .panel-count {
@@ -691,6 +728,33 @@ vaadin-button[theme~="primary"]:hover {
 .memory-button-row {
   padding: var(--lumo-space-xs) 0;
   align-items: center;
+}
+
+/* Entity Card */
+.entity-card {
+  background: var(--sb-bg-light);
+  border: 1px solid var(--sb-border);
+  border-radius: var(--lumo-border-radius-m);
+  padding: var(--lumo-space-m);
+  margin-bottom: var(--lumo-space-xs);
+}
+
+.entity-card:hover {
+  border-color: var(--sb-accent);
+}
+
+.entity-type-badge {
+  background: rgba(159, 119, 205, 0.2);
+  color: var(--sb-accent);
+  font-size: var(--lumo-font-size-xs);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.entity-name {
+  color: var(--sb-heading);
+  font-weight: 600;
 }
 
 /* Mobile Responsive */
