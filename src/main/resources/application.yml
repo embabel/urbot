@@ -76,11 +76,8 @@ spring:
 embabel:
 
   models:
-    default-llm:
-      model: gpt-4.1-mini
-
-    default-embedding-model:
-      model: text-embedding-3-small
+    default-llm: gpt-4.1-mini
+    default-embedding-model: text-embedding-3-small
 
   agent:
     platform:
