@@ -1,5 +1,6 @@
 package com.embabel.urbot.security;
 
+import com.embabel.agent.rag.service.NamedEntityDataRepository;
 import com.embabel.urbot.user.DummyUrbotUserService;
 import com.embabel.urbot.user.UrbotUser;
 import com.embabel.urbot.user.UrbotUserService;
@@ -58,10 +59,10 @@ class SecurityConfiguration extends VaadinWebSecurity {
     }
 
     @Bean
-    UrbotUserService userService() {
+    UrbotUserService userService(NamedEntityDataRepository entityRepository) {
         return new DummyUrbotUserService(java.util.List.of(
                 new UrbotUser("1", "Alice Agu", "alice"),
                 new UrbotUser("2", "Ben Blossom", "ben")
-        ));
+        ), entityRepository);
     }
 }

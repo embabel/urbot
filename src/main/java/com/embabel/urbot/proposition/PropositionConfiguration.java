@@ -15,6 +15,7 @@ import com.embabel.dice.pipeline.PropositionPipeline;
 import com.embabel.dice.projection.graph.GraphProjector;
 import com.embabel.dice.projection.graph.GraphRelationshipPersister;
 import com.embabel.dice.projection.graph.NamedEntityDataRepositoryGraphRelationshipPersister;
+import com.embabel.dice.projection.graph.LlmGraphProjector;
 import com.embabel.dice.projection.graph.RelationBasedGraphProjector;
 import com.embabel.dice.projection.memory.MemoryProjector;
 import com.embabel.dice.projection.memory.support.DefaultMemoryProjector;
@@ -95,8 +96,15 @@ class PropositionConfiguration {
     }
 
     @Bean
-    GraphProjector graphProjector(Relations relations) {
-        return RelationBasedGraphProjector.from(relations);
+    GraphProjector graphProjector(AiBuilder aiBuilder, UrbotProperties properties) {
+        var extraction = properties.memory();
+        var ai = aiBuilder
+                .withShowPrompts(extraction.showPrompts())
+                .withShowLlmResponses(extraction.showResponses())
+                .ai();
+        var llmOptions = extraction.classifyLlm() != null ? extraction.classifyLlm() : extraction.extractionLlm();
+        logger.info("Creating LlmGraphProjector with model: {}", llmOptions.getModel());
+        return new LlmGraphProjector(ai, new com.embabel.dice.projection.graph.DefaultProjectionPolicy(), llmOptions);
     }
 
     @Bean
