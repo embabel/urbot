@@ -95,8 +95,9 @@ public class PropositionCard extends Div {
         if (resolved != null) {
             label = resolved.getName();
         } else {
-            // Fallback: show span text or type:id
-            label = mention.getSpan() != null ? mention.getSpan() : mention.getType();
+            // Fallback: show span text or type, with ? to indicate unresolved
+            var base = mention.getSpan() != null ? mention.getSpan() : mention.getType();
+            label = base + " ?";
         }
 
         var badge = new Span(label);
@@ -106,6 +107,8 @@ public class PropositionCard extends Div {
             var entity = resolved;
             badge.addClassName("clickable");
             badge.getElement().addEventListener("click", e -> showEntityDialog(entity));
+        } else {
+            badge.addClassName("unresolved");
         }
 
         return badge;
