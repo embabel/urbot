@@ -93,7 +93,7 @@ public class ChatActions {
             ActionContext context) {
         var recentContext = new WindowingConversationFormatter(
                 SimpleMessageFormatter.INSTANCE
-        ).format(conversation.last(properties.messagesToEmbed()));
+        ).format(conversation.last(properties.chat().messagesToEmbed()));
 
         var tools = new LinkedList<>(globalTools);
         tools.add(mcpToolFactory.unfolding(
@@ -113,7 +113,7 @@ public class ChatActions {
 
         var assistantMessage = context.
                 ai()
-                .withLlm(properties.chatLlm())
+                .withLlm(properties.chat().llm())
                 .withId("chat_response")
                 .withTools(tools)
                 .withReferences(references)

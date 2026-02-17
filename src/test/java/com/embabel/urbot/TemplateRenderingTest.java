@@ -9,6 +9,7 @@ import com.embabel.dice.common.SchemaAdherence;
 import com.embabel.dice.common.SourceAnalysisContext;
 import com.embabel.dice.common.resolver.AlwaysCreateEntityResolver;
 import com.embabel.dice.proposition.extraction.TemplateModel;
+import com.embabel.urbot.ChatbotOptions;
 import com.embabel.urbot.user.UrbotUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -77,11 +78,8 @@ class TemplateRenderingTest {
     @Test
     void urbotSystemPromptRenders() {
         var user = new UrbotUser("test-user", "Test User", "tuser");
-        var properties = new UrbotProperties(
-                null, 20, "qa", "default",
-                "assistant", 200,
-                null, null, null, List.of(), List.of()
-        );
+        var chat = new ChatbotOptions(null, 20, "qa", "default", "assistant", 200, true, true);
+        var properties = new UrbotProperties(chat, null, null, null, List.of(), List.of());
 
         var result = renderer.renderLoadedTemplate(
                 "urbot",

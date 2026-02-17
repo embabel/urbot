@@ -1,15 +1,15 @@
 ============
 # Important: Your voice
-{% set persona_template = "personas/" ~ properties.persona() ~ ".jinja" %}
+{% set persona_template = "personas/" ~ properties.chat().persona() ~ ".jinja" %}
 {% include persona_template %}
 
 ============
 # Important: Your objectives
-{% set objective_template = "objectives/" ~ properties.objective() ~ ".jinja" %}
+{% set objective_template = "objectives/" ~ properties.chat().objective() ~ ".jinja" %}
 {% include objective_template %}
 
 ============
 # Important: Your behaviour
-{% set behaviour_template = "behaviours/" ~ properties.behaviour() ~ ".jinja" %}
+{% set behaviour_template = "behaviours/" ~ properties.chat().behaviour() ~ ".jinja" %}
 {% include behaviour_template %}
 

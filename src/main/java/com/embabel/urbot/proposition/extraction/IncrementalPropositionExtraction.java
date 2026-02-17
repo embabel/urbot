@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
@@ -56,6 +57,7 @@ public class IncrementalPropositionExtraction {
     private final EntityResolver entityResolver;
     private final GraphProjector graphProjector;
     private final GraphRelationshipPersister graphRelationshipPersister;
+    private final ReentrantLock extractionLock = new ReentrantLock();
 
     public IncrementalPropositionExtraction(
             PropositionPipeline propositionPipeline,
@@ -107,6 +109,10 @@ public class IncrementalPropositionExtraction {
     }
 
     public void extractPropositions(SourceAnalysisRequestEvent event) {
+        if (!extractionLock.tryLock()) {
+            logger.debug("Extraction already in progress, skipping (will catch up on next trigger)");
+            return;
+        }
         try {
             var source = event.incrementalSource();
             if (source.getSize() < windowConfig.getOverlapSize()) {
@@ -134,8 +140,11 @@ public class IncrementalPropositionExtraction {
 
             logger.info(result.infoString(true, 1));
             persistAndProject(result);
+            logAllPropositions(event.user.currentContext());
         } catch (Exception e) {
             logger.warn("Failed to extract propositions", e);
+        } finally {
+            extractionLock.unlock();
         }
     }
 
@@ -161,12 +170,24 @@ public class IncrementalPropositionExtraction {
             if (!result.getPropositions().isEmpty()) {
                 logger.info(result.infoString(true, 1));
                 persistAndProject(result);
+                logAllPropositions(user.currentContext());
                 logger.info("Remembered file: {}", filename);
             } else {
                 logger.info("No propositions extracted from file: {}", filename);
             }
         } catch (Exception e) {
             logger.warn("Failed to remember file: {}", filename, e);
+        }
+    }
+
+    private void logAllPropositions(String contextId) {
+        var all = propositionRepository.findByContextIdValue(contextId);
+        var sorted = all.stream()
+                .sorted(java.util.Comparator.comparing(p -> p.getText()))
+                .toList();
+        logger.info("All propositions in context {} ({} total):", contextId, sorted.size());
+        for (var p : sorted) {
+            logger.info("  [{}] confidence={} '{}'", p.getStatus(), p.getConfidence(), p.getText());
         }
     }
 

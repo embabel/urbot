@@ -90,7 +90,7 @@ class MemoryToolIT {
                 .withProjector(memoryProjector);
 
         var result = eop.ai()
-                .withLlm(properties.chatLlm())
+                .withLlm(properties.chat().llm())
                 .withTools(memory)
                 .withSystemPrompt(
                         "You are a personal assistant. " +
@@ -117,7 +117,7 @@ class MemoryToolIT {
                 .withProjector(memoryProjector);
 
         var result = eop.ai()
-                .withLlm(properties.chatLlm())
+                .withLlm(properties.chat().llm())
                 .withTools(memory)
                 .withSystemPrompt(
                         "You are a personal assistant. " +

@@ -6,9 +6,12 @@ spring:
       - com.vaadin.flow.spring.SpringBootAutoConfiguration
 
 urbot:
+  chat:
+    show-prompts: false
+    show-responses: false
   memory:
     window-size: 20
     overlap-size: 2
     trigger-interval: 6
-    show-prompts: true
-    show-responses: true
+    show-prompts: false
+    show-responses: false

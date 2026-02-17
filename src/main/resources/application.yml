@@ -23,14 +23,14 @@ urbot:
     overlap-size: 100
     embedding-batch-size: 800
 
-  chat-llm:
-    model: gpt-4.1-mini
-    temperature: 0.0
-
-  persona: assistant
-  max-words: 80
-  objective: qa
-  behaviour: default
+  chat:
+    llm:
+      model: gpt-4.1-mini
+      temperature: 0.0
+    persona: assistant
+    max-words: 80
+    objective: qa
+    behaviour: default
 
   memory:
     enabled: true

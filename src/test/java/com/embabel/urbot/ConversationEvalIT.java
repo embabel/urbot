@@ -10,6 +10,7 @@ import com.embabel.chat.Chatbot;
 import com.embabel.chat.Message;
 import com.embabel.chat.UserMessage;
 import com.embabel.common.textio.template.JinjavaTemplateRenderer;
+import com.embabel.dice.proposition.Proposition;
 import com.embabel.urbot.proposition.persistence.DrivinePropositionRepository;
 import com.embabel.urbot.user.UrbotUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -149,7 +150,8 @@ class ConversationEvalIT {
     private void seedMemory(EvalConfig config) throws Exception {
         boolean firstSeedChecked = false;
 
-        for (var seed : config.seeds()) {
+        for (int i = 0; i < config.seeds().size(); i++) {
+            var seed = config.seeds().get(i);
             switch (seed) {
                 case ConversationSeed cs -> seedFromConversation(cs);
                 case TextSeed ts -> fail("TextSeed not yet supported in urbot IT: " + ts.getText());
@@ -180,7 +182,7 @@ class ConversationEvalIT {
         waitForExtraction();
 
         var propositions = propositionRepository.findByContextIdValue(testUser.effectiveContext());
-        logger.info("Seeded {} propositions total", propositions.size());
+        logPropositions("After seeding", propositions);
         assertTrue(propositions.size() >= 2,
                 "Expected at least 2 propositions from seed, got " + propositions.size());
     }
@@ -326,6 +328,16 @@ class ConversationEvalIT {
     }
 
     // ---- Utilities ----
+
+    private void logPropositions(String label, List<Proposition> propositions) {
+        var sorted = propositions.stream()
+                .sorted(java.util.Comparator.comparing(Proposition::getText))
+                .toList();
+        logger.info("=== {} ({} propositions) ===", label, sorted.size());
+        for (var p : sorted) {
+            logger.info("  [{}] confidence={} text='{}'", p.getStatus(), p.getConfidence(), p.getText());
+        }
+    }
 
     private static String truncate(String s, int maxLen) {
         if (s == null) return "<null>";

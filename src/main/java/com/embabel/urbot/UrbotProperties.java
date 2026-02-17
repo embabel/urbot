@@ -2,7 +2,6 @@ package com.embabel.urbot;
 
 import com.embabel.agent.rag.ingestion.ContentChunker;
 import com.embabel.agent.rag.neo.drivine.NeoRagServiceProperties;
-import com.embabel.common.ai.model.LlmOptions;
 import com.embabel.urbot.proposition.PropositionExtractionProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
@@ -13,12 +12,7 @@ import java.util.List;
 /**
  * Properties for chatbot
  *
- * @param chatLlm          LLM model and hyperparameters to use
- * @param messagesToEmbed  how many recent messages to include in the context for RAG retrieval and proposition extraction
- * @param objective        the goal of the chatbot's responses
- * @param behaviour        the behaviour profile to use
- * @param persona          the persona and output style of the chatbot. A template
- * @param maxWords         maximum number of words to use in the chatbot's response. This is a soft limit and may be exceeded if necessary to fulfill the objective.
+ * @param chat             chatbot conversational configuration (LLM, persona, objective, etc.)
  * @param ingestion        configuration for ingestion
  * @param neoRag           Neo4j RAG service configuration
  * @param memory           proposition extraction configuration
@@ -30,12 +24,7 @@ import java.util.List;
  */
 @ConfigurationProperties(prefix = "urbot")
 public record UrbotProperties(
-        @NestedConfigurationProperty LlmOptions chatLlm,
-        @DefaultValue("20") int messagesToEmbed,
-        String objective,
-        String behaviour,
-        String persona,
-        int maxWords,
+        @NestedConfigurationProperty ChatbotOptions chat,
         @NestedConfigurationProperty ContentChunker.Config ingestion,
         @NestedConfigurationProperty NeoRagServiceProperties neoRag,
         @NestedConfigurationProperty PropositionExtractionProperties memory,

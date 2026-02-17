@@ -119,6 +119,7 @@ class PropositionConfiguration {
                 .withLlm(extraction.extractionLlm())
                 .withAi(ai)
                 .withPropositionRepository(propositionRepository)
+                .withExistingPropositionsToShow(extraction.existingPropositionsToShow())
                 .withSchemaAdherence(SchemaAdherence.DEFAULT)
                 .withTemplate("dice/extract_urbot_user_propositions");
     }

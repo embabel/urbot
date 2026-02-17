@@ -16,11 +16,14 @@ import org.springframework.context.annotation.Configuration;
 class ChatConfiguration {
 
     @Bean
-    Chatbot chatbot(AgentPlatform agentPlatform) {
+    Chatbot chatbot(AgentPlatform agentPlatform, UrbotProperties properties) {
+        var verbosity = new Verbosity()
+                .withShowPrompts(properties.chat().showPrompts())
+                .withShowLlmResponses(properties.chat().showResponses());
         return AgentProcessChatbot.utilityFromPlatform(
                 agentPlatform,
                 new InMemoryConversationFactory(),
-                new Verbosity().showPrompts()
+                verbosity
         );
     }
 }

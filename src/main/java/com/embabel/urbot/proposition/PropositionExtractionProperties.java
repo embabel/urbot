@@ -16,7 +16,8 @@ import java.util.List;
  * @param triggerInterval     extract propositions every N messages (0 = manual only)
  * @param showPrompts         whether to log extraction prompts
  * @param showResponses       whether to log extraction responses
- * @param entityPackages      packages to scan for NamedEntity classes to include in the data dictionary
+ * @param entityPackages              packages to scan for NamedEntity classes to include in the data dictionary
+ * @param existingPropositionsToShow  number of existing propositions to include in the extraction prompt to avoid duplicates
  */
 public record PropositionExtractionProperties(
         @DefaultValue("true") boolean enabled,
@@ -27,7 +28,8 @@ public record PropositionExtractionProperties(
         @DefaultValue("6") int triggerInterval,
         @DefaultValue("false") boolean showPrompts,
         @DefaultValue("false") boolean showResponses,
-        @DefaultValue("") List<String> entityPackages
+        @DefaultValue("") List<String> entityPackages,
+        @DefaultValue("100") int existingPropositionsToShow
 ) {
     public PropositionExtractionProperties {
         if (windowSize <= 0) windowSize = 10;
