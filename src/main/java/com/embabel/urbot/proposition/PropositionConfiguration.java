@@ -15,7 +15,7 @@ import com.embabel.dice.pipeline.PropositionPipeline;
 import com.embabel.dice.projection.graph.GraphProjector;
 import com.embabel.dice.projection.graph.GraphRelationshipPersister;
 import com.embabel.dice.projection.graph.NamedEntityDataRepositoryGraphRelationshipPersister;
-import com.embabel.dice.projection.graph.LlmGraphProjector;
+import com.embabel.dice.projection.graph.LenientProjectionPolicy;
 import com.embabel.dice.projection.graph.RelationBasedGraphProjector;
 import com.embabel.dice.projection.memory.MemoryProjector;
 import com.embabel.dice.projection.memory.support.DefaultMemoryProjector;
@@ -84,7 +84,15 @@ class PropositionConfiguration {
     }
 
     @Bean
-    Relations relations() {
+    @Primary
+    Relations compositeRelations(List<Relations> allRelations) {
+        return allRelations.stream()
+                .reduce(Relations::plus)
+                .orElse(Relations.empty());
+    }
+
+    @Bean
+    Relations urbotRelations() {
         return Relations.empty()
                 .withPredicatesForSubject(
                         UrbotUser.class, KnowledgeType.SEMANTIC,
@@ -96,15 +104,9 @@ class PropositionConfiguration {
     }
 
     @Bean
-    GraphProjector graphProjector(AiBuilder aiBuilder, UrbotProperties properties) {
-        var extraction = properties.memory();
-        var ai = aiBuilder
-                .withShowPrompts(extraction.showPrompts())
-                .withShowLlmResponses(extraction.showResponses())
-                .ai();
-        var llmOptions = extraction.classifyLlm() != null ? extraction.classifyLlm() : extraction.extractionLlm();
-        logger.info("Creating LlmGraphProjector with model: {}", llmOptions.getModel());
-        return new LlmGraphProjector(ai, new com.embabel.dice.projection.graph.DefaultProjectionPolicy(), llmOptions);
+    GraphProjector graphProjector(Relations relations) {
+        logger.info("Creating RelationBasedGraphProjector with {} relations", relations.size());
+        return new RelationBasedGraphProjector(relations, new LenientProjectionPolicy());
     }
 
     @Bean
