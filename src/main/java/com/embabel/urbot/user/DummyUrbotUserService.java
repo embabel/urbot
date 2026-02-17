@@ -7,7 +7,9 @@ import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,9 +55,13 @@ public class DummyUrbotUserService implements UrbotUserService {
         }
     }
 
+    public List<UrbotUser> getUsers() {
+        return users;
+    }
+
     @Override
     @Nullable
-    public UrbotUser findById(String id) {
+    public UrbotUser findById(@NonNull String id) {
         return users.stream().filter(u -> Objects.equals(u.getId(), id)).findFirst().orElse(null);
     }
 
@@ -69,5 +75,19 @@ public class DummyUrbotUserService implements UrbotUserService {
     @Nullable
     public UrbotUser findByEmail(@NonNull String email) {
         return null;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        var user = findByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException(username);
+        }
+        return User.withDefaultPasswordEncoder()
+                .username(user.getUsername())
+                .password(user.getUsername())
+                .roles("USER")
+                .build();
     }
 }

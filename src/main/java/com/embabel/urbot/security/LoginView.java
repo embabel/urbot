@@ -1,5 +1,7 @@
 package com.embabel.urbot.security;
 
+import com.embabel.urbot.user.DummyUrbotUserService;
+import com.embabel.urbot.user.UrbotUserService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
@@ -23,7 +25,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     private final LoginForm loginForm = new LoginForm();
 
-    public LoginView() {
+    public LoginView(UrbotUserService userService) {
         addClassName("login-view");
         setSizeFull();
         setAlignItems(Alignment.CENTER);
@@ -53,8 +55,11 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
         var legend = new Div();
         legend.addClassName("login-legend");
-        legend.add(createCredential("alice", "alice"));
-        legend.add(createCredential("ben", "ben"));
+        if (userService instanceof DummyUrbotUserService dummy) {
+            for (var user : dummy.getUsers()) {
+                legend.add(createCredential(user.getUsername(), user.getUsername()));
+            }
+        }
 
         add(header, loginForm, legend);
     }

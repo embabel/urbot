@@ -5,13 +5,11 @@ import com.embabel.urbot.user.DummyUrbotUserService;
 import com.embabel.urbot.user.UrbotUser;
 import com.embabel.urbot.user.UrbotUserService;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
@@ -21,6 +19,9 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 class SecurityConfiguration extends VaadinWebSecurity {
 
+    @Autowired
+    private UrbotUserService userService;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
@@ -28,6 +29,8 @@ class SecurityConfiguration extends VaadinWebSecurity {
         );
         super.configure(http);
         setLoginView(http, LoginView.class);
+
+        http.userDetailsService(userService);
 
         // Configure logout
         http.logout(logout -> logout
@@ -38,23 +41,6 @@ class SecurityConfiguration extends VaadinWebSecurity {
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                 .permitAll()
         );
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        var alice = User.withDefaultPasswordEncoder()
-                .username("alice")
-                .password("alice")
-                .roles("ADMIN", "USER")
-                .build();
-
-        var ben = User.withDefaultPasswordEncoder()
-                .username("ben")
-                .password("ben")
-                .roles("USER")
-                .build();
-
-        return new InMemoryUserDetailsManager(alice, ben);
     }
 
     @Bean
