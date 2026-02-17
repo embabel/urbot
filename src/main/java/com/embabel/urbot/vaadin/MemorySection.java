@@ -59,12 +59,12 @@ public class MemorySection extends VerticalLayout {
         buttonRow.setSpacing(true);
         buttonRow.addClassName("memory-button-row");
 
-        // "Remember" file upload
+        // "Learn" file upload
         if (onRemember != null) {
             var buffer = new MemoryBuffer();
             var upload = new Upload(buffer);
             upload.setDropAllowed(false);
-            upload.setUploadButton(new Button("Remember", VaadinIcon.BOOK.create()));
+            upload.setUploadButton(new Button("Learn", VaadinIcon.BOOK.create()));
             upload.setAcceptedFileTypes(
                     ".pdf", ".txt", ".md", ".html", ".htm",
                     ".doc", ".docx", ".odt", ".rtf",
@@ -81,7 +81,7 @@ public class MemorySection extends VerticalLayout {
                 var filename = event.getFileName();
                 try {
                     onRemember.accept(new RememberRequest(buffer.getInputStream(), filename));
-                    Notification.show("Remembering: " + filename, 3000, Notification.Position.BOTTOM_CENTER)
+                    Notification.show("Learning: " + filename, 3000, Notification.Position.BOTTOM_CENTER)
                             .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
                     // Schedule a refresh after extraction has time to complete
                     getUI().ifPresent(ui -> propositionsPanel.scheduleRefresh(ui, 5000));

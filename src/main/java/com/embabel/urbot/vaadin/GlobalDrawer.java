@@ -33,7 +33,7 @@ public class GlobalDrawer extends Div {
     private final DocumentListSection documentsSection;
     private final SchemaSection schemaSection;
 
-    public GlobalDrawer(DocumentService documentService, UrbotUser user, int neo4jHttpPort,
+    public GlobalDrawer(DocumentService documentService, UrbotUser user, int neo4jHttpPort, int neo4jBoltPort,
                         DataDictionary dataDictionary, Runnable onDocumentsChanged) {
         var globalContext = DocumentService.Context.global(user);
 
@@ -55,7 +55,7 @@ public class GlobalDrawer extends Div {
         sidePanel.setSpacing(false);
 
         // Header with close button
-        var header = getHorizontalLayout(neo4jHttpPort);
+        var header = getHorizontalLayout(neo4jHttpPort, neo4jBoltPort);
         sidePanel.add(header);
 
         // Tabs - Documents first
@@ -117,7 +117,7 @@ public class GlobalDrawer extends Div {
         getElement().appendChild(sidePanel.getElement());
     }
 
-    private @NonNull HorizontalLayout getHorizontalLayout(int neo4jHttpPort) {
+    private @NonNull HorizontalLayout getHorizontalLayout(int neo4jHttpPort, int neo4jBoltPort) {
         var header = new HorizontalLayout();
         header.addClassName("side-panel-header");
         header.setWidthFull();
@@ -125,7 +125,9 @@ public class GlobalDrawer extends Div {
         var title = new Span(" Configuration");
         title.addClassName("side-panel-title");
 
-        var neoLink = new Anchor("http://localhost:" + neo4jHttpPort, "Neo4j");
+        var neoLink = new Anchor(
+                "http://localhost:" + neo4jHttpPort + "/browser/?connectURL=bolt://localhost:" + neo4jBoltPort,
+                "Neo4j");
         neoLink.setTarget("_blank");
         neoLink.addClassName("side-panel-link");
 

@@ -71,7 +71,8 @@ public class ChatView extends VerticalLayout {
                     NamedEntityDataRepository entityRepository,
                     DataDictionary dataDictionary,
                     IncrementalPropositionExtraction propositionExtraction,
-                    @Value("${neo4j.http.port:8892}") int neo4jHttpPort) {
+                    @Value("${neo4j.http.port:8892}") int neo4jHttpPort,
+                    @Value("${drivine.connection.bolt.port:7891}") int neo4jBoltPort) {
         this.chatbot = chatbot;
         this.properties = properties;
         this.documentService = documentService;
@@ -141,7 +142,7 @@ public class ChatView extends VerticalLayout {
         add(footer);
 
         // Global documents drawer (right edge toggle)
-        var globalDrawer = new GlobalDrawer(documentService, currentUser, neo4jHttpPort, dataDictionary, this::refreshFooter);
+        var globalDrawer = new GlobalDrawer(documentService, currentUser, neo4jHttpPort, neo4jBoltPort, dataDictionary, this::refreshFooter);
         getElement().appendChild(globalDrawer.getElement());
 
         // Create onAnalyze runnable that triggers extraction on current conversation
