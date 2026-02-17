@@ -41,9 +41,13 @@ urbot:
     extraction-llm:
       model: gpt-4.1-mini
       temperature: 0.0
+      timeout: 240s
+
     entity-resolution-llm:
       model: gpt-4.1-mini
       temperature: 0.0
+      timeout: 120s
+
     classify-llm:
       model: gpt-4.1-nano
       temperature: 0.0
