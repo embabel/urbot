@@ -730,6 +730,17 @@ vaadin-login-form-wrapper::part(form-title) {
   align-items: center;
 }
 
+.memory-button-row .learn-upload {
+  border: none;
+  background: none;
+  padding: 0;
+  min-height: 0;
+}
+
+.memory-button-row .learn-upload::part(file-list) {
+  display: none;
+}
+
 /* Entity Card */
 .entity-card {
   background: var(--sb-bg-light);

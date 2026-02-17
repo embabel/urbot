@@ -12,11 +12,7 @@ import com.embabel.dice.common.resolver.EscalatingEntityResolver;
 import com.embabel.dice.common.resolver.LlmCandidateBakeoff;
 import com.embabel.dice.common.support.InMemorySchemaRegistry;
 import com.embabel.dice.pipeline.PropositionPipeline;
-import com.embabel.dice.projection.graph.GraphProjector;
-import com.embabel.dice.projection.graph.GraphRelationshipPersister;
-import com.embabel.dice.projection.graph.NamedEntityDataRepositoryGraphRelationshipPersister;
-import com.embabel.dice.projection.graph.LenientProjectionPolicy;
-import com.embabel.dice.projection.graph.RelationBasedGraphProjector;
+import com.embabel.dice.projection.graph.*;
 import com.embabel.dice.projection.memory.MemoryProjector;
 import com.embabel.dice.projection.memory.support.DefaultMemoryProjector;
 import com.embabel.dice.projection.memory.support.RelationBasedKnowledgeTypeClassifier;
@@ -95,12 +91,10 @@ class PropositionConfiguration {
     Relations urbotRelations() {
         return Relations.empty()
                 .withPredicatesForSubject(
-                        UrbotUser.class, KnowledgeType.SEMANTIC,
+                        UrbotUser.class,
+                        KnowledgeType.SEMANTIC,
                         "likes", "dislikes", "knows", "is_interested_in", "works_on", "prefers"
-                )
-                .withSemanticBetween("UrbotUser", "Pet", "owns", "user owns a pet")
-                .withSemanticBetween("UrbotUser", "Company", "works_at", "user works at a company")
-                .withSemanticBetween("UrbotUser", "Goal", "is_working_toward", "user is working toward a goal");
+                );
     }
 
     @Bean

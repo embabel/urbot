@@ -76,6 +76,12 @@ public class MemorySection extends VerticalLayout {
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             );
             upload.setMaxFileSize(10 * 1024 * 1024); // 10MB
+            upload.setMaxFiles(1);
+            upload.addClassName("learn-upload");
+
+            // Clear the file list after upload so it doesn't clutter the button row
+            upload.getElement().addEventListener("upload-success", e ->
+                    upload.getElement().executeJs("this.files = []"));
 
             upload.addSucceededListener(event -> {
                 var filename = event.getFileName();
