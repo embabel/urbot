@@ -181,9 +181,15 @@ class PropositionConfiguration {
                 .withShowPrompts(extraction.showPrompts())
                 .withShowLlmResponses(extraction.showResponses())
                 .ai();
-        return LlmPropositionReviser
+        var reviser = LlmPropositionReviser
                 .withLlm(extraction.extractionLlm())
-                .withAi(ai);
+                .withAi(ai)
+                .withClassifyBatchSize(extraction.classifyBatchSize());
+        if (extraction.classifyLlm() != null) {
+            reviser = reviser.withClassifyLlm(extraction.classifyLlm());
+            logger.info("Using separate classification LLM: {}", extraction.classifyLlm().getModel());
+        }
+        return reviser;
     }
 
     @Bean

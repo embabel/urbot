@@ -11,6 +11,7 @@ import com.embabel.chat.Message;
 import com.embabel.chat.UserMessage;
 import com.embabel.common.textio.template.JinjavaTemplateRenderer;
 import com.embabel.dice.proposition.Proposition;
+import com.embabel.urbot.proposition.extraction.IncrementalPropositionExtraction;
 import com.embabel.urbot.proposition.persistence.DrivinePropositionRepository;
 import com.embabel.urbot.user.UrbotUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -66,6 +67,9 @@ class ConversationEvalIT {
 
     @Autowired
     private DrivinePropositionRepository propositionRepository;
+
+    @Autowired
+    private IncrementalPropositionExtraction extraction;
 
     private UrbotUser testUser;
 
@@ -205,22 +209,31 @@ class ConversationEvalIT {
     }
 
     /**
-     * Poll until async proposition extraction has settled
-     * (no new propositions appearing for 10 seconds).
+     * Wait until the extraction pipeline is idle (queue empty, no extraction running).
      */
     private void waitForExtraction() throws InterruptedException {
-        int stableCount = 0;
+        // Brief pause for @Async event dispatch to complete
+        Thread.sleep(2000);
+
+        int maxWaitSeconds = 300;
+        int waited = 0;
         int lastCount = -1;
-        while (stableCount < 5) {
+        while (waited < maxWaitSeconds) {
+            if (extraction.isIdle()) {
+                int current = propositionRepository.findByContextIdValue(testUser.effectiveContext()).size();
+                logger.info("Extraction idle with {} propositions", current);
+                break;
+            }
             Thread.sleep(2000);
+            waited += 2;
             int current = propositionRepository.findByContextIdValue(testUser.effectiveContext()).size();
-            if (current == lastCount) {
-                stableCount++;
-            } else {
+            if (current != lastCount) {
                 logger.info("Extraction in progress: {} propositions so far", current);
-                stableCount = 0;
                 lastCount = current;
             }
+        }
+        if (waited >= maxWaitSeconds) {
+            logger.warn("Extraction did not complete within {} seconds", maxWaitSeconds);
         }
     }
 

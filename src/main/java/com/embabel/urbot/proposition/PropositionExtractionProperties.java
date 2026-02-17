@@ -18,6 +18,8 @@ import java.util.List;
  * @param showResponses       whether to log extraction responses
  * @param entityPackages              packages to scan for NamedEntity classes to include in the data dictionary
  * @param existingPropositionsToShow  number of existing propositions to include in the extraction prompt to avoid duplicates
+ * @param classifyBatchSize          max propositions per classify-batch LLM call (smaller = faster, more calls)
+ * @param classifyLlm                optional cheaper LLM for classification calls (defaults to extractionLlm if null)
  */
 public record PropositionExtractionProperties(
         @DefaultValue("true") boolean enabled,
@@ -29,7 +31,9 @@ public record PropositionExtractionProperties(
         @DefaultValue("false") boolean showPrompts,
         @DefaultValue("false") boolean showResponses,
         @DefaultValue("") List<String> entityPackages,
-        @DefaultValue("100") int existingPropositionsToShow
+        @DefaultValue("100") int existingPropositionsToShow,
+        @DefaultValue("15") int classifyBatchSize,
+        @NestedConfigurationProperty LlmOptions classifyLlm
 ) {
     public PropositionExtractionProperties {
         if (windowSize <= 0) windowSize = 10;

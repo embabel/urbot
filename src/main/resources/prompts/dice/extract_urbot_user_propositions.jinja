@@ -12,15 +12,9 @@ that IS a fact about the user.
 
 {% include "dice/existing_propositions.jinja" %}
 
-## Extraction Rules
+{% include "dice/extraction_guidance.jinja" %}
 
-1. **User's own words only**: Extract facts the user stated or clearly implied themselves. Ignore assistant commentary, opinions, creative writing, and interpretations.
-2. **Objective facts**: Extract concrete, verifiable information — preferences, experiences, relationships, goals, biographical details. Avoid subjective characterizations.
-3. **Single fact per proposition**: One subject, one object maximum
-4. **No inference beyond evidence**: Only extract what the user's messages explicitly support
-5. **No overlap**: Each fact should be distinct
-
-{% include "dice/canonical_form.jinja" %}
+6. **User's own words only**: Extract facts the user stated or clearly implied themselves. Ignore assistant commentary, opinions, creative writing, and interpretations.
 
 - **Start with the user's full name** as the subject: "{{ user.name }} ..."
 
@@ -43,13 +37,6 @@ Assistant says "Your chart shows great creativity and passion":
 
 User says "I was born in Sydney on March 15":
 - "{{ user.name }} was born in Sydney on March 15" ✓
-
-## Confidence & Decay
-
-- **High confidence**: Explicit user statements ("I love hiking", "I work at Google")
-- **Lower confidence**: Implied preferences from user questions (asking many questions about a topic)
-- **Low decay**: Stable facts (biographical details, long-term preferences, career, hobbies)
-- **High decay**: Transient states (current project, mood, what they're reading now)
 
 ## Input
 

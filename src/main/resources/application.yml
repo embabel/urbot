@@ -29,6 +29,7 @@ urbot:
       temperature: 0.0
     persona: assistant
     max-words: 80
+    memory-eager-limit: 50
     objective: qa
     behaviour: default
 
@@ -42,6 +43,9 @@ urbot:
       temperature: 0.0
     entity-resolution-llm:
       model: gpt-4.1-mini
+      temperature: 0.0
+    classify-llm:
+      model: gpt-4.1-nano
       temperature: 0.0
     window-size: 20
     overlap-size: 2

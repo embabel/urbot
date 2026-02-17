@@ -13,6 +13,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * @param behaviour        the behaviour profile to use
  * @param persona          the persona and output style of the chatbot
  * @param maxWords         maximum number of words in a chatbot response (soft limit)
+ * @param memoryEagerLimit how many memories to eagerly load into the system prompt via vector similarity
  * @param showPrompts      whether to log chat prompts sent to the LLM
  * @param showResponses    whether to log chat responses from the LLM
  */
@@ -23,6 +24,7 @@ public record ChatbotOptions(
         String behaviour,
         String persona,
         int maxWords,
+        @DefaultValue("50") int memoryEagerLimit,
         @DefaultValue("true") boolean showPrompts,
         @DefaultValue("true") boolean showResponses
 ) {}

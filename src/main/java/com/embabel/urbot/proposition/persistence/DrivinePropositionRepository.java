@@ -293,6 +293,7 @@ public class DrivinePropositionRepository implements PropositionRepository {
             case EFFECTIVE_CONFIDENCE_DESC -> cypher.replace("RETURN", "ORDER BY p.confidence DESC RETURN");
             case CREATED_DESC -> cypher.replace("RETURN", "ORDER BY p.createdAt DESC RETURN");
             case REVISED_DESC -> cypher.replace("RETURN", "ORDER BY p.revisedAt DESC RETURN");
+            case REINFORCE_COUNT_DESC -> cypher.replace("RETURN", "ORDER BY p.reinforceCount DESC RETURN");
             case NONE -> cypher;
         };
 

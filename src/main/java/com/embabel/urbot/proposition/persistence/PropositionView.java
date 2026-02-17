@@ -74,6 +74,7 @@ public class PropositionView {
                 proposition.getStatus(),
                 0,
                 proposition.getSourceIds(),
+                0,
                 Map.of(),
                 proposition.getUri()
         );

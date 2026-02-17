@@ -108,7 +108,7 @@ public class ChatActions {
             references.add(Memory.forContext(user.currentContext())
                     .withRepository(propositionRepository)
                     .withProjector(memoryProjector)
-                    .withEagerSearchAbout(recentContext, 10));
+                    .withEagerSearchAbout(recentContext, properties.chat().memoryEagerLimit()));
         }
 
         var assistantMessage = context.

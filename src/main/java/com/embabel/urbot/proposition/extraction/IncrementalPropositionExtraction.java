@@ -33,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -58,6 +60,8 @@ public class IncrementalPropositionExtraction {
     private final GraphProjector graphProjector;
     private final GraphRelationshipPersister graphRelationshipPersister;
     private final ReentrantLock extractionLock = new ReentrantLock();
+    private final ConcurrentLinkedQueue<SourceAnalysisRequestEvent> pendingEvents = new ConcurrentLinkedQueue<>();
+    private final AtomicInteger inFlightCount = new AtomicInteger(0);
 
     public IncrementalPropositionExtraction(
             PropositionPipeline propositionPipeline,
@@ -94,6 +98,16 @@ public class IncrementalPropositionExtraction {
         );
     }
 
+    /**
+     * Synchronous listener — runs on the publisher's thread during publishEvent().
+     * Increments the in-flight counter BEFORE the async handler is dispatched,
+     * so isIdle() can see events that are in Spring's executor queue.
+     */
+    @EventListener
+    public void trackEvent(SourceAnalysisRequestEvent event) {
+        inFlightCount.incrementAndGet();
+    }
+
     @Async
     @Transactional
     @EventListener
@@ -108,11 +122,40 @@ public class IncrementalPropositionExtraction {
         );
     }
 
+    /**
+     * Returns true when no extraction is running, no events are queued,
+     * and no events are in-flight (in Spring's async executor queue).
+     */
+    public boolean isIdle() {
+        return inFlightCount.get() <= 0 && pendingEvents.isEmpty() && !extractionLock.isLocked();
+    }
+
     public void extractPropositions(SourceAnalysisRequestEvent event) {
+        pendingEvents.add(event);
+        processPendingEvents();
+    }
+
+    private void processPendingEvents() {
         if (!extractionLock.tryLock()) {
-            logger.debug("Extraction already in progress, skipping (will catch up on next trigger)");
+            logger.debug("Extraction in progress, {} event(s) queued", pendingEvents.size());
             return;
         }
+        try {
+            SourceAnalysisRequestEvent next;
+            while ((next = pendingEvents.poll()) != null) {
+                processEvent(next);
+            }
+        } finally {
+            extractionLock.unlock();
+        }
+        // An event may have been queued between our last poll() and unlock().
+        // Re-check to avoid leaving events stranded.
+        if (!pendingEvents.isEmpty()) {
+            processPendingEvents();
+        }
+    }
+
+    private void processEvent(SourceAnalysisRequestEvent event) {
         try {
             var source = event.incrementalSource();
             if (source.getSize() < windowConfig.getOverlapSize()) {
@@ -144,7 +187,7 @@ public class IncrementalPropositionExtraction {
         } catch (Exception e) {
             logger.warn("Failed to extract propositions", e);
         } finally {
-            extractionLock.unlock();
+            inFlightCount.decrementAndGet();
         }
     }
 

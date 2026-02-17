@@ -8,6 +8,7 @@ import com.embabel.dice.common.KnownEntity;
 import com.embabel.dice.common.SchemaAdherence;
 import com.embabel.dice.common.SourceAnalysisContext;
 import com.embabel.dice.common.resolver.AlwaysCreateEntityResolver;
+import com.embabel.dice.proposition.extraction.ExtractionPerspective;
 import com.embabel.dice.proposition.extraction.TemplateModel;
 import com.embabel.urbot.ChatbotOptions;
 import com.embabel.urbot.user.UrbotUser;
@@ -49,7 +50,8 @@ class TemplateRenderingTest {
                 context,
                 Chunk.create("User: I like hiking\nAssistant: That's great!", "test-source"),
                 SchemaAdherence.DEFAULT,
-                List.of()
+                List.of(),
+                ExtractionPerspective.ALL
         );
     }
 
@@ -78,7 +80,7 @@ class TemplateRenderingTest {
     @Test
     void urbotSystemPromptRenders() {
         var user = new UrbotUser("test-user", "Test User", "tuser");
-        var chat = new ChatbotOptions(null, 20, "qa", "default", "assistant", 200, true, true);
+        var chat = new ChatbotOptions(null, 20, "qa", "default", "assistant", 200, 50, true, true);
         var properties = new UrbotProperties(chat, null, null, null, List.of(), List.of());
 
         var result = renderer.renderLoadedTemplate(
