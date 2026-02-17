@@ -24,8 +24,9 @@ public class DummyUrbotUserService implements UrbotUserService {
     private final NamedEntityDataRepository entityRepository;
     private final Set<String> persistedUserIds = ConcurrentHashMap.newKeySet();
 
-    public DummyUrbotUserService(List<UrbotUser> users, NamedEntityDataRepository entityRepository) {
-        this.users = users;
+    public DummyUrbotUserService(NamedEntityDataRepository entityRepository,
+                                 UrbotUser... users) {
+        this.users = Arrays.stream(users).toList();
         this.entityRepository = entityRepository;
     }
 

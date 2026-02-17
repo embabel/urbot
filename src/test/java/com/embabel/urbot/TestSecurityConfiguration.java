@@ -6,8 +6,6 @@ import com.embabel.urbot.user.UrbotUserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
-
 /**
  * Provides the {@link UrbotUserService} bean that the excluded
  * {@code SecurityConfiguration} normally supplies.
@@ -18,9 +16,9 @@ class TestSecurityConfiguration {
 
     @Bean
     UrbotUserService userService() {
-        return new DummyUrbotUserService(List.of(
+        return new DummyUrbotUserService(null,
                 new UrbotUser("1", "Alice Agu", "alice"),
                 new UrbotUser("2", "Ben Blossom", "ben")
-        ));
+        );
     }
 }

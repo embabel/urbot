@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import java.util.List;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -60,9 +59,9 @@ class SecurityConfiguration extends VaadinWebSecurity {
 
     @Bean
     UrbotUserService userService(NamedEntityDataRepository entityRepository) {
-        return new DummyUrbotUserService(java.util.List.of(
+        return new DummyUrbotUserService(entityRepository,
                 new UrbotUser("1", "Alice Agu", "alice"),
                 new UrbotUser("2", "Ben Blossom", "ben")
-        ), entityRepository);
+        );
     }
 }
