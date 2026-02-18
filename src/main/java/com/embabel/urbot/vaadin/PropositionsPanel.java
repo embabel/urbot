@@ -184,21 +184,23 @@ public class PropositionsPanel extends VerticalLayout {
             anchorWrapper.add(anchorLabel, createCard(anchor));
             content.add(anchorWrapper);
 
-            // Similar cards with similarity score bars
+            // Similar cards with similarity score to the right
             for (var sim : similar) {
-                var simWrapper = new VerticalLayout();
+                var simWrapper = new HorizontalLayout();
+                simWrapper.setWidthFull();
+                simWrapper.setAlignItems(Alignment.CENTER);
                 simWrapper.setPadding(false);
                 simWrapper.setSpacing(false);
                 simWrapper.addClassName("cluster-similar-wrapper");
 
-                var scorePct = (int) Math.round(sim.getScore() * 100);
-                var scoreRow = new HorizontalLayout();
-                scoreRow.setAlignItems(Alignment.CENTER);
-                scoreRow.setSpacing(true);
-                scoreRow.addClassName("similarity-score-row");
+                var card = createCard(sim.getMatch());
 
-                var connector = new Span();
-                connector.addClassName("cluster-connector");
+                var scorePct = (int) Math.round(sim.getScore() * 100);
+                var scoreIndicator = new VerticalLayout();
+                scoreIndicator.setPadding(false);
+                scoreIndicator.setSpacing(false);
+                scoreIndicator.setAlignItems(Alignment.CENTER);
+                scoreIndicator.addClassName("similarity-indicator");
 
                 var scoreBadge = new Span(scorePct + "%");
                 scoreBadge.addClassName("similarity-badge");
@@ -214,9 +216,9 @@ public class PropositionsPanel extends VerticalLayout {
                 scoreBar.addClassName("similarity-bar");
                 scoreBar.getElement().getStyle().set("--score-width", scorePct + "%");
 
-                scoreRow.add(connector, scoreBadge, scoreBar);
-
-                simWrapper.add(scoreRow, createCard(sim.getMatch()));
+                scoreIndicator.add(scoreBadge, scoreBar);
+                simWrapper.add(card, scoreIndicator);
+                simWrapper.setFlexGrow(1, card);
                 content.add(simWrapper);
             }
 

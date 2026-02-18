@@ -5,11 +5,13 @@ import com.embabel.urbot.proposition.persistence.DrivinePropositionRepository;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import org.slf4j.Logger;
@@ -59,12 +61,31 @@ public class MemorySection extends VerticalLayout {
         buttonRow.setSpacing(true);
         buttonRow.addClassName("memory-button-row");
 
-        // "Learn" file upload
+        // Upload status row — shown below buttons during upload/extraction
+        var statusRow = new HorizontalLayout();
+        statusRow.setWidthFull();
+        statusRow.setAlignItems(Alignment.CENTER);
+        statusRow.setSpacing(true);
+        statusRow.setPadding(false);
+        statusRow.addClassName("learn-status-row");
+        statusRow.setVisible(false);
+
+        var statusLabel = new Span();
+        statusLabel.addClassName("learn-status-label");
+
+        var statusBar = new ProgressBar();
+        statusBar.addClassName("learn-progress-bar");
+
+        statusRow.add(statusLabel, statusBar);
+        statusRow.setFlexGrow(1, statusBar);
+
+        // "Learn" file upload — progress shown in status row below
         if (onRemember != null) {
             var buffer = new MemoryBuffer();
             var upload = new Upload(buffer);
             upload.setDropAllowed(false);
-            upload.setUploadButton(new Button("Learn", VaadinIcon.BOOK.create()));
+            var learnButton = new Button("Learn", VaadinIcon.BOOK.create());
+            upload.setUploadButton(learnButton);
             upload.setAcceptedFileTypes(
                     ".pdf", ".txt", ".md", ".html", ".htm",
                     ".doc", ".docx", ".odt", ".rtf",
@@ -79,27 +100,57 @@ public class MemorySection extends VerticalLayout {
             upload.setMaxFiles(1);
             upload.addClassName("learn-upload");
 
-            // Clear the file list after upload so it doesn't clutter the button row
+            // Immediately clear the file list so it never shows inline
+            upload.getElement().addEventListener("upload-start", e ->
+                    upload.getElement().executeJs("this.files = []"));
             upload.getElement().addEventListener("upload-success", e ->
                     upload.getElement().executeJs("this.files = []"));
 
+            upload.addStartedListener(event -> {
+                statusLabel.setText("Uploading: " + event.getFileName());
+                statusBar.setIndeterminate(false);
+                statusBar.setValue(0);
+                statusRow.setVisible(true);
+            });
+
+            upload.addProgressListener(event -> {
+                if (event.getContentLength() > 0) {
+                    statusBar.setIndeterminate(false);
+                    statusBar.setValue((double) event.getReadBytes() / event.getContentLength());
+                } else {
+                    statusBar.setIndeterminate(true);
+                }
+            });
+
             upload.addSucceededListener(event -> {
                 var filename = event.getFileName();
+                statusLabel.setText("Extracting memories from: " + filename);
+                statusBar.setIndeterminate(true);
                 try {
                     onRemember.accept(new RememberRequest(buffer.getInputStream(), filename));
-                    Notification.show("Learning: " + filename, 3000, Notification.Position.BOTTOM_CENTER)
-                            .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-                    // Schedule a refresh after extraction has time to complete
-                    getUI().ifPresent(ui -> propositionsPanel.scheduleRefresh(ui, 5000));
+                    // Hide status after extraction has had time to start
+                    getUI().ifPresent(ui -> {
+                        propositionsPanel.scheduleRefresh(ui, 5000);
+                        new Thread(() -> {
+                            try {
+                                Thread.sleep(5000);
+                                ui.access(() -> statusRow.setVisible(false));
+                            } catch (InterruptedException ex) {
+                                Thread.currentThread().interrupt();
+                            }
+                        }).start();
+                    });
                 } catch (Exception e) {
                     logger.error("Failed to remember file: {}", filename, e);
-                    Notification.show("Error: " + e.getMessage(), 5000, Notification.Position.BOTTOM_CENTER)
-                            .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    statusLabel.setText("Error: " + e.getMessage());
+                    statusBar.setVisible(false);
                 }
             });
 
             upload.addFailedListener(event -> {
                 logger.error("Upload failed: {}", event.getReason().getMessage());
+                statusLabel.setText("Upload failed");
+                statusRow.setVisible(false);
                 Notification.show("Upload failed: " + event.getReason().getMessage(),
                         5000, Notification.Position.BOTTOM_CENTER)
                         .addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -137,7 +188,7 @@ public class MemorySection extends VerticalLayout {
         });
         buttonRow.add(clearAllButton);
 
-        add(buttonRow, propositionsPanel);
+        add(buttonRow, statusRow, propositionsPanel);
         setFlexGrow(1, propositionsPanel);
     }
 

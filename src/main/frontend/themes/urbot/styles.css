@@ -735,10 +735,36 @@ vaadin-login-form-wrapper::part(form-title) {
   background: none;
   padding: 0;
   min-height: 0;
+  overflow: hidden;
 }
 
+/* Hide all internal upload chrome — progress shown via button state + notification */
 .memory-button-row .learn-upload::part(file-list) {
   display: none;
+}
+
+.memory-button-row .learn-upload vaadin-upload-file {
+  display: none;
+}
+
+/* Learn upload status row */
+.learn-status-row {
+  min-height: 24px;
+}
+
+.learn-status-label {
+  color: var(--sb-text-secondary);
+  font-size: var(--lumo-font-size-xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+  flex-shrink: 0;
+}
+
+.learn-progress-bar {
+  --lumo-primary-color: var(--sb-accent);
+  height: 4px;
 }
 
 /* Entity Card */
@@ -932,34 +958,29 @@ vaadin-login-form-wrapper::part(form-title) {
   color: var(--sb-accent-light);
 }
 
-/* Similar card wrapper with connector */
+/* Similar card wrapper — card on left, score on right */
 .cluster-similar-wrapper {
-  position: relative;
   margin-bottom: var(--lumo-space-xs);
+  gap: var(--lumo-space-xs);
 }
 
-.similarity-score-row {
-  padding: var(--lumo-space-xs) 0;
-}
-
-.cluster-connector {
-  display: inline-block;
-  width: 16px;
-  height: 2px;
-  background: var(--sb-border);
+/* Compact score indicator on the right */
+.similarity-indicator {
   flex-shrink: 0;
-  border-radius: 1px;
+  min-width: 44px;
+  gap: 3px;
 }
 
 /* Similarity badge — color coded by score */
 .similarity-badge {
   display: inline-block;
-  font-size: var(--lumo-font-size-xs);
+  font-size: 10px;
   font-weight: 700;
-  padding: 2px 10px;
-  border-radius: 10px;
+  padding: 1px 6px;
+  border-radius: 8px;
   flex-shrink: 0;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .similarity-badge.score-high {
@@ -980,15 +1001,14 @@ vaadin-login-form-wrapper::part(form-title) {
   border: 1px solid rgba(159, 119, 205, 0.4);
 }
 
-/* Similarity bar — animated fill */
+/* Similarity bar — horizontal fill under the badge */
 .similarity-bar {
-  flex: 1;
-  height: 4px;
+  width: 36px;
+  height: 3px;
   border-radius: 2px;
   background: var(--sb-bg-dark);
   position: relative;
   overflow: hidden;
-  min-width: 40px;
 }
 
 .similarity-bar::after {
