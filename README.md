@@ -31,13 +31,13 @@ Urbot is designed to be **extended without modification**. The core application 
 graph TB
     subgraph UI["Vaadin Web UI"]
         CV[Chat View]
-        UD[User Drawer<br/>Personal Documents]
-        GD[Global Drawer<br/>Global Documents]
+        UD[User Drawer: Personal Documents]
+        GD[Global Drawer: Global Documents]
     end
 
     subgraph App["Spring Boot Application"]
         subgraph Agent["Embabel Agent Platform"]
-            CA[ChatActions<br/>Agentic RAG]
+            CA[ChatActions: Agentic RAG]
         end
         subgraph Docs["Document Service"]
             TP[Tika Parser]
@@ -49,7 +49,7 @@ graph TB
         EMB[Vector Embeddings + Graph Search]
     end
 
-    LLM[(LLM Provider<br/>OpenAI / Anthropic)]
+    LLM[(LLM Provider: OpenAI / Anthropic)]
 
     CV --> CA
     UD --> TP
@@ -78,7 +78,7 @@ sequenceDiagram
     Note over L: LLM reasons about approach
 
     L->>T: Call vectorSearch("relevant query")
-    T->>S: Embed query + similarity search<br/>(filtered by user context)
+    T->>S: Embed query + similarity search
     S-->>T: Matching chunks with metadata
     T-->>L: Retrieved context
 
@@ -172,35 +172,31 @@ When no profile is set, the `default` profile is active and Urbot runs as a gene
 
 ```mermaid
 graph TB
-    subgraph Core["Urbot Core (never modified)"]
+    subgraph Core["Urbot Core · never modified"]
         direction TB
-        UI["Vaadin UI\nChatView + Drawers + Memory"]
-        Chat["ChatActions\nAgentProcessChatbot"]
-        RAG["RagConfiguration\nDrivineStore + Neo4j"]
-        Memory["DICE Semantic Memory\nPropositions + Entities"]
-        Prompts["Jinja Prompt Engine\npersona + objective + guardrails"]
+        UI["Vaadin UI"]
+        Chat["ChatActions"]
+        RAG["RagConfiguration"]
+        Memory["DICE Semantic Memory"]
+        Prompts["Jinja Prompt Engine"]
     end
 
-    subgraph Default["@Profile(&quot;default&quot;)"]
-        DefRAG["globalDocuments\nToolishRag for shared docs"]
-        DefPersona["assistant.jinja\nGeneric Q&A persona"]
+    subgraph Default["Default profile · no profile set"]
+        DefRAG["globalDocuments ToolishRag"]
+        DefPersona["assistant.jinja persona"]
     end
 
-    subgraph Custom["Your Bot Profile (additive)"]
+    subgraph Custom["Your Bot Profile · additive"]
         direction TB
-        Config["@Configuration\nTools + ToolishRag + Relations + Users"]
-        Domain["Domain Model\nNamedEntity subclasses"]
-        BotPersona["Custom Persona & Objective\nJinja templates"]
+        Config["Configuration class"]
+        Domain["Domain Model"]
+        BotPersona["Custom Persona"]
         Style["Custom Stylesheet"]
-        Docker["Docker Services\ne.g. external APIs"]
+        Docker["Docker Services"]
     end
 
     Core --- Default
     Core --- Custom
-
-    style Core fill:#1a1a2e,stroke:#9f77cd,stroke-width:2px,color:#f4f4f4
-    style Default fill:#1a2e1a,stroke:#22c55e,stroke-width:1px,color:#f4f4f4
-    style Custom fill:#2e1a1a,stroke:#f59e0b,stroke-width:2px,color:#f4f4f4
 ```
 
 ### How It Works
