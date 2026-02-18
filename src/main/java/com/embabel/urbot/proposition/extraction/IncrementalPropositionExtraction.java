@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -50,7 +51,6 @@ public class IncrementalPropositionExtraction {
 
     private final IncrementalAnalyzer<Message, ChunkPropositionResult> analyzer;
     private final PropositionPipeline pipeline;
-    private final ChunkHistoryStore chunkHistoryStore;
     private final WindowConfig windowConfig;
     private final DataDictionary dataDictionary;
     private final Relations relations;
@@ -75,7 +75,6 @@ public class IncrementalPropositionExtraction {
             GraphRelationshipPersister graphRelationshipPersister,
             UrbotProperties properties) {
         this.pipeline = propositionPipeline;
-        this.chunkHistoryStore = chunkHistoryStore;
         this.dataDictionary = dataDictionary;
         this.relations = relations;
         this.propositionRepository = propositionRepository;
@@ -117,7 +116,7 @@ public class IncrementalPropositionExtraction {
 
     private EntityResolver entityResolverForUser(UrbotUser user) {
         return KnownEntityResolver.withKnownEntities(
-                java.util.List.of(KnownEntity.asCurrentUser(user)),
+                List.of(KnownEntity.asCurrentUser(user)),
                 entityResolver
         );
     }
@@ -208,7 +207,7 @@ public class IncrementalPropositionExtraction {
 
             var context = buildContext(user);
             var sourceId = "remember:" + filename;
-            ChunkPropositionResult result = pipeline.processOnce(text, sourceId, context);
+            var result = pipeline.processOnce(text, sourceId, context);
 
             if (!result.getPropositions().isEmpty()) {
                 logger.info(result.infoString(true, 1));
@@ -219,7 +218,7 @@ public class IncrementalPropositionExtraction {
                 logger.info("No propositions extracted from file: {}", filename);
             }
         } catch (Exception e) {
-            logger.warn("Failed to remember file: {}", filename, e);
+            logger.warn("Failed to learn file: {}", filename, e);
         }
     }
 
