@@ -360,9 +360,19 @@ public class DrivinePropositionRepository implements PropositionRepository {
         var whereConditions = new java.util.ArrayList<String>();
         whereConditions.add("score >= $similarityThreshold");
 
+        // Over-fetch from the vector index to compensate for post-filter losses
+        // (contextId, status, etc. are applied after the vector search)
+        boolean hasPostFilters = query.getContextIdValue() != null
+                || query.getStatus() != null
+                || query.getMinLevel() != null
+                || query.getMaxLevel() != null;
+        int vectorTopK = hasPostFilters
+                ? Math.min(request.getTopK() * 5, 500)
+                : request.getTopK();
+
         var params = new java.util.HashMap<String, Object>();
         params.put("vectorIndex", PROPOSITION_VECTOR_INDEX);
-        params.put("topK", request.getTopK());
+        params.put("topK", vectorTopK);
         params.put("queryVector", embedding);
         params.put("similarityThreshold", request.getSimilarityThreshold());
 
@@ -393,7 +403,9 @@ public class DrivinePropositionRepository implements PropositionRepository {
                     score: score
                 } AS result
                 ORDER BY score DESC
+                LIMIT $resultLimit
                 """.formatted(whereClause);
+        params.put("resultLimit", request.getTopK());
 
         try {
             var rows = persistenceManager.query(
