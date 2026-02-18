@@ -33,7 +33,8 @@ public record UrbotProperties(
         @NestedConfigurationProperty PropositionExtractionProperties memory,
         @DefaultValue("") List<String> botPackages,
         List<String> initialDocuments,
-        @DefaultValue("") String stylesheet
+        @DefaultValue("") String stylesheet,
+        @DefaultValue("use for web search") String mcpToolsDescription
 ) {
 
     public UrbotProperties {

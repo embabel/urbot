@@ -7,7 +7,6 @@ import com.embabel.agent.api.common.OperationContext;
 import com.embabel.agent.api.reference.LlmReference;
 import com.embabel.agent.api.tool.Tool;
 import com.embabel.agent.rag.service.SearchOperations;
-import com.embabel.agent.tools.mcp.McpToolFactory;
 import com.embabel.chat.Conversation;
 import com.embabel.chat.SimpleMessageFormatter;
 import com.embabel.chat.UserMessage;
@@ -44,7 +43,6 @@ public class ChatActions {
     private final MemoryProjector memoryProjector;
     private final PropositionRepository propositionRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final McpToolFactory mcpToolFactory;
 
     public ChatActions(
             SearchOperations searchOperations,
@@ -53,8 +51,7 @@ public class ChatActions {
             UrbotProperties properties,
             MemoryProjector memoryProjector,
             PropositionRepository propositionRepository,
-            ApplicationEventPublisher eventPublisher,
-            McpToolFactory mcpToolFactory) {
+            ApplicationEventPublisher eventPublisher) {
         this.searchOperations = searchOperations;
         this.globalReferences = globalReferences;
         this.globalTools = globalTools;
@@ -62,7 +59,6 @@ public class ChatActions {
         this.memoryProjector = memoryProjector;
         this.propositionRepository = propositionRepository;
         this.eventPublisher = eventPublisher;
-        this.mcpToolFactory = mcpToolFactory;
 
         logger.info("ChatActions initialized. Global references: [{}], Global tools: [{}]",
                 globalReferences.stream().map(Named::getName).collect(java.util.stream.Collectors.joining(", ")),
@@ -96,11 +92,6 @@ public class ChatActions {
         ).format(conversation.last(properties.chat().messagesToEmbed()));
 
         var tools = new LinkedList<>(globalTools);
-        tools.add(mcpToolFactory.unfolding(
-                "mcp_tools",
-                "External tools via MCP. Invoke to access available tools.",
-                callback -> true
-        ));
 
         var references = new LinkedList<>(globalReferences);
         references.add(user.personalDocs(searchOperations));

@@ -1,5 +1,6 @@
 package com.embabel.urbot;
 
+import com.embabel.agent.api.tool.Tool;
 import com.embabel.agent.spi.support.springai.SpringAiMcpToolFactory;
 import com.embabel.agent.tools.mcp.McpToolFactory;
 import io.modelcontextprotocol.client.McpSyncClient;
@@ -20,5 +21,15 @@ class McpToolsConfiguration {
     McpToolFactory mcpToolFactory(ObjectProvider<List<McpSyncClient>> mcpClientsProvider) {
         var mcpClients = mcpClientsProvider.getIfAvailable();
         return new SpringAiMcpToolFactory(mcpClients != null ? mcpClients : List.of());
+    }
+
+    // Expose so MCP tools will be picked up automatically as a single unfolding tool
+    @Bean
+    Tool mcpTools(McpToolFactory mcpToolFactory, UrbotProperties properties) {
+        return mcpToolFactory.unfolding(
+                "mcp_tools",
+                properties.mcpToolsDescription(),
+                callback -> true
+        );
     }
 }
