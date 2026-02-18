@@ -20,6 +20,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -70,8 +71,10 @@ class RagConfiguration {
 
     /**
      * Documents shared between all users
+     * Only loads if we have no other ToolishRag configured.
      */
     @Bean
+    @Profile("default")
     LlmReference globalDocuments(SearchOperations searchOperations) {
         return new ToolishRag(
                 "shared_docs",

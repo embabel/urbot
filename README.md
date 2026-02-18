@@ -21,6 +21,8 @@
 
 Upload documents, ask questions, and get intelligent answers grounded in your content -- powered by agentic Retrieval-Augmented Generation with Neo4j graph-backed vector search.
 
+Urbot is designed to be **extended without modification**. The core application provides the full RAG infrastructure, Vaadin UI, memory system, and chat plumbing out of the box. To build your own chatbot, you add a Spring profile with your persona, domain model, tools, and styling -- all in a separate package, without touching any existing code. See [Custom Chatbot Profiles](#custom-chatbot-profiles) below.
+
 ---
 
 ## Architecture
@@ -160,48 +162,141 @@ Documents are chunked, embedded, and stored in Neo4j via Drivine:
 - **Tool call visibility** -- See real-time progress as the agent searches your documents
 - **Session persistence** -- Conversation history preserved across page reloads
 - **Configurable persona** -- Switch voice and objective via configuration
+- **Custom chatbot profiles** -- Activate a Spring profile to replace the entire persona, domain model, tools, and RAG configuration
+
+## Custom Chatbot Profiles
+
+Urbot is an extensible template. You never need to modify the core application code -- instead, you add your own package alongside it and activate it with a Spring profile. The base application provides RAG infrastructure, Vaadin UI, DICE semantic memory, and chat plumbing; your profile adds a persona, domain model, tools, stylesheet, and `ToolishRag` configuration to create an entirely different chatbot.
+
+When no profile is set, the `default` profile is active and Urbot runs as a generic document Q&A assistant with the built-in `globalDocuments` `ToolishRag` bean. When a profile is activated, that default bean is skipped (via `@Profile("default")`) and the profile's `@Configuration` class provides its own `ToolishRag` and any other beans it needs.
+
+```mermaid
+graph TB
+    subgraph Core["Urbot Core (never modified)"]
+        direction TB
+        UI["Vaadin UI\nChatView + Drawers + Memory"]
+        Chat["ChatActions\nAgentProcessChatbot"]
+        RAG["RagConfiguration\nDrivineStore + Neo4j"]
+        Memory["DICE Semantic Memory\nPropositions + Entities"]
+        Prompts["Jinja Prompt Engine\npersona + objective + guardrails"]
+    end
+
+    subgraph Default["@Profile(&quot;default&quot;)"]
+        DefRAG["globalDocuments\nToolishRag for shared docs"]
+        DefPersona["assistant.jinja\nGeneric Q&A persona"]
+    end
+
+    subgraph Custom["Your Bot Profile (additive)"]
+        direction TB
+        Config["@Configuration\nTools + ToolishRag + Relations + Users"]
+        Domain["Domain Model\nNamedEntity subclasses"]
+        BotPersona["Custom Persona & Objective\nJinja templates"]
+        Style["Custom Stylesheet"]
+        Docker["Docker Services\ne.g. external APIs"]
+    end
+
+    Core --- Default
+    Core --- Custom
+
+    style Core fill:#1a1a2e,stroke:#9f77cd,stroke-width:2px,color:#f4f4f4
+    style Default fill:#1a2e1a,stroke:#22c55e,stroke-width:1px,color:#f4f4f4
+    style Custom fill:#2e1a1a,stroke:#f59e0b,stroke-width:2px,color:#f4f4f4
+```
+
+### How It Works
+
+Each custom chatbot lives in its own package (e.g. `com.embabel.bot.astrid`) and provides:
+
+| Axis | Mechanism | Example |
+|---|---|---|
+| **Properties** | `application-<profile>.properties` overrides persona, objective, LLM model, temperature, stylesheet | `urbot.chat.persona=astrid` |
+| **Persona & Objective** | Jinja templates in `prompts/personas/<name>.jinja` and `prompts/objectives/<name>.jinja` | Astrid's warm astrologer voice |
+| **Domain Model** | `NamedEntity` subclasses scoped via `urbot.bot-packages` -- automatically added to the DICE data dictionary for entity extraction | `Pet`, `Band`, `Goal`, `Place`, ... |
+| **Relationships** | A `Relations` bean defines how entities connect (e.g. user _owns_ Pet, user _listens to_ Band) | `Relations.empty().withSemanticBetween(...)` |
+| **Tools** | `@LlmTool` classes, `Subagent` beans, `ToolishRag` beans -- all auto-discovered | `AstrologyTools`, `DailyHoroscopeAgent` |
+| **ToolishRag** | Profile-specific `ToolishRag` bean replaces the default `globalDocuments` | `astrologyDocuments` scoped to global context |
+| **Users** | `@Primary UrbotUserService` bean overrides the default user list | Different demo users per bot |
+| **Stylesheet** | `urbot.stylesheet=<name>` loads `themes/urbot/<name>.css` | Custom color palette and branding |
+| **Docker services** | Profile-specific compose services (e.g. an astrology API container) | `docker compose --profile astrology up` |
+
+### Example: Astrid (astrology chatbot)
+
+The `astrid` branch demonstrates a complete custom chatbot:
+
+```bash
+# Activate the Astrid profile
+mvn spring-boot:run -Dspring-boot.run.profiles=astrid
+```
+
+This activates:
+
+- **`application-astrid.properties`** -- sets persona, objective, temperature, stylesheet, and bot package
+- **`AstridConfiguration`** -- defines domain relationships, a custom `ToolishRag` for astrology documents, a `DailyHoroscopeAgent` subagent, and custom users
+- **`AstrologyTools`** -- `@LlmTool` methods wrapping a Swiss Ephemeris API for natal charts and transits
+- **Domain classes** (`Pet`, `Band`, `Book`, `Goal`, `Place`, ...) -- enriched entity extraction from conversation
+- **`astrid.jinja`** persona -- an Australian astrologer who speaks casually and believes the stars explain life
+- **`astrid.css`** -- custom theme overrides
+
+### Creating Your Own Bot
+
+1. Create a package under `src/main/java/com/embabel/bot/<yourbot>/`
+2. Add a `@Configuration` class with your beans (tools, `ToolishRag`, domain relations, users)
+3. Add `application-<yourbot>.properties` with `urbot.bot-packages=com.embabel.bot.<yourbot>` and your persona/objective names
+4. Add Jinja templates under `prompts/personas/` and `prompts/objectives/`
+5. Run with `mvn spring-boot:run -Dspring-boot.run.profiles=<yourbot>`
+
+See `src/main/java/com/embabel/bot/README.md` for the full extension reference.
 
 ## Project Structure
 
 ```
-src/main/java/com/embabel/urbot/
-├── UrbotApplication.java           # Spring Boot entry point + Drivine bootstrap
-├── ChatActions.java                # @Action methods for agentic RAG chat
-├── ChatConfiguration.java          # Utility AI chatbot wiring
-├── RagConfiguration.java           # Neo4j/Drivine vector store setup
-├── UrbotProperties.java            # Externalized configuration
-├── rag/
-│   └── DocumentService.java        # Document ingestion, context management
-├── security/
-│   ├── SecurityConfiguration.java  # Spring Security setup
-│   └── LoginView.java              # Login page
-├── user/
-│   ├── UrbotUser.java              # User model with context
-│   └── UrbotUserService.java       # User service interface
-└── vaadin/
-    ├── ChatView.java               # Main chat interface
-    ├── ChatMessageBubble.java      # User/assistant message rendering
-    ├── DocumentsDrawer.java        # Global document management panel
-    ├── UserDrawer.java             # Personal document management + context selector
-    ├── DocumentListSection.java    # Document list component
-    ├── FileUploadSection.java      # File upload component (reusable)
-    ├── UrlIngestSection.java       # URL ingestion component (reusable)
-    ├── UserSection.java            # Clickable user profile chip
-    └── Footer.java                 # Document/chunk statistics
+src/main/java/
+├── com/embabel/urbot/               # Core application
+│   ├── UrbotApplication.java           # Spring Boot entry point + Drivine bootstrap
+│   ├── ChatActions.java                # @Action methods for agentic RAG chat
+│   ├── ChatConfiguration.java          # Utility AI chatbot wiring
+│   ├── UrbotProperties.java            # Externalized configuration
+│   ├── rag/
+│   │   ├── RagConfiguration.java       # Neo4j/Drivine vector store + default ToolishRag
+│   │   └── DocumentService.java        # Document ingestion, context management
+│   ├── security/
+│   │   ├── SecurityConfiguration.java  # Spring Security setup
+│   │   └── LoginView.java              # Login page
+│   ├── user/
+│   │   ├── UrbotUser.java              # User model with context
+│   │   └── UrbotUserService.java       # User service interface
+│   └── vaadin/
+│       ├── ChatView.java               # Main chat interface
+│       ├── ChatMessageBubble.java      # User/assistant message rendering
+│       ├── DocumentsDrawer.java        # Global document management panel
+│       ├── UserDrawer.java             # Personal document management + context selector
+│       ├── DocumentListSection.java    # Document list component
+│       ├── FileUploadSection.java      # File upload component (reusable)
+│       ├── UrlIngestSection.java       # URL ingestion component (reusable)
+│       ├── UserSection.java            # Clickable user profile chip
+│       └── Footer.java                 # Document/chunk statistics
+└── com/embabel/bot/                  # Custom chatbot profiles (profile-gated)
+    └── <yourbot>/                      # e.g. astrid/
+        ├── <YourBot>Configuration.java # @Configuration with tools, ToolishRag, domain relations
+        ├── <YourBot>Tools.java         # @LlmTool methods
+        └── domain/                     # NamedEntity subclasses for DICE extraction
 
 src/main/resources/
-├── application.yml                 # Server, LLM, Neo4j, and chunking config
+├── application.yml                     # Base config (server, LLM, Neo4j, chunking)
+├── application-<profile>.properties    # Profile overrides (persona, objective, bot-packages)
 └── prompts/
-    ├── urbot.jinja                 # Main prompt template
+    ├── urbot.jinja                     # Main prompt template
     ├── elements/
-    │   ├── guardrails.jinja        # Safety guidelines
-    │   └── personalization.jinja   # Dynamic persona/objective loader
+    │   ├── guardrails.jinja            # Safety guidelines
+    │   └── personalization.jinja       # Dynamic persona/objective loader
     ├── personas/
-    │   └── assistant.jinja         # Default assistant persona
+    │   ├── assistant.jinja             # Default assistant persona
+    │   └── <yourbot>.jinja             # Custom persona per profile
     └── objectives/
-        └── general.jinja           # General knowledge base objective
+        ├── general.jinja               # Default knowledge base objective
+        └── <yourbot>.jinja             # Custom objective per profile
 
-docker-compose.yml                  # Neo4j container with vector index support
+docker-compose.yml                      # Neo4j + optional profile-specific services
 ```
 
 ## Getting Started
@@ -214,7 +309,7 @@ docker-compose.yml                  # Neo4j container with vector index support
 - An OpenAI or Anthropic API key
 - (Optional) A [Brave Search API key](https://brave.com/search/api/) for web search via MCP
 
-### Run
+### Run (Default Mode)
 
 ```bash
 # Start Neo4j
@@ -226,8 +321,14 @@ export OPENAI_API_KEY=sk-...    # or ANTHROPIC_API_KEY for Claude
 # Optional: enable Brave web search MCP tool
 export BRAVE_API_KEY=BSA...
 
-# Start the application
+# Start the application (default generic document Q&A assistant)
 mvn spring-boot:run
+```
+
+To run with a custom chatbot profile instead:
+
+```bash
+mvn spring-boot:run -Dspring-boot.run.profiles=astrid
 ```
 
 Open [http://localhost:9000](http://localhost:9000) and log in:
