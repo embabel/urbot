@@ -506,16 +506,77 @@ vaadin-login-form-wrapper {
   box-shadow: 0 0 16px rgba(255, 157, 224, 0.15);
 }
 
-/* ---- Tool call — pulsing cosmic ---- */
+/* ---- Tool call — orbiting cosmic portal ---- */
 .tool-call-indicator {
-  background: rgba(8, 8, 16, 0.6);
-  border-left: 3px solid var(--sb-accent);
-  animation: cosmic-pulse 2s ease-in-out infinite;
+  background: rgba(8, 8, 16, 0.5) !important;
+  border-left: none !important;
+  border: 1px solid rgba(255, 157, 224, 0.3) !important;
+  border-radius: 40% 60% 55% 45% / 55% 40% 60% 45% !important;
+  padding: var(--lumo-space-s) var(--lumo-space-l) !important;
+  position: relative;
+  overflow: hidden;
+  animation: tool-morph 5s ease-in-out infinite, tool-glow 3s ease-in-out infinite alternate !important;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  color: var(--sb-accent-light) !important;
 }
 
-@keyframes cosmic-pulse {
-  0%, 100% { opacity: 0.6; border-left-color: #ff9de0; }
-  50%      { opacity: 1;   border-left-color: #80e0ff; }
+/* Sweeping inner light */
+.tool-call-indicator::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 157, 224, 0.08),
+    rgba(128, 224, 255, 0.12),
+    transparent
+  );
+  animation: tool-sweep 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Orbiting dot */
+.tool-call-indicator::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sb-accent);
+  box-shadow: 0 0 8px var(--sb-accent), 0 0 16px rgba(128, 224, 255, 0.4);
+  animation: tool-orbit 3s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes tool-morph {
+  0%   { border-radius: 40% 60% 55% 45% / 55% 40% 60% 45% !important; }
+  25%  { border-radius: 55% 45% 48% 52% / 45% 58% 42% 55% !important; }
+  50%  { border-radius: 48% 52% 42% 58% / 52% 45% 55% 48% !important; }
+  75%  { border-radius: 52% 48% 58% 42% / 48% 52% 48% 52% !important; }
+  100% { border-radius: 40% 60% 55% 45% / 55% 40% 60% 45% !important; }
+}
+
+@keyframes tool-glow {
+  0%   { box-shadow: 0 0 12px rgba(255, 157, 224, 0.2), 0 0 28px rgba(128, 224, 255, 0.08); border-color: rgba(255, 157, 224, 0.3); }
+  100% { box-shadow: 0 0 16px rgba(128, 224, 255, 0.25), 0 0 36px rgba(255, 157, 224, 0.1); border-color: rgba(128, 224, 255, 0.35); }
+}
+
+@keyframes tool-sweep {
+  0%   { left: -60%; }
+  100% { left: 120%; }
+}
+
+@keyframes tool-orbit {
+  0%   { top: 0%;   left: 50%;  }
+  25%  { top: 50%;  left: 100%; }
+  50%  { top: 100%; left: 50%;  }
+  75%  { top: 50%;  left: 0%;   }
+  100% { top: 0%;   left: 50%;  }
 }
 
 /* ---- Tabs ---- */
