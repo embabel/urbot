@@ -83,6 +83,11 @@ public class ChatView extends VerticalLayout {
         setPadding(true);
         setSpacing(true);
 
+        if (properties.stylesheet() != null && !properties.stylesheet().isBlank()) {
+            UI.getCurrent().getPage().addStyleSheet(
+                    "themes/urbot/" + properties.stylesheet() + ".css");
+        }
+
         // Header row with title and user section
         var headerRow = new HorizontalLayout();
         headerRow.setWidthFull();

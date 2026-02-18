@@ -21,6 +21,9 @@ import java.util.List;
  * @param initialDocuments list of document URIs to ingest into the global context at startup
  *                         if not already loaded. Each entry can be a URL (e.g., "https://example.com/doc.pdf")
  *                         or a file path (absolute or relative to the working directory).
+ * @param stylesheet       optional additional stylesheet to load (e.g., "astrid"). When set,
+ *                         loads {@code themes/urbot/<stylesheet>.css} as an override on top
+ *                         of the base theme.
  */
 @ConfigurationProperties(prefix = "urbot")
 public record UrbotProperties(
@@ -29,7 +32,8 @@ public record UrbotProperties(
         @NestedConfigurationProperty NeoRagServiceProperties neoRag,
         @NestedConfigurationProperty PropositionExtractionProperties memory,
         @DefaultValue("") List<String> botPackages,
-        List<String> initialDocuments
+        List<String> initialDocuments,
+        @DefaultValue("") String stylesheet
 ) {
 
     public UrbotProperties {
