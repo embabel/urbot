@@ -1,5 +1,6 @@
 package com.embabel.urbot.proposition.persistence;
 
+import com.embabel.agent.rag.service.Cluster;
 import com.embabel.agent.rag.service.RetrievableIdentifier;
 import com.embabel.common.ai.model.EmbeddingService;
 import com.embabel.common.core.types.SimilarityResult;
@@ -413,6 +414,86 @@ public class DrivinePropositionRepository implements PropositionRepository {
                     .toList();
         } catch (Exception e) {
             logger.error("Filtered vector search failed: {}", e.getMessage(), e);
+            return List.of();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @SuppressWarnings("unchecked")
+    public @NonNull List<Cluster<Proposition>> findClusters(
+            double similarityThreshold,
+            int topK,
+            @NonNull PropositionQuery query) {
+        var cypherQuery = buildCypher(query);
+        var candidateWhere = cypherQuery.cypher()
+                .replace("RETURN p.id AS id", "")
+                .replace("MATCH (p:Proposition)", "")
+                .trim();
+
+        // Build WHERE conditions for candidates
+        var candidateConditions = new java.util.ArrayList<String>();
+        if (!candidateWhere.isEmpty()) {
+            // Strip leading WHERE if present
+            var stripped = candidateWhere.startsWith("WHERE ")
+                    ? candidateWhere.substring(6).trim()
+                    : candidateWhere;
+            if (!stripped.isEmpty()) {
+                candidateConditions.add(stripped);
+            }
+        }
+
+        var candidateWhereClause = candidateConditions.isEmpty()
+                ? ""
+                : "WHERE " + String.join(" AND ", candidateConditions);
+
+        var cypher = """
+                MATCH (p:Proposition)
+                %s
+                WITH collect(p) AS candidates
+                UNWIND candidates AS seed
+                CALL db.index.vector.queryNodes($vectorIndex, $topK, seed.embedding)
+                YIELD node AS m, score
+                WHERE m <> seed AND score >= $similarityThreshold
+                  AND seed.id < m.id
+                  AND m IN candidates
+                WITH seed.id AS anchorId, collect({id: m.id, score: score}) AS similar
+                ORDER BY size(similar) DESC
+                RETURN {anchorId: anchorId, similar: similar} AS cluster
+                """.formatted(candidateWhereClause);
+
+        var params = new java.util.HashMap<>(cypherQuery.params());
+        params.put("vectorIndex", PROPOSITION_VECTOR_INDEX);
+        params.put("topK", topK);
+        params.put("similarityThreshold", similarityThreshold);
+
+        try {
+            var rows = persistenceManager.query(
+                    QuerySpecification
+                            .withStatement(cypher)
+                            .bind(params)
+                            .mapWith(new ClusterRowMapper())
+            );
+
+            return rows.stream()
+                    .<Cluster<Proposition>>map(entry -> {
+                        var anchor = findById(entry.getKey());
+                        if (anchor == null) return null;
+                        var similar = entry.getValue().stream()
+                                .<SimilarityResult<Proposition>>map(r -> {
+                                    var prop = findById(r.id());
+                                    return prop != null
+                                            ? new SimpleSimilaritySearchResult<>(prop, r.score())
+                                            : null;
+                                })
+                                .filter(r -> r != null)
+                                .toList();
+                        return similar.isEmpty() ? null : new Cluster<>(anchor, similar);
+                    })
+                    .filter(c -> c != null)
+                    .toList();
+        } catch (Exception e) {
+            logger.error("Cluster query failed: {}", e.getMessage(), e);
             return List.of();
         }
     }
