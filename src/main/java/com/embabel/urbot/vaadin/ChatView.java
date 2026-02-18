@@ -246,7 +246,7 @@ public class ChatView extends VerticalLayout {
 
         new Thread(() -> {
             try {
-                var userMessage = new UserMessage(text);
+                var userMessage = new UserMessage(text, currentUser.getDisplayName());
                 logger.info("Sending user message: {}", text);
                 sessionData.chatSession().onUserMessage(userMessage);
 
