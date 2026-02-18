@@ -144,44 +144,85 @@ public class PropositionsPanel extends VerticalLayout {
         }
 
         // Render each cluster as a collapsible Details component
-        for (var cluster : clusters) {
+        for (int i = 0; i < clusters.size(); i++) {
+            var cluster = clusters.get(i);
             var anchor = cluster.getAnchor();
             List<SimilarityResult<Proposition>> similar = cluster.getSimilar();
+            int clusterSize = similar.size() + 1;
 
-            // Summary: anchor text + count badge
+            // Summary: cluster icon + anchor text + count badge
             var summaryLayout = new HorizontalLayout();
             summaryLayout.setAlignItems(Alignment.CENTER);
             summaryLayout.setSpacing(true);
             summaryLayout.addClassName("cluster-summary");
 
-            var anchorText = new Span(truncate(anchor.getText(), 80));
-            anchorText.addClassName("proposition-text");
+            var clusterIcon = new Span();
+            clusterIcon.addClassName("cluster-icon");
 
-            var countBadge = new Span((similar.size() + 1) + "");
-            countBadge.addClassName("similarity-badge");
+            var anchorText = new Span(truncate(anchor.getText(), 70));
+            anchorText.addClassName("cluster-anchor-text");
+
+            var countBadge = new Span(clusterSize + " memories");
             countBadge.addClassName("cluster-count");
 
-            summaryLayout.add(anchorText, countBadge);
+            summaryLayout.add(clusterIcon, anchorText, countBadge);
 
-            // Content: anchor card + similar cards with similarity scores
+            // Content: anchor card (labeled) + similar cards with scored badges
             var content = new VerticalLayout();
             content.setPadding(false);
-            content.setSpacing(true);
+            content.setSpacing(false);
             content.addClassName("cluster-content");
 
-            content.add(createCard(anchor));
+            // Anchor card with label
+            var anchorWrapper = new VerticalLayout();
+            anchorWrapper.setPadding(false);
+            anchorWrapper.setSpacing(false);
+            anchorWrapper.addClassName("cluster-anchor-wrapper");
+            var anchorLabel = new Span("Anchor");
+            anchorLabel.addClassName("cluster-item-label");
+            anchorLabel.addClassName("anchor-label");
+            anchorWrapper.add(anchorLabel, createCard(anchor));
+            content.add(anchorWrapper);
 
+            // Similar cards with similarity score bars
             for (var sim : similar) {
-                var simCard = createCard(sim.getMatch());
+                var simWrapper = new VerticalLayout();
+                simWrapper.setPadding(false);
+                simWrapper.setSpacing(false);
+                simWrapper.addClassName("cluster-similar-wrapper");
+
                 var scorePct = (int) Math.round(sim.getScore() * 100);
-                var scoreBadge = new Span(scorePct + "% similar");
+                var scoreRow = new HorizontalLayout();
+                scoreRow.setAlignItems(Alignment.CENTER);
+                scoreRow.setSpacing(true);
+                scoreRow.addClassName("similarity-score-row");
+
+                var connector = new Span();
+                connector.addClassName("cluster-connector");
+
+                var scoreBadge = new Span(scorePct + "%");
                 scoreBadge.addClassName("similarity-badge");
-                simCard.getElement().appendChild(scoreBadge.getElement());
-                content.add(simCard);
+                if (scorePct >= 90) {
+                    scoreBadge.addClassName("score-high");
+                } else if (scorePct >= 80) {
+                    scoreBadge.addClassName("score-medium");
+                } else {
+                    scoreBadge.addClassName("score-low");
+                }
+
+                var scoreBar = new Span();
+                scoreBar.addClassName("similarity-bar");
+                scoreBar.getElement().getStyle().set("--score-width", scorePct + "%");
+
+                scoreRow.add(connector, scoreBadge, scoreBar);
+
+                simWrapper.add(scoreRow, createCard(sim.getMatch()));
+                content.add(simWrapper);
             }
 
             var details = new Details(summaryLayout, content);
             details.addClassName("cluster-details");
+            details.addClassName("cluster-index-" + (i % 4));
             propositionsContent.add(details);
         }
 
@@ -192,13 +233,26 @@ public class PropositionsPanel extends VerticalLayout {
                 .toList();
 
         if (!unclustered.isEmpty()) {
-            var sectionHeader = new Span("Unclustered (" + unclustered.size() + ")");
-            sectionHeader.addClassName("unclustered-section");
-            propositionsContent.add(sectionHeader);
+            var sectionLayout = new VerticalLayout();
+            sectionLayout.setPadding(false);
+            sectionLayout.setSpacing(true);
+            sectionLayout.addClassName("unclustered-section");
 
+            var sectionHeader = new HorizontalLayout();
+            sectionHeader.setAlignItems(Alignment.CENTER);
+            sectionHeader.setSpacing(true);
+            sectionHeader.addClassName("unclustered-header");
+            var sectionLabel = new Span("Unclustered");
+            sectionLabel.addClassName("unclustered-label");
+            var sectionCount = new Span(unclustered.size() + "");
+            sectionCount.addClassName("unclustered-count");
+            sectionHeader.add(sectionLabel, sectionCount);
+
+            sectionLayout.add(sectionHeader);
             for (var prop : unclustered) {
-                propositionsContent.add(createCard(prop));
+                sectionLayout.add(createCard(prop));
             }
+            propositionsContent.add(sectionLayout);
         }
     }
 
