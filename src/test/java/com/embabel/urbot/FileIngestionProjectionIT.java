@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -161,6 +162,89 @@ class FileIngestionProjectionIT {
         assertTrue(relationships.size() >= 1,
                 "Expected at least 1 relationship projected from Relations predicates, got "
                         + relationships.size());
+
+        // -- Check label inheritance on entities --
+        logger.info("=== Checking label inheritance ===");
+        assertLabelInheritance();
+    }
+
+    /**
+     * Verify that entities with subtype labels also carry their inherited parent labels.
+     * E.g., a Musician node must also have the Person label, and an Author must also have Person.
+     */
+    private void assertLabelInheritance() {
+        // Map of subtype -> expected inherited labels
+        var expectedInheritance = Map.of(
+                "Musician", Set.of("Person"),
+                "Author", Set.of("Person")
+        );
+
+        var allEntities = queryAllTestEntities();
+        logger.info("Found {} entities total in the graph", allEntities.size());
+        for (var entity : allEntities) {
+            logger.info("  Entity: name='{}', labels={}", entity.get("name"), entity.get("labels"));
+        }
+
+        for (var entry : expectedInheritance.entrySet()) {
+            var subtype = entry.getKey();
+            var requiredParents = entry.getValue();
+
+            var entitiesWithSubtype = allEntities.stream()
+                    .filter(e -> {
+                        @SuppressWarnings("unchecked")
+                        var labels = (List<String>) e.get("labels");
+                        return labels.contains(subtype);
+                    })
+                    .toList();
+
+            if (entitiesWithSubtype.isEmpty()) {
+                logger.info("No {} entities found (LLM may not have typed any as {}), skipping", subtype, subtype);
+                continue;
+            }
+
+            for (var entity : entitiesWithSubtype) {
+                @SuppressWarnings("unchecked")
+                var labels = (List<String>) entity.get("labels");
+                var name = entity.get("name");
+
+                for (var requiredParent : requiredParents) {
+                    assertTrue(labels.contains(requiredParent),
+                            "Entity '" + name + "' has label " + subtype
+                                    + " but is missing inherited label " + requiredParent
+                                    + ". Actual labels: " + labels);
+                    logger.info("  Label inheritance OK: '{}' has {} and inherited {}", name, subtype, requiredParent);
+                }
+            }
+        }
+    }
+
+    /**
+     * Query all __Entity__ nodes that were created during this test
+     * (connected to our test user's propositions).
+     */
+    private List<Map<String, Object>> queryAllTestEntities() {
+        var statement = """
+                MATCH (p:Proposition {contextId: $contextId})-[:HAS_MENTION]->(m:Mention)
+                WHERE m.resolvedId IS NOT NULL
+                WITH COLLECT(DISTINCT m.resolvedId) AS entityIds
+                UNWIND entityIds AS eid
+                MATCH (e:__Entity__ {id: eid})
+                RETURN e.id AS id, COALESCE(e.name, '') AS name, labels(e) AS labels
+                """;
+
+        return persistenceManager.query(
+                QuerySpecification.withStatement(statement)
+                        .bind(Map.of("contextId", testUser.effectiveContext()))
+                        .map(r -> {
+                            @SuppressWarnings("unchecked")
+                            var row = (List<Object>) r;
+                            return Map.<String, Object>of(
+                                    "id", row.get(0) != null ? row.get(0) : "",
+                                    "name", row.get(1) != null ? row.get(1) : "",
+                                    "labels", row.get(2) != null ? row.get(2) : List.of()
+                            );
+                        })
+        );
     }
 
     private void assertContainsAny(String text, String description, String... keywords) {

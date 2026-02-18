@@ -276,11 +276,19 @@ vaadin-text-field:focus-within::part(input-field) {
   border-radius: 0;
 }
 
-/* ---- Side panel — deep space ---- */
+/* ---- Side panel — deep space (must be opaque over chat content) ---- */
 .side-panel {
-  background: linear-gradient(180deg, #080810 0%, #030304 60%, #020203 100%);
+  background: linear-gradient(180deg, #080810 0%, #030304 60%, #020203 100%) !important;
+  background-color: #030304 !important;
   border-left: 1px solid var(--sb-border);
   box-shadow: -8px 0 48px rgba(120, 40, 200, 0.2);
+}
+
+.side-panel vaadin-vertical-layout,
+.side-panel vaadin-horizontal-layout,
+.side-panel vaadin-scroller {
+  background: transparent !important;
+  background-color: transparent !important;
 }
 
 .side-panel-title {
