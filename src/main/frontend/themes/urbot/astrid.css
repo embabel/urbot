@@ -41,58 +41,36 @@ html {
   overflow-x: hidden;
   background-color: #030304 !important;
   background-image:
-    /* Small stars — 3px dots */
-    radial-gradient(3px 3px at 20px 30px, #fff, transparent),
-    radial-gradient(3px 3px at 80px 15px, #fff, transparent),
-    radial-gradient(3px 3px at 55px 65px, #eeddff, transparent),
-    radial-gradient(4px 4px at 30px 50px, #ffcc66, transparent),
-    radial-gradient(3px 3px at 90px 80px, #80e0ff, transparent),
-    radial-gradient(3px 3px at 10px 70px, #fff, transparent),
-    radial-gradient(4px 4px at 70px 40px, #ff9de0, transparent),
-    radial-gradient(3px 3px at 45px 90px, #fff, transparent),
-    /* Medium stars — 4-5px dots */
-    radial-gradient(4px 4px at 40px 20px, #fff, transparent),
-    radial-gradient(4px 4px at 110px 70px, #eeddff, transparent),
-    radial-gradient(5px 5px at 75px 120px, #80e0ff, transparent),
-    radial-gradient(4px 4px at 150px 40px, #fff, transparent),
-    radial-gradient(4px 4px at 30px 100px, #ffcc66, transparent),
-    radial-gradient(5px 5px at 180px 90px, #ff9de0, transparent),
-    radial-gradient(4px 4px at 95px 10px, #fff, transparent),
-    /* Feature stars — bright cores with glow halos */
-    radial-gradient(8px 8px at 50px 50px, #fff, rgba(255,255,255,0.3) 40%, transparent 70%),
-    radial-gradient(10px 10px at 120px 80px, #ffcc66, rgba(255,204,102,0.3) 40%, transparent 70%),
-    radial-gradient(8px 8px at 200px 150px, #80e0ff, rgba(128,224,255,0.3) 40%, transparent 70%),
-    radial-gradient(10px 10px at 80px 200px, #ff9de0, rgba(255,157,224,0.3) 40%, transparent 70%),
+    /* Small stars — faint scattered dots */
+    radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.45), transparent),
+    radial-gradient(2px 2px at 80px 15px, rgba(255,255,255,0.35), transparent),
+    radial-gradient(2px 2px at 55px 65px, rgba(238,221,255,0.4), transparent),
+    radial-gradient(3px 3px at 90px 80px, rgba(128,224,255,0.35), transparent),
+    /* Medium stars — subtle accents */
+    radial-gradient(3px 3px at 40px 20px, rgba(255,255,255,0.4), transparent),
+    radial-gradient(3px 3px at 110px 70px, rgba(238,221,255,0.35), transparent),
+    radial-gradient(4px 4px at 150px 40px, rgba(255,255,255,0.3), transparent),
+    /* Feature stars — soft cores with gentle halos */
+    radial-gradient(6px 6px at 120px 80px, rgba(255,204,102,0.5), rgba(255,204,102,0.12) 40%, transparent 70%),
+    radial-gradient(6px 6px at 200px 150px, rgba(128,224,255,0.4), rgba(128,224,255,0.1) 40%, transparent 70%),
     /* Nebula — very subtle against the void */
-    radial-gradient(ellipse at 15% 30%, rgba(80, 30, 120, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 75% 70%, rgba(140, 40, 90, 0.08) 0%, transparent 45%),
-    radial-gradient(ellipse at 50% 10%, rgba(40, 60, 120, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 20%, rgba(180, 100, 160, 0.06) 0%, transparent 40%) !important;
+    radial-gradient(ellipse at 15% 30%, rgba(80, 30, 120, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 75% 70%, rgba(140, 40, 90, 0.06) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 10%, rgba(40, 60, 120, 0.06) 0%, transparent 50%) !important;
   background-size:
-    /* Small star tiles — each layer gets a different tile size for organic feel */
-    100px 100px,
-    120px 90px,
-    110px 110px,
-    130px 95px,
-    95px 120px,
-    105px 85px,
-    115px 105px,
-    85px 115px,
+    /* Small star tiles */
+    120px 120px,
+    140px 110px,
+    130px 130px,
+    115px 140px,
     /* Medium star tiles */
-    200px 150px,
-    180px 170px,
-    210px 190px,
-    170px 160px,
-    190px 180px,
-    220px 200px,
-    160px 140px,
-    /* Feature stars — large non-repeating feel */
-    350px 300px,
-    400px 350px,
+    220px 180px,
+    200px 190px,
+    190px 170px,
+    /* Feature stars — large tiles for sparse feel */
     500px 400px,
-    300px 450px,
+    600px 500px,
     /* Nebula — full viewport */
-    100% 100%,
     100% 100%,
     100% 100%,
     100% 100% !important;
@@ -203,41 +181,92 @@ vaadin-scroller {
   color: var(--sb-accent);
 }
 
-/* ---- Send button — cosmic blob ---- */
+/* ---- Send button — morphing cosmic crystal ---- */
 vaadin-button[theme~="primary"] {
-  background: linear-gradient(135deg, #ff9de0 0%, #c850c0 50%, #80e0ff 100%);
-  background-size: 200% 200%;
-  animation: bubble-user-shift 8s ease-in-out infinite;
-  color: #030304;
+  background: linear-gradient(135deg, #ff9de0 0%, #c850c0 50%, #80e0ff 100%) !important;
+  background-size: 200% 200% !important;
+  animation: send-morph 6s ease-in-out infinite, bubble-user-shift 8s ease-in-out infinite, send-glow-pulse 4s ease-in-out infinite alternate !important;
+  color: #030304 !important;
   font-weight: 700;
-  border-radius: 50% 40% 55% 35% / 40% 55% 35% 50%;
+  border-radius: 30% 70% 55% 45% / 55% 30% 70% 45% !important;
   box-shadow:
     0 2px 16px rgba(255, 157, 224, 0.4),
-    0 0 30px rgba(128, 224, 255, 0.15);
-  transition: all 0.3s ease;
+    0 0 28px rgba(128, 224, 255, 0.15),
+    0 0 6px rgba(255, 204, 102, 0.2);
   padding: var(--lumo-space-s) var(--lumo-space-l);
+  position: relative;
+}
+
+@keyframes send-morph {
+  0%   { border-radius: 30% 70% 55% 45% / 55% 30% 70% 45% !important; }
+  25%  { border-radius: 60% 40% 45% 55% / 40% 65% 35% 60% !important; }
+  50%  { border-radius: 45% 55% 65% 35% / 60% 40% 55% 45% !important; }
+  75%  { border-radius: 55% 45% 35% 65% / 45% 55% 45% 55% !important; }
+  100% { border-radius: 30% 70% 55% 45% / 55% 30% 70% 45% !important; }
+}
+
+@keyframes send-glow-pulse {
+  0%   { box-shadow: 0 2px 16px rgba(255, 157, 224, 0.4), 0 0 28px rgba(128, 224, 255, 0.15), 0 0 6px rgba(255, 204, 102, 0.2); }
+  100% { box-shadow: 0 2px 20px rgba(128, 224, 255, 0.45), 0 0 32px rgba(255, 157, 224, 0.2), 0 0 8px rgba(255, 204, 102, 0.25); }
 }
 
 vaadin-button[theme~="primary"]:hover {
-  background: linear-gradient(135deg, #ffbfee 0%, #ff9de0 50%, #b0f0ff 100%);
-  background-size: 200% 200%;
-  border-radius: 35% 55% 40% 50% / 55% 35% 50% 40%;
+  background: linear-gradient(135deg, #ffbfee 0%, #ff9de0 50%, #b0f0ff 100%) !important;
+  background-size: 200% 200% !important;
+  animation: send-morph-fast 2s ease-in-out infinite, bubble-user-shift 8s ease-in-out infinite !important;
   box-shadow:
     0 4px 24px rgba(255, 157, 224, 0.6),
-    0 0 48px rgba(128, 224, 255, 0.25);
-  transform: scale(1.05) rotate(-2deg);
+    0 0 48px rgba(128, 224, 255, 0.25),
+    inset 0 0 12px rgba(255, 255, 255, 0.12);
+  transform: scale(1.08);
 }
 
-/* ---- Input field — cosmic glow ---- */
+@keyframes send-morph-fast {
+  0%   { border-radius: 35% 65% 50% 50% / 50% 35% 65% 50% !important; }
+  33%  { border-radius: 60% 40% 40% 60% / 40% 60% 40% 60% !important; }
+  66%  { border-radius: 45% 55% 60% 40% / 60% 45% 55% 45% !important; }
+  100% { border-radius: 35% 65% 50% 50% / 50% 35% 65% 50% !important; }
+}
+
+/* ---- Input field — living nebula portal ---- */
 vaadin-text-field::part(input-field) {
-  background: rgba(8, 8, 16, 0.7);
-  border: 1px solid var(--sb-border);
-  border-radius: 18px;
+  background:
+    linear-gradient(rgba(8, 8, 16, 0.82), rgba(8, 8, 16, 0.82)),
+    linear-gradient(135deg, rgba(255, 157, 224, 0.1), rgba(128, 224, 255, 0.1), rgba(255, 204, 102, 0.07)) !important;
+  border: 1px solid var(--sb-border) !important;
+  border-radius: 40% 60% 55% 45% / 65% 50% 50% 35% !important;
+  animation: input-breathe 8s ease-in-out infinite, input-idle-glow 5s ease-in-out infinite alternate !important;
+}
+
+@keyframes input-breathe {
+  0%   { border-radius: 40% 60% 55% 45% / 65% 50% 50% 35% !important; }
+  25%  { border-radius: 50% 50% 45% 55% / 52% 58% 42% 48% !important; }
+  50%  { border-radius: 55% 45% 50% 50% / 45% 52% 55% 48% !important; }
+  75%  { border-radius: 45% 55% 55% 45% / 58% 45% 48% 55% !important; }
+  100% { border-radius: 40% 60% 55% 45% / 65% 50% 50% 35% !important; }
+}
+
+@keyframes input-idle-glow {
+  0%   { box-shadow: 0 0 8px rgba(255, 157, 224, 0.12), 0 0 18px rgba(128, 224, 255, 0.05); border-color: var(--sb-border); }
+  100% { box-shadow: 0 0 12px rgba(128, 224, 255, 0.15), 0 0 22px rgba(255, 157, 224, 0.07); border-color: rgba(128, 100, 180, 0.55); }
 }
 
 vaadin-text-field:focus-within::part(input-field) {
-  border-color: var(--sb-accent);
-  box-shadow: 0 0 16px rgba(255, 157, 224, 0.25), 0 0 32px rgba(128, 224, 255, 0.1);
+  border-color: var(--sb-accent) !important;
+  border-radius: 24px !important;
+  animation: input-focus-glow 3s ease-in-out infinite alternate !important;
+  box-shadow:
+    0 0 16px rgba(255, 157, 224, 0.3),
+    0 0 40px rgba(128, 224, 255, 0.12),
+    inset 0 0 20px rgba(255, 157, 224, 0.04);
+  background:
+    linear-gradient(rgba(8, 8, 16, 0.78), rgba(8, 8, 16, 0.78)),
+    linear-gradient(135deg, rgba(255, 157, 224, 0.14), rgba(128, 224, 255, 0.14), rgba(255, 204, 102, 0.1)) !important;
+}
+
+@keyframes input-focus-glow {
+  0%   { box-shadow: 0 0 16px rgba(255, 157, 224, 0.3), 0 0 40px rgba(128, 224, 255, 0.12), inset 0 0 20px rgba(255, 157, 224, 0.04); }
+  100% { box-shadow: 0 0 22px rgba(128, 224, 255, 0.4), 0 0 52px rgba(255, 157, 224, 0.15), inset 0 0 26px rgba(128, 224, 255, 0.06); }
 }
 
 /* ---- Chat scroller — transparent ---- */
@@ -270,21 +299,61 @@ vaadin-text-field:focus-within::part(input-field) {
   box-shadow: 0 0 16px rgba(255, 157, 224, 0.3);
 }
 
-/* ---- Profile chip ---- */
+/* ---- Profile chip — floating cosmic gem ---- */
 .profile-chip {
-  background: rgba(8, 8, 16, 0.6);
-  border: 1px solid var(--sb-border);
-  border-radius: 28px;
+  background: rgba(8, 8, 16, 0.6) !important;
+  border: 1px solid var(--sb-border) !important;
+  border-radius: 40% 60% 55% 45% / 55% 40% 60% 45% !important;
+  padding: var(--lumo-space-xs) var(--lumo-space-m) var(--lumo-space-xs) var(--lumo-space-xs) !important;
+  position: relative;
+  animation: chip-morph 7s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(255, 157, 224, 0.15), 0 0 24px rgba(128, 224, 255, 0.06);
+}
+
+@keyframes chip-morph {
+  0%   { border-radius: 40% 60% 55% 45% / 55% 40% 60% 45% !important; }
+  25%  { border-radius: 55% 45% 48% 52% / 45% 58% 42% 55% !important; }
+  50%  { border-radius: 48% 52% 42% 58% / 52% 45% 55% 48% !important; }
+  75%  { border-radius: 52% 48% 58% 42% / 48% 52% 48% 52% !important; }
+  100% { border-radius: 40% 60% 55% 45% / 55% 40% 60% 45% !important; }
 }
 
 .profile-chip-clickable:hover {
-  border-color: var(--sb-accent);
-  box-shadow: 0 0 12px rgba(255, 157, 224, 0.2);
+  border-color: var(--sb-accent) !important;
+  animation: chip-morph-fast 2.5s ease-in-out infinite;
+  box-shadow:
+    0 0 14px rgba(255, 157, 224, 0.35),
+    0 0 36px rgba(128, 224, 255, 0.15) !important;
+  transform: scale(1.05);
+}
+
+@keyframes chip-morph-fast {
+  0%   { border-radius: 55% 45% 40% 60% / 45% 55% 50% 50% !important; }
+  33%  { border-radius: 42% 58% 55% 45% / 58% 42% 45% 55% !important; }
+  66%  { border-radius: 50% 50% 45% 55% / 42% 58% 55% 42% !important; }
+  100% { border-radius: 55% 45% 40% 60% / 45% 55% 50% 50% !important; }
 }
 
 .user-avatar {
   background: linear-gradient(135deg, #ff9de0, #80e0ff);
+  background-size: 200% 200%;
   color: #030304;
+  border-radius: 50% 40% 55% 45% / 45% 55% 40% 50% !important;
+  box-shadow: 0 0 10px rgba(255, 157, 224, 0.45);
+  animation: avatar-blob 5s ease-in-out infinite, bubble-user-shift 6s ease-in-out infinite;
+}
+
+@keyframes avatar-blob {
+  0%   { border-radius: 50% 40% 55% 45% / 45% 55% 40% 50% !important; }
+  25%  { border-radius: 42% 58% 45% 55% / 55% 42% 52% 48% !important; }
+  50%  { border-radius: 55% 45% 42% 58% / 48% 52% 45% 55% !important; }
+  75%  { border-radius: 45% 55% 52% 48% / 52% 48% 55% 42% !important; }
+  100% { border-radius: 50% 40% 55% 45% / 45% 55% 40% 50% !important; }
+}
+
+.profile-chip-clickable:hover .user-avatar {
+  box-shadow: 0 0 16px rgba(255, 157, 224, 0.65), 0 0 32px rgba(128, 224, 255, 0.25);
+  animation: avatar-blob 2s ease-in-out infinite, bubble-user-shift 6s ease-in-out infinite;
 }
 
 /* ---- Proposition cards ---- */
