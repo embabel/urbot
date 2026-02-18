@@ -112,7 +112,7 @@ public class ChatView extends VerticalLayout {
         var title = new H3("Urbot");
         title.addClassName("chat-title");
 
-        var subtitle = new Span("Chatbot with RAG and memory");
+        var subtitle = new Span(properties.chat().tagline());
         subtitle.addClassName("chat-subtitle");
 
         titleText.add(title, subtitle);

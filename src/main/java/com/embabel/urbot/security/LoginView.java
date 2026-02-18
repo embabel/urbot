@@ -1,5 +1,6 @@
 package com.embabel.urbot.security;
 
+import com.embabel.urbot.UrbotProperties;
 import com.embabel.urbot.user.DummyUrbotUserService;
 import com.embabel.urbot.user.UrbotUserService;
 import com.vaadin.flow.component.html.Div;
@@ -25,7 +26,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     private final LoginForm loginForm = new LoginForm();
 
-    public LoginView(UrbotUserService userService) {
+    public LoginView(UrbotUserService userService, UrbotProperties properties) {
         addClassName("login-view");
         setSizeFull();
         setAlignItems(Alignment.CENTER);
@@ -44,7 +45,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         var title = new H1("Urbot");
         title.addClassName("login-title");
 
-        var subtitle = new Span("Chatbot with RAG and memory");
+        var subtitle = new Span(properties.chat().tagline());
         subtitle.addClassName("login-subtitle");
 
         titleText.add(title, subtitle);

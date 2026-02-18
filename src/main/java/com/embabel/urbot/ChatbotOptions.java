@@ -16,6 +16,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * @param memoryEagerLimit how many memories to eagerly load into the system prompt via vector similarity
  * @param showPrompts      whether to log chat prompts sent to the LLM
  * @param showResponses    whether to log chat responses from the LLM
+ * @param tagline          tagline displayed below the chatbot name in the UI
  */
 public record ChatbotOptions(
         @NestedConfigurationProperty LlmOptions llm,
@@ -26,5 +27,6 @@ public record ChatbotOptions(
         int maxWords,
         @DefaultValue("50") int memoryEagerLimit,
         @DefaultValue("true") boolean showPrompts,
-        @DefaultValue("true") boolean showResponses
+        @DefaultValue("true") boolean showResponses,
+        @DefaultValue("Chatbot with RAG and memory") String tagline
 ) {}

@@ -80,7 +80,7 @@ class TemplateRenderingTest {
     @Test
     void urbotSystemPromptRenders() {
         var user = new UrbotUser("test-user", "Test User", "tuser");
-        var chat = new ChatbotOptions(null, 20, "qa", "default", "assistant", 200, 50, true, true);
+        var chat = new ChatbotOptions(null, 20, "qa", "default", "assistant", 200, 50, true, true, "Chatbot with RAG and memory");
         var properties = new UrbotProperties(chat, null, null, null, List.of(), List.of(), "");
 
         var result = renderer.renderLoadedTemplate(

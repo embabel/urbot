@@ -32,6 +32,7 @@ urbot:
     memory-eager-limit: 50
     objective: qa
     behaviour: default
+    tagline: Chatbot with RAG and memory
 
   memory:
     enabled: true
