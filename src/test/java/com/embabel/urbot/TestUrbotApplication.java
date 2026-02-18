@@ -38,6 +38,7 @@ import static org.springframework.context.annotation.FilterType.REGEX;
 )
 @EnableDrivine
 @EnableDrivinePropertiesConfig
+@org.springframework.context.annotation.Import(BotPackageScanConfiguration.class)
 @ComponentScan(
         basePackages = "com.embabel.urbot",
         excludeFilters = {

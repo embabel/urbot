@@ -112,7 +112,8 @@ public class ChatView extends VerticalLayout {
         titleText.setPadding(false);
         titleText.setSpacing(false);
 
-        var title = new H3("Urbot");
+        var displayName = persona.substring(0, 1).toUpperCase() + persona.substring(1);
+        var title = new H3(displayName);
         title.addClassName("chat-title");
 
         var subtitle = new Span(properties.chat().tagline());

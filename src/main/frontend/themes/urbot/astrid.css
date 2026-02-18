@@ -1,0 +1,486 @@
+/* Astrid - Far Out Cosmic Hippie Astrologer */
+
+:root {
+  --sb-bg-dark: #030304;
+  --sb-bg-medium: #080810;
+  --sb-bg-light: #121218;
+  --sb-accent: #ff9de0;
+  --sb-accent-light: #ffbfee;
+  --sb-link: #80e0ff;
+  --sb-link-hover: #b0f0ff;
+  --sb-heading: #ffcc66;
+  --sb-text-primary: #f0e8ff;
+  --sb-text-secondary: #c8b8e0;
+  --sb-text-muted: #7a6a90;
+  --sb-border: #553388;
+  --sb-error: #ff6080;
+  --sb-success: #66eea0;
+
+  --lumo-base-color: transparent;
+  --lumo-primary-color: var(--sb-accent);
+  --lumo-primary-text-color: var(--sb-accent);
+  --lumo-primary-contrast-color: #030304;
+  --lumo-header-text-color: var(--sb-text-primary);
+  --lumo-body-text-color: var(--sb-text-primary);
+  --lumo-secondary-text-color: var(--sb-text-secondary);
+  --lumo-tertiary-text-color: var(--sb-text-muted);
+  --lumo-contrast: var(--sb-text-primary);
+  --lumo-contrast-10pct: rgba(240, 232, 255, 0.1);
+  --lumo-contrast-20pct: rgba(240, 232, 255, 0.2);
+  --lumo-shade: var(--sb-bg-dark);
+  --lumo-error-color: var(--sb-error);
+  --lumo-success-color: var(--sb-success);
+  --lumo-border-radius-m: 16px;
+  --lumo-border-radius-l: 24px;
+  --lumo-font-family: 'Georgia', 'Palatino Linotype', serif;
+}
+
+/* ---- Starfield + nebula ---- */
+html {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-color: #030304 !important;
+  background-image:
+    /* Small stars — 3px dots */
+    radial-gradient(3px 3px at 20px 30px, #fff, transparent),
+    radial-gradient(3px 3px at 80px 15px, #fff, transparent),
+    radial-gradient(3px 3px at 55px 65px, #eeddff, transparent),
+    radial-gradient(4px 4px at 30px 50px, #ffcc66, transparent),
+    radial-gradient(3px 3px at 90px 80px, #80e0ff, transparent),
+    radial-gradient(3px 3px at 10px 70px, #fff, transparent),
+    radial-gradient(4px 4px at 70px 40px, #ff9de0, transparent),
+    radial-gradient(3px 3px at 45px 90px, #fff, transparent),
+    /* Medium stars — 4-5px dots */
+    radial-gradient(4px 4px at 40px 20px, #fff, transparent),
+    radial-gradient(4px 4px at 110px 70px, #eeddff, transparent),
+    radial-gradient(5px 5px at 75px 120px, #80e0ff, transparent),
+    radial-gradient(4px 4px at 150px 40px, #fff, transparent),
+    radial-gradient(4px 4px at 30px 100px, #ffcc66, transparent),
+    radial-gradient(5px 5px at 180px 90px, #ff9de0, transparent),
+    radial-gradient(4px 4px at 95px 10px, #fff, transparent),
+    /* Feature stars — bright cores with glow halos */
+    radial-gradient(8px 8px at 50px 50px, #fff, rgba(255,255,255,0.3) 40%, transparent 70%),
+    radial-gradient(10px 10px at 120px 80px, #ffcc66, rgba(255,204,102,0.3) 40%, transparent 70%),
+    radial-gradient(8px 8px at 200px 150px, #80e0ff, rgba(128,224,255,0.3) 40%, transparent 70%),
+    radial-gradient(10px 10px at 80px 200px, #ff9de0, rgba(255,157,224,0.3) 40%, transparent 70%),
+    /* Nebula — very subtle against the void */
+    radial-gradient(ellipse at 15% 30%, rgba(80, 30, 120, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 75% 70%, rgba(140, 40, 90, 0.08) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 10%, rgba(40, 60, 120, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 20%, rgba(180, 100, 160, 0.06) 0%, transparent 40%) !important;
+  background-size:
+    /* Small star tiles — each layer gets a different tile size for organic feel */
+    100px 100px,
+    120px 90px,
+    110px 110px,
+    130px 95px,
+    95px 120px,
+    105px 85px,
+    115px 105px,
+    85px 115px,
+    /* Medium star tiles */
+    200px 150px,
+    180px 170px,
+    210px 190px,
+    170px 160px,
+    190px 180px,
+    220px 200px,
+    160px 140px,
+    /* Feature stars — large non-repeating feel */
+    350px 300px,
+    400px 350px,
+    500px 400px,
+    300px 450px,
+    /* Nebula — full viewport */
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    100% 100% !important;
+  background-repeat: repeat !important;
+}
+
+/* Nuke every possible opaque layer between html and content */
+body,
+body > *,
+#outlet,
+#outlet > *,
+[id^="flow-container"],
+[id^="flow-container"] > * {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+vaadin-vertical-layout,
+vaadin-horizontal-layout,
+vaadin-scroller {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* ---- Logo — glowing celestial orb ---- */
+.chat-logo {
+  border-radius: 50%;
+  border: 2px solid rgba(255, 157, 224, 0.4);
+  box-shadow:
+    0 0 12px rgba(255, 157, 224, 0.6),
+    0 0 30px rgba(255, 157, 224, 0.25),
+    0 0 60px rgba(120, 40, 200, 0.15);
+  animation: logo-glow 4s ease-in-out infinite alternate;
+}
+
+@keyframes logo-glow {
+  0%   { box-shadow: 0 0 12px rgba(255, 157, 224, 0.6), 0 0 30px rgba(255, 157, 224, 0.25), 0 0 60px rgba(120, 40, 200, 0.15); }
+  100% { box-shadow: 0 0 18px rgba(255, 204, 102, 0.7), 0 0 40px rgba(255, 204, 102, 0.3), 0 0 80px rgba(255, 157, 224, 0.2); }
+}
+
+/* ---- Title — psychedelic shimmer ---- */
+.chat-title {
+  color: var(--sb-heading);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(90deg, #ffcc66, #ff9de0, #80e0ff, #ffcc66);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: title-shimmer 6s ease-in-out infinite;
+  overflow: visible;
+}
+
+@keyframes title-shimmer {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.chat-subtitle {
+  color: var(--sb-text-secondary);
+  font-style: italic;
+}
+
+/* ---- Chat bubbles ---- */
+.chat-bubble.user {
+  background: linear-gradient(135deg, #ff9de0 0%, #c850c0 50%, #80e0ff 100%);
+  background-size: 200% 200%;
+  animation: bubble-user-shift 8s ease-in-out infinite;
+  color: #030304;
+  border-radius: 40% 50% 45% 10% / 50% 40% 55% 20%;
+  border: 1px solid rgba(255, 191, 238, 0.4);
+  box-shadow:
+    0 2px 16px rgba(255, 157, 224, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  font-weight: 500;
+  padding: var(--lumo-space-m) var(--lumo-space-l);
+}
+
+@keyframes bubble-user-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.chat-bubble.assistant {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: var(--lumo-space-s) 0 !important;
+  box-shadow: none !important;
+}
+
+.chat-bubble-sender {
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: var(--lumo-font-size-xxs);
+}
+
+.chat-bubble.user .chat-bubble-sender {
+  color: rgba(5, 5, 8, 0.6);
+}
+
+.chat-bubble.assistant .chat-bubble-sender {
+  color: var(--sb-accent);
+}
+
+/* ---- Send button — cosmic blob ---- */
+vaadin-button[theme~="primary"] {
+  background: linear-gradient(135deg, #ff9de0 0%, #c850c0 50%, #80e0ff 100%);
+  background-size: 200% 200%;
+  animation: bubble-user-shift 8s ease-in-out infinite;
+  color: #030304;
+  font-weight: 700;
+  border-radius: 50% 40% 55% 35% / 40% 55% 35% 50%;
+  box-shadow:
+    0 2px 16px rgba(255, 157, 224, 0.4),
+    0 0 30px rgba(128, 224, 255, 0.15);
+  transition: all 0.3s ease;
+  padding: var(--lumo-space-s) var(--lumo-space-l);
+}
+
+vaadin-button[theme~="primary"]:hover {
+  background: linear-gradient(135deg, #ffbfee 0%, #ff9de0 50%, #b0f0ff 100%);
+  background-size: 200% 200%;
+  border-radius: 35% 55% 40% 50% / 55% 35% 50% 40%;
+  box-shadow:
+    0 4px 24px rgba(255, 157, 224, 0.6),
+    0 0 48px rgba(128, 224, 255, 0.25);
+  transform: scale(1.05) rotate(-2deg);
+}
+
+/* ---- Input field — cosmic glow ---- */
+vaadin-text-field::part(input-field) {
+  background: rgba(8, 8, 16, 0.7);
+  border: 1px solid var(--sb-border);
+  border-radius: 18px;
+}
+
+vaadin-text-field:focus-within::part(input-field) {
+  border-color: var(--sb-accent);
+  box-shadow: 0 0 16px rgba(255, 157, 224, 0.25), 0 0 32px rgba(128, 224, 255, 0.1);
+}
+
+/* ---- Chat scroller — transparent ---- */
+.chat-scroller {
+  background: transparent !important;
+  border: none;
+  border-radius: 0;
+}
+
+/* ---- Side panel — deep space ---- */
+.side-panel {
+  background: linear-gradient(180deg, #080810 0%, #030304 60%, #020203 100%);
+  border-left: 1px solid var(--sb-border);
+  box-shadow: -8px 0 48px rgba(120, 40, 200, 0.2);
+}
+
+.side-panel-title {
+  color: var(--sb-heading);
+}
+
+.side-panel-toggle {
+  background: linear-gradient(135deg, var(--sb-bg-light), var(--sb-bg-medium));
+  border: 1px solid var(--sb-border);
+  color: var(--sb-accent);
+  border-radius: 14px 0 0 14px;
+}
+
+.side-panel-toggle:hover {
+  border-color: var(--sb-accent);
+  box-shadow: 0 0 16px rgba(255, 157, 224, 0.3);
+}
+
+/* ---- Profile chip ---- */
+.profile-chip {
+  background: rgba(8, 8, 16, 0.6);
+  border: 1px solid var(--sb-border);
+  border-radius: 28px;
+}
+
+.profile-chip-clickable:hover {
+  border-color: var(--sb-accent);
+  box-shadow: 0 0 12px rgba(255, 157, 224, 0.2);
+}
+
+.user-avatar {
+  background: linear-gradient(135deg, #ff9de0, #80e0ff);
+  color: #030304;
+}
+
+/* ---- Proposition cards ---- */
+.proposition-card {
+  background: rgba(8, 8, 16, 0.5);
+  border: 1px solid rgba(85, 51, 136, 0.5);
+  border-radius: 16px;
+  transition: all 0.2s ease;
+}
+
+.proposition-card:hover {
+  border-color: var(--sb-accent);
+  box-shadow: 0 0 16px rgba(255, 157, 224, 0.15);
+}
+
+/* ---- Entity badges ---- */
+.entity-type-badge {
+  background: rgba(255, 157, 224, 0.15);
+  color: var(--sb-accent);
+  border-radius: 12px;
+}
+
+.entity-card {
+  background: rgba(8, 8, 16, 0.5);
+  border: 1px solid rgba(85, 51, 136, 0.5);
+  border-radius: 16px;
+}
+
+.entity-card:hover {
+  border-color: var(--sb-accent);
+  box-shadow: 0 0 16px rgba(255, 157, 224, 0.15);
+}
+
+.entity-name {
+  color: var(--sb-heading);
+}
+
+/* ---- Mention badges ---- */
+.mention-badge {
+  background: rgba(5, 5, 8, 0.6);
+  border: 1px solid rgba(85, 51, 136, 0.5);
+}
+
+.mention-badge.clickable {
+  border-color: var(--sb-accent);
+  color: var(--sb-accent-light);
+}
+
+.mention-badge.clickable:hover {
+  background: linear-gradient(135deg, #ff9de0, #80e0ff);
+  color: #030304;
+  border-color: transparent;
+}
+
+/* ---- Schema ---- */
+.schema-type-card {
+  background: rgba(8, 8, 16, 0.5);
+  border: 1px solid rgba(85, 51, 136, 0.5);
+  border-radius: 16px;
+}
+
+.schema-type-card:hover {
+  border-color: var(--sb-accent);
+}
+
+.schema-type-label {
+  color: var(--sb-heading);
+}
+
+.schema-rel {
+  background: rgba(255, 157, 224, 0.12);
+  border: 1px solid var(--sb-accent);
+  color: var(--sb-accent-light);
+}
+
+.schema-prop {
+  background: rgba(5, 5, 8, 0.5);
+  border: 1px solid rgba(85, 51, 136, 0.5);
+}
+
+/* ---- Confidence badges ---- */
+.proposition-confidence.high {
+  background: rgba(102, 238, 160, 0.2);
+  color: var(--sb-success);
+}
+
+.proposition-confidence.medium {
+  background: rgba(255, 204, 102, 0.2);
+  color: #ffcc66;
+}
+
+.proposition-confidence.low {
+  background: rgba(255, 96, 128, 0.2);
+  color: var(--sb-error);
+}
+
+/* ---- Context badge — aurora ---- */
+.context-badge {
+  background: linear-gradient(135deg, #ff9de0, #80e0ff);
+  color: #030304;
+}
+
+/* ---- Stats container ---- */
+.stats-container {
+  background: rgba(8, 8, 16, 0.5);
+  border: 1px solid rgba(85, 51, 136, 0.5);
+  border-radius: 16px;
+}
+
+.stat-row {
+  border-bottom-color: rgba(85, 51, 136, 0.3);
+}
+
+/* ---- Login — cosmic portal ---- */
+.login-view {
+  background: #030304;
+}
+
+.login-title {
+  color: var(--sb-heading);
+  background: linear-gradient(90deg, #ffcc66, #ff9de0, #80e0ff, #ffcc66);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: title-shimmer 6s ease-in-out infinite;
+}
+
+vaadin-login-form-wrapper {
+  background: rgba(8, 8, 16, 0.8);
+  border: 1px solid var(--sb-border);
+  border-radius: var(--lumo-border-radius-l);
+  box-shadow: 0 4px 32px rgba(120, 40, 200, 0.2);
+}
+
+.login-legend {
+  background: rgba(8, 8, 16, 0.6);
+  border: 1px solid var(--sb-border);
+}
+
+/* ---- Upload ---- */
+.side-panel vaadin-upload {
+  border: 2px dashed var(--sb-border);
+  border-radius: 16px;
+  background: rgba(8, 8, 16, 0.4);
+}
+
+.side-panel vaadin-upload:hover {
+  border-color: var(--sb-accent);
+  box-shadow: 0 0 16px rgba(255, 157, 224, 0.15);
+}
+
+/* ---- Tool call — pulsing cosmic ---- */
+.tool-call-indicator {
+  background: rgba(8, 8, 16, 0.6);
+  border-left: 3px solid var(--sb-accent);
+  animation: cosmic-pulse 2s ease-in-out infinite;
+}
+
+@keyframes cosmic-pulse {
+  0%, 100% { opacity: 0.6; border-left-color: #ff9de0; }
+  50%      { opacity: 1;   border-left-color: #80e0ff; }
+}
+
+/* ---- Tabs ---- */
+.side-panel vaadin-tab[selected] {
+  color: var(--sb-accent);
+}
+
+/* ---- Scrollbar — cosmic ---- */
+::-webkit-scrollbar-thumb {
+  background: rgba(85, 51, 136, 0.6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sb-accent);
+}
+
+/* ---- Markdown in assistant bubbles ---- */
+.chat-bubble.assistant .chat-bubble-text code {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.chat-bubble.assistant .chat-bubble-text pre {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.chat-bubble.assistant .chat-bubble-text blockquote {
+  border-left-color: var(--sb-accent);
+}
+
+.chat-bubble.assistant .chat-bubble-text a {
+  color: var(--sb-link);
+}
+
+.chat-bubble.assistant .chat-bubble-text a:hover {
+  color: var(--sb-link-hover);
+}

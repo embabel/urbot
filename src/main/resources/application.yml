@@ -93,6 +93,10 @@ spring:
               env:
                 BRAVE_API_KEY: ${BRAVE_API_KEY:}
 
+astrology:
+  api:
+    base-url: ${ASTROLOGY_API_URL:http://localhost:3000}
+
 embabel:
 
   models:

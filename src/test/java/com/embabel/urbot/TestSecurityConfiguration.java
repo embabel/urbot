@@ -1,5 +1,6 @@
 package com.embabel.urbot;
 
+import com.embabel.agent.rag.service.NamedEntityDataRepository;
 import com.embabel.urbot.user.DummyUrbotUserService;
 import com.embabel.urbot.user.UrbotUser;
 import com.embabel.urbot.user.UrbotUserService;
@@ -15,8 +16,8 @@ import org.springframework.context.annotation.Configuration;
 class TestSecurityConfiguration {
 
     @Bean
-    UrbotUserService userService() {
-        return new DummyUrbotUserService(null,
+    UrbotUserService userService(NamedEntityDataRepository entityRepository) {
+        return new DummyUrbotUserService(entityRepository,
                 new UrbotUser("1", "Alice Agu", "alice"),
                 new UrbotUser("2", "Ben Blossom", "ben")
         );

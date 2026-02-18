@@ -12,6 +12,22 @@ services:
       - urbot_neo4j_data:/data
       - urbot_neo4j_logs:/logs
 
+  astrology-api:
+    profiles:
+      - astrology
+    build:
+      context: .
+      dockerfile: Dockerfile.astrology-api
+    container_name: urbot-astrology-api
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/horoscope?time=2000-01-01T12:00:00Z&latitude=0&longitude=0&houseSystem=P"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
 volumes:
   urbot_neo4j_data:
   urbot_neo4j_logs:
