@@ -98,9 +98,20 @@ class PropositionConfiguration {
     }
 
     @Bean
-    GraphProjector graphProjector(Relations relations) {
-        logger.info("Creating RelationBasedGraphProjector with {} relations", relations.size());
-        return new RelationBasedGraphProjector(relations, new LenientProjectionPolicy());
+    GraphProjector graphProjector(Relations relations, AiBuilder aiBuilder, UrbotProperties properties) {
+        var extraction = properties.memory();
+        var projectionLlm = extraction.projectionLlm() != null
+                ? extraction.projectionLlm()
+                : extraction.classifyLlm() != null
+                        ? extraction.classifyLlm()
+                        : extraction.extractionLlm();
+        var ai = aiBuilder
+                .withShowPrompts(extraction.showPrompts())
+                .withShowLlmResponses(extraction.showResponses())
+                .ai();
+        logger.info("Creating LlmGraphProjector with model: {}, {} relations",
+                projectionLlm.getModel(), relations.size());
+        return new LlmGraphProjector(ai, relations, new LenientProjectionPolicy(), projectionLlm);
     }
 
     @Bean

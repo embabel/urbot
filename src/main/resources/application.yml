@@ -51,6 +51,9 @@ urbot:
     classify-llm:
       model: gpt-4.1-nano
       temperature: 0.0
+    projection-llm:
+      model: gpt-4.1-nano
+      temperature: 0.0
     window-size: 20
     overlap-size: 2
     trigger-interval: 6

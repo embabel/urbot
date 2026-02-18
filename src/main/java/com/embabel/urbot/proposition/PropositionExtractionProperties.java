@@ -20,6 +20,7 @@ import java.util.List;
  * @param existingPropositionsToShow  number of existing propositions to include in the extraction prompt to avoid duplicates
  * @param classifyBatchSize          max propositions per classify-batch LLM call (smaller = faster, more calls)
  * @param classifyLlm                optional cheaper LLM for classification calls (defaults to extractionLlm if null)
+ * @param projectionLlm              LLM for graph projection relationship classification (defaults to classifyLlm if null)
  */
 public record PropositionExtractionProperties(
         @DefaultValue("true") boolean enabled,
@@ -33,7 +34,8 @@ public record PropositionExtractionProperties(
         @DefaultValue("") List<String> entityPackages,
         @DefaultValue("100") int existingPropositionsToShow,
         @DefaultValue("15") int classifyBatchSize,
-        @NestedConfigurationProperty LlmOptions classifyLlm
+        @NestedConfigurationProperty LlmOptions classifyLlm,
+        @NestedConfigurationProperty LlmOptions projectionLlm
 ) {
     public PropositionExtractionProperties {
         if (windowSize <= 0) windowSize = 10;
