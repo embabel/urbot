@@ -111,12 +111,24 @@ class PropositionConfiguration {
                 .ai();
         logger.info("Creating LlmGraphProjector with model: {}, {} relations",
                 projectionLlm.getModel(), relations.size());
-        return new LlmGraphProjector(ai, relations, new LenientProjectionPolicy(), projectionLlm);
+        return LlmGraphProjector
+                .withLlm(projectionLlm)
+                .withAi(ai)
+                .withRelations(relations)
+                .withLenientPolicy();
     }
 
     @Bean
     GraphRelationshipPersister graphRelationshipPersister(NamedEntityDataRepository repository) {
         return new NamedEntityDataRepositoryGraphRelationshipPersister(repository);
+    }
+
+    @Bean
+    GraphProjectionService graphProjectionService(
+            GraphProjector graphProjector,
+            GraphRelationshipPersister persister,
+            DataDictionary dataDictionary) {
+        return GraphProjectionService.create(graphProjector, persister, dataDictionary);
     }
 
     @Bean

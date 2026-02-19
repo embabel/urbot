@@ -16,8 +16,7 @@ import com.embabel.dice.incremental.WindowConfig;
 import com.embabel.dice.incremental.proposition.PropositionIncrementalAnalyzer;
 import com.embabel.dice.pipeline.ChunkPropositionResult;
 import com.embabel.dice.pipeline.PropositionPipeline;
-import com.embabel.dice.projection.graph.GraphProjector;
-import com.embabel.dice.projection.graph.GraphRelationshipPersister;
+import com.embabel.dice.projection.graph.GraphProjectionService;
 import com.embabel.dice.proposition.EntityMention;
 import com.embabel.dice.proposition.PropositionRepository;
 import com.embabel.urbot.UrbotProperties;
@@ -57,8 +56,7 @@ public class IncrementalPropositionExtraction {
     private final PropositionRepository propositionRepository;
     private final NamedEntityDataRepository entityRepository;
     private final EntityResolver entityResolver;
-    private final GraphProjector graphProjector;
-    private final GraphRelationshipPersister graphRelationshipPersister;
+    private final GraphProjectionService graphProjectionService;
     private final ReentrantLock extractionLock = new ReentrantLock();
     private final ConcurrentLinkedQueue<SourceAnalysisRequestEvent> pendingEvents = new ConcurrentLinkedQueue<>();
     private final AtomicInteger inFlightCount = new AtomicInteger(0);
@@ -71,8 +69,7 @@ public class IncrementalPropositionExtraction {
             PropositionRepository propositionRepository,
             NamedEntityDataRepository entityRepository,
             EntityResolver entityResolver,
-            GraphProjector graphProjector,
-            GraphRelationshipPersister graphRelationshipPersister,
+            GraphProjectionService graphProjectionService,
             UrbotProperties properties) {
         this.pipeline = propositionPipeline;
         this.dataDictionary = dataDictionary;
@@ -80,8 +77,7 @@ public class IncrementalPropositionExtraction {
         this.propositionRepository = propositionRepository;
         this.entityRepository = entityRepository;
         this.entityResolver = entityResolver;
-        this.graphProjector = graphProjector;
-        this.graphRelationshipPersister = graphRelationshipPersister;
+        this.graphProjectionService = graphProjectionService;
 
         var extraction = properties.memory();
         this.windowConfig = new WindowConfig(
@@ -277,9 +273,9 @@ public class IncrementalPropositionExtraction {
             logger.info("No new data to persist (all propositions were duplicates)");
         }
 
-        var projectionResults = graphProjector.projectAll(propsToSave, dataDictionary);
-        if (!projectionResults.getProjected().isEmpty()) {
-            var persistenceResult = graphRelationshipPersister.persist(projectionResults);
+        var projectionResult = graphProjectionService.projectAndPersist(propsToSave);
+        var persistenceResult = projectionResult.getSecond();
+        if (persistenceResult.getPersistedCount() > 0) {
             logger.info("Projected {} semantic relationships from propositions",
                     persistenceResult.getPersistedCount());
         }

@@ -503,7 +503,7 @@ To run with a custom chatbot profile instead:
 mvn spring-boot:run -Dspring-boot.run.profiles=astrid
 ```
 
-Open [http://localhost:9000](http://localhost:9000) and log in:
+Open [http://localhost:8080](http://localhost:8080) and log in:
 
 | Username | Password | Roles |
 |---|---|---|
@@ -523,27 +523,31 @@ All settings are in `src/main/resources/application.yml`:
 
 ```yaml
 urbot:
-  chunker-config:
+  ingestion:
     max-chunk-size: 800       # Characters per chunk
     overlap-size: 100         # Overlap between chunks
     embedding-batch-size: 800
 
-  chat-llm:
-    model: gpt-4.1-mini      # LLM for chat responses
-    temperature: 0.0          # Deterministic responses
-
-  voice:
+  chat:
+    llm:
+      model: gpt-4.1-mini    # LLM for chat responses
+      temperature: 0.0        # Deterministic responses
     persona: assistant        # Prompt persona template
-    max-words: 250            # Target response length
+    objective: qa             # Prompt objective template
+    max-words: 80             # Target response length
+    memory-eager-limit: 50    # Propositions to surface in prompt
 
-  objective: general          # Prompt objective template
+  memory:
+    enabled: true
+    extraction-llm:
+      model: gpt-4.1-mini
+    window-size: 20           # Messages per extraction window
+    trigger-interval: 6       # Extract every N messages
 
 embabel:
   models:
-    default-llm:
-      model: gpt-4.1-mini
-    default-embedding-model:
-      model: text-embedding-3-small
+    default-llm: gpt-4.1-mini
+    default-embedding-model: text-embedding-3-small
 
 # Neo4j connection (matches docker-compose.yml)
 database:
