@@ -1051,6 +1051,16 @@ vaadin-login-form-wrapper::part(form-title) {
   border-radius: 10px;
 }
 
+/* Entities Section */
+.entities-section-header {
+  padding: var(--lumo-space-xs) 0;
+}
+
+.entities-count {
+  color: var(--sb-text-muted);
+  font-size: var(--lumo-font-size-s);
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .side-panel {

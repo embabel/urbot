@@ -174,7 +174,7 @@ public class ChatView extends VerticalLayout {
 
         // User drawer (opened by clicking user profile)
         userDrawer = new UserDrawer(documentService, currentUser, this::refreshFooter,
-                propositionRepository, entityResolver, onAnalyze, onRemember);
+                propositionRepository, entityResolver, entityRepository, onAnalyze, onRemember);
         getElement().appendChild(userDrawer.getElement());
         userSection.setOnClickHandler(userDrawer::open);
     }

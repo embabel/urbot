@@ -263,6 +263,10 @@ public class DrivinePropositionRepository implements PropositionRepository {
             whereConditions.add("p.revisedAt <= $revisedBefore");
             params.put("revisedBefore", query.getRevisedBefore().toEpochMilli());
         }
+        if (query.getMinImportance() != null) {
+            whereConditions.add("p.importance >= $minImportance");
+            params.put("minImportance", query.getMinImportance());
+        }
         if (query.getMinEffectiveConfidence() != null) {
             var asOf = query.getEffectiveConfidenceAsOf() != null
                     ? query.getEffectiveConfidenceAsOf()
@@ -295,6 +299,7 @@ public class DrivinePropositionRepository implements PropositionRepository {
             case CREATED_DESC -> cypher.replace("RETURN", "ORDER BY p.createdAt DESC RETURN");
             case REVISED_DESC -> cypher.replace("RETURN", "ORDER BY p.revisedAt DESC RETURN");
             case REINFORCE_COUNT_DESC -> cypher.replace("RETURN", "ORDER BY p.reinforceCount DESC RETURN");
+            case IMPORTANCE_DESC -> cypher.replace("RETURN", "ORDER BY p.importance DESC RETURN");
             case NONE -> cypher;
         };
 

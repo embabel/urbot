@@ -28,6 +28,7 @@ public class PropositionNode {
     private String text;
     private double confidence;
     private double decay;
+    private double importance;
     private @Nullable String reasoning;
     private List<String> grounding;
     private Instant created;
@@ -44,6 +45,7 @@ public class PropositionNode {
             @JsonProperty("text") String text,
             @JsonProperty("confidence") double confidence,
             @JsonProperty("decay") double decay,
+            @JsonProperty("importance") double importance,
             @JsonProperty("reasoning") @Nullable String reasoning,
             @JsonProperty("grounding") List<String> grounding,
             @JsonProperty("created") Instant created,
@@ -56,6 +58,7 @@ public class PropositionNode {
         this.text = text;
         this.confidence = confidence;
         this.decay = decay;
+        this.importance = importance;
         this.reasoning = reasoning;
         this.grounding = grounding != null ? grounding : List.of();
         this.created = created != null ? created : Instant.now();
@@ -66,7 +69,7 @@ public class PropositionNode {
     }
 
     public PropositionNode(String text, double confidence) {
-        this(UUID.randomUUID().toString(), "default", text, confidence, 0.0, null, List.of(),
+        this(UUID.randomUUID().toString(), "default", text, confidence, 0.0, 0.5, null, List.of(),
                 Instant.now(), Instant.now(), PropositionStatus.ACTIVE, null, List.of());
     }
 
@@ -84,6 +87,9 @@ public class PropositionNode {
 
     public double getDecay() { return decay; }
     public void setDecay(double decay) { this.decay = decay; }
+
+    public double getImportance() { return importance; }
+    public void setImportance(double importance) { this.importance = importance; }
 
     public @Nullable String getReasoning() { return reasoning; }
     public void setReasoning(@Nullable String reasoning) { this.reasoning = reasoning; }

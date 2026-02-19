@@ -1,6 +1,7 @@
 package com.embabel.urbot.vaadin;
 
 import com.embabel.agent.rag.model.NamedEntity;
+import com.embabel.agent.rag.service.NamedEntityDataRepository;
 import com.embabel.urbot.proposition.persistence.DrivinePropositionRepository;
 import com.embabel.urbot.rag.DocumentService;
 import com.embabel.urbot.user.UrbotUser;
@@ -38,10 +39,12 @@ public class UserDrawer extends Div {
     private final DocumentService documentService;
     private final UrbotUser user;
     private final MemorySection memorySection;
+    private final EntitiesSection entitiesSection;
 
     public UserDrawer(DocumentService documentService, UrbotUser user, Runnable onDocumentsChanged,
                       DrivinePropositionRepository propositionRepository,
                       Function<String, NamedEntity> entityResolver,
+                      NamedEntityDataRepository entityRepository,
                       Runnable onAnalyze,
                       Consumer<MemorySection.RememberRequest> onRemember) {
         this.documentService = documentService;
@@ -75,11 +78,12 @@ public class UserDrawer extends Div {
         header.setFlexGrow(1, title);
         sidePanel.add(header);
 
-        // Create documents section and memory section early (referenced by context change listeners)
+        // Create documents section, memory section, and entities section early (referenced by context change listeners)
         documentsSection = new DocumentListSection(documentService,
                 user::effectiveContext, onDocumentsChanged);
         memorySection = new MemorySection(propositionRepository, entityResolver,
                 user::effectiveContext, onAnalyze, onRemember);
+        entitiesSection = new EntitiesSection(entityRepository, user::effectiveContext);
 
         // Context selector section
         var contextSection = new HorizontalLayout();
@@ -105,6 +109,7 @@ public class UserDrawer extends Div {
                 onDocumentsChanged.run();
                 memorySection.setContextId(user.effectiveContext());
                 memorySection.refresh();
+                entitiesSection.setContextId(user.effectiveContext());
             }
         });
         contextSelect.addValueChangeListener(e -> {
@@ -114,6 +119,7 @@ public class UserDrawer extends Div {
                 onDocumentsChanged.run();
                 memorySection.setContextId(user.effectiveContext());
                 memorySection.refresh();
+                entitiesSection.setContextId(user.effectiveContext());
             }
         });
         refreshContexts();
@@ -128,13 +134,14 @@ public class UserDrawer extends Div {
         contextSection.setFlexGrow(1, contextSelect);
         sidePanel.add(contextSection);
 
-        // Tabs - Memory, Documents, Upload, URL
+        // Tabs - Memory, Entities, Documents, Upload, URL
         var memoryTab = new Tab(VaadinIcon.LIGHTBULB.create(), new Span("Memory"));
+        var entitiesTab = new Tab(VaadinIcon.USER.create(), new Span("Entities"));
         var documentsTab = new Tab(VaadinIcon.FILE_TEXT.create(), new Span("Documents"));
         var uploadTab = new Tab(VaadinIcon.UPLOAD.create(), new Span("Upload"));
         var urlTab = new Tab(VaadinIcon.GLOBE.create(), new Span("URL"));
 
-        var tabs = new Tabs(memoryTab, documentsTab, uploadTab, urlTab);
+        var tabs = new Tabs(memoryTab, entitiesTab, documentsTab, uploadTab, urlTab);
         tabs.setWidthFull();
         sidePanel.add(tabs);
 
@@ -155,25 +162,30 @@ public class UserDrawer extends Div {
         });
 
         // Memory visible by default; others hidden
+        entitiesSection.setVisible(false);
         documentsSection.setVisible(false);
         uploadSection.setVisible(false);
         urlSection.setVisible(false);
 
-        contentArea.add(memorySection, documentsSection, uploadSection, urlSection);
+        contentArea.add(memorySection, entitiesSection, documentsSection, uploadSection, urlSection);
         sidePanel.add(contentArea);
         sidePanel.setFlexGrow(1, contentArea);
 
         // Tab switching
         tabs.addSelectedChangeListener(event -> {
+            memorySection.setVisible(event.getSelectedTab() == memoryTab);
+            entitiesSection.setVisible(event.getSelectedTab() == entitiesTab);
             documentsSection.setVisible(event.getSelectedTab() == documentsTab);
             uploadSection.setVisible(event.getSelectedTab() == uploadTab);
             urlSection.setVisible(event.getSelectedTab() == urlTab);
-            memorySection.setVisible(event.getSelectedTab() == memoryTab);
-            if (event.getSelectedTab() == documentsTab) {
-                documentsSection.refresh();
-            }
             if (event.getSelectedTab() == memoryTab) {
                 memorySection.refresh();
+            }
+            if (event.getSelectedTab() == entitiesTab) {
+                entitiesSection.refresh();
+            }
+            if (event.getSelectedTab() == documentsTab) {
+                documentsSection.refresh();
             }
         });
 
