@@ -19,12 +19,12 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Drivine-based proposition repository that persists propositions to Neo4j.
@@ -62,7 +62,7 @@ public class DrivinePropositionRepository implements PropositionRepository {
                     `vector.dimensions`: %d,
                     `vector.similarity_function`: 'cosine'
                 }}
-                """.formatted(name, label, ((EmbeddingModel) embeddingService.getModel()).dimensions());
+                """.formatted(name, label, embeddingService.getDimensions());
         try {
             persistenceManager.execute(QuerySpecification.withStatement(statement));
             logger.info("Created vector index {} on {}", name, label);
@@ -225,7 +225,8 @@ public class DrivinePropositionRepository implements PropositionRepository {
         }
     }
 
-    public record CypherQuery(String cypher, Map<String, Object> params) {}
+    public record CypherQuery(String cypher, Map<String, Object> params) {
+    }
 
     public CypherQuery buildCypher(@NonNull PropositionQuery query) {
         var whereConditions = new java.util.ArrayList<String>();
@@ -543,7 +544,7 @@ public class DrivinePropositionRepository implements PropositionRepository {
             );
             return ids.stream()
                     .map(this::findById)
-                    .filter(p -> p != null)
+                    .filter(Objects::nonNull)
                     .toList();
         } catch (Exception e) {
             logger.warn("findByGrounding query failed: {}, falling back to in-memory", e.getMessage());
