@@ -262,6 +262,13 @@ public class IncrementalPropositionExtraction {
         var newProps = stats.getNewCount();
         var updatedProps = stats.getMergedCount() + stats.getReinforcedCount();
 
+        for (var entity : result.newEntities()) {
+            logger.info("New entity: name='{}', labels={}", entity.getName(), entity.labels());
+        }
+        for (var entity : result.updatedEntities()) {
+            logger.info("Updated entity: name='{}', labels={}", entity.getName(), entity.labels());
+        }
+
         result.persist(propositionRepository, entityRepository);
         if (newProps > 0 || updatedProps > 0 || newEntitiesToSave > 0) {
             logger.info("Persisted: {} new propositions, {} updated propositions, {} new entities",
