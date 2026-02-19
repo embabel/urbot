@@ -1,0 +1,583 @@
+/* Flicker — Film Noir Movie Guide */
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@300;400;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+
+:root {
+  --sb-bg-dark: #0a0a0a;
+  --sb-bg-medium: #111111;
+  --sb-bg-light: #1a1a1a;
+  --sb-accent: #c9a96e;
+  --sb-accent-light: #e0c78a;
+  --sb-link: #e8e8e8;
+  --sb-link-hover: #ffffff;
+  --sb-heading: #ffffff;
+  --sb-text-primary: #d4d4d4;
+  --sb-text-secondary: #a0a0a0;
+  --sb-text-muted: #666666;
+  --sb-border: #333333;
+  --sb-error: #cc4444;
+  --sb-success: #66aa66;
+
+  --lumo-base-color: transparent;
+  --lumo-primary-color: var(--sb-accent);
+  --lumo-primary-text-color: var(--sb-accent);
+  --lumo-primary-contrast-color: #0a0a0a;
+  --lumo-header-text-color: var(--sb-text-primary);
+  --lumo-body-text-color: var(--sb-text-primary);
+  --lumo-secondary-text-color: var(--sb-text-secondary);
+  --lumo-tertiary-text-color: var(--sb-text-muted);
+  --lumo-contrast: var(--sb-text-primary);
+  --lumo-contrast-10pct: rgba(212, 212, 212, 0.1);
+  --lumo-contrast-20pct: rgba(212, 212, 212, 0.2);
+  --lumo-shade: var(--sb-bg-dark);
+  --lumo-error-color: var(--sb-error);
+  --lumo-success-color: var(--sb-success);
+  --lumo-border-radius-m: 0px;
+  --lumo-border-radius-l: 0px;
+  --lumo-font-family: 'Crimson Text', 'Georgia', serif;
+}
+
+/* ---- Noir gradient with venetian blind effect ---- */
+html {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-color: #0a0a0a !important;
+  background-image:
+    /* Venetian blind slats */
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 40px,
+      rgba(255, 255, 255, 0.015) 40px,
+      rgba(255, 255, 255, 0.015) 42px
+    ),
+    /* Spotlight from upper right */
+    radial-gradient(ellipse at 85% 15%,
+      rgba(201, 169, 110, 0.06) 0%,
+      rgba(201, 169, 110, 0.02) 30%,
+      transparent 60%),
+    /* Vignette */
+    radial-gradient(ellipse at 50% 50%,
+      transparent 40%,
+      rgba(0, 0, 0, 0.4) 100%),
+    /* Base gradient */
+    linear-gradient(180deg,
+      #0a0a0a 0%,
+      #111111 40%,
+      #0d0d0d 70%,
+      #050505 100%) !important;
+  background-size: 100% 100% !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Nuke opaque layers */
+body,
+body > *,
+#outlet,
+#outlet > *,
+[id^="flow-container"],
+[id^="flow-container"] > * {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+vaadin-vertical-layout,
+vaadin-horizontal-layout,
+vaadin-scroller {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* ---- Logo — spotlight-lit film reel ---- */
+.chat-logo {
+  border-radius: 0;
+  border: 2px solid rgba(201, 169, 110, 0.5);
+  box-shadow:
+    0 0 12px rgba(201, 169, 110, 0.3),
+    0 0 30px rgba(0, 0, 0, 0.8);
+  animation: logo-spotlight 6s ease-in-out infinite alternate;
+}
+
+@keyframes logo-spotlight {
+  0%   { box-shadow: 0 0 12px rgba(201, 169, 110, 0.3), 0 0 30px rgba(0, 0, 0, 0.8); }
+  100% { box-shadow: 0 0 20px rgba(201, 169, 110, 0.5), 0 0 40px rgba(0, 0, 0, 0.6); }
+}
+
+/* ---- Title — classic cinema marquee ---- */
+.chat-title {
+  color: var(--sb-heading);
+  font-family: 'Bebas Neue', cursive;
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin: 0;
+  padding: 0;
+  text-shadow:
+    2px 2px 0px #000000,
+    4px 4px 8px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(201, 169, 110, 0.15);
+  background: linear-gradient(180deg, #ffffff 0%, #cccccc 50%, #999999 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: spotlight-sweep 8s ease-in-out infinite;
+  overflow: visible;
+}
+
+@keyframes spotlight-sweep {
+  0%   { filter: brightness(0.9); }
+  50%  { filter: brightness(1.1); }
+  100% { filter: brightness(0.9); }
+}
+
+.chat-subtitle {
+  color: var(--sb-text-secondary);
+  font-family: 'Oswald', sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ---- Chat bubbles ---- */
+.chat-bubble.user {
+  background: linear-gradient(135deg, #c9a96e 0%, #a0833d 100%);
+  color: #0a0a0a;
+  border-radius: 0;
+  border: 1px solid rgba(201, 169, 110, 0.6);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  font-family: 'Oswald', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  padding: var(--lumo-space-m) var(--lumo-space-l);
+}
+
+.chat-bubble.assistant {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: var(--lumo-space-s) 0 !important;
+  box-shadow: none !important;
+}
+
+.chat-bubble-sender {
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-size: var(--lumo-font-size-xxs);
+  font-family: 'Oswald', sans-serif;
+}
+
+.chat-bubble.user .chat-bubble-sender {
+  color: rgba(10, 10, 10, 0.6);
+}
+
+.chat-bubble.assistant .chat-bubble-sender {
+  color: var(--sb-accent);
+}
+
+/* ---- Send button — noir button with venetian blind hover ---- */
+vaadin-button[theme~="primary"] {
+  background: linear-gradient(135deg, #2a2a2a 0%, #000000 100%) !important;
+  color: #ffffff !important;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 2px solid var(--sb-accent) !important;
+  border-radius: 0 !important;
+  box-shadow:
+    0 0 0 1px #000000,
+    0 4px 16px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  text-shadow: 1px 1px 0px #000000;
+  padding: var(--lumo-space-s) var(--lumo-space-l);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+/* Venetian blind sweep on hover */
+vaadin-button[theme~="primary"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 3px,
+    rgba(255, 255, 255, 0.08) 3px,
+    rgba(255, 255, 255, 0.08) 6px
+  );
+  transition: left 0.6s ease;
+  pointer-events: none;
+}
+
+vaadin-button[theme~="primary"]:hover::before {
+  left: 100%;
+}
+
+vaadin-button[theme~="primary"]:hover {
+  background: linear-gradient(135deg, #3a3a3a 0%, #1a1a1a 100%) !important;
+  border-color: #e0c78a !important;
+  box-shadow:
+    0 0 0 1px #333333,
+    0 8px 24px rgba(0, 0, 0, 0.9),
+    0 0 12px rgba(201, 169, 110, 0.15);
+  transform: translateY(-1px);
+}
+
+/* ---- Input field — dark with gold border ---- */
+vaadin-text-field::part(input-field) {
+  background: rgba(10, 10, 10, 0.85) !important;
+  border: 1px solid var(--sb-border) !important;
+  border-radius: 0 !important;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+  font-family: 'Crimson Text', serif;
+}
+
+vaadin-text-field:focus-within::part(input-field) {
+  border-color: var(--sb-accent) !important;
+  box-shadow:
+    inset 0 2px 8px rgba(0, 0, 0, 0.5),
+    0 0 8px rgba(201, 169, 110, 0.2);
+  background: rgba(15, 15, 15, 0.9) !important;
+}
+
+/* ---- Chat scroller ---- */
+.chat-scroller {
+  background: transparent !important;
+  border: none;
+  border-radius: 0;
+}
+
+/* ---- Side panel — deep noir ---- */
+.side-panel {
+  background: linear-gradient(180deg, #111111 0%, #0a0a0a 60%, #050505 100%) !important;
+  background-color: #0a0a0a !important;
+  border-left: 1px solid var(--sb-border);
+  box-shadow: -8px 0 48px rgba(0, 0, 0, 0.6);
+}
+
+.side-panel vaadin-vertical-layout,
+.side-panel vaadin-horizontal-layout,
+.side-panel vaadin-scroller {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.side-panel-title {
+  color: var(--sb-heading);
+  font-family: 'Bebas Neue', cursive;
+  letter-spacing: 0.1em;
+}
+
+.side-panel-toggle {
+  background: linear-gradient(135deg, var(--sb-bg-light), var(--sb-bg-medium));
+  border: 1px solid var(--sb-border);
+  color: var(--sb-accent);
+  border-radius: 0;
+}
+
+.side-panel-toggle:hover {
+  border-color: var(--sb-accent);
+  box-shadow: 0 0 12px rgba(201, 169, 110, 0.2);
+}
+
+/* ---- Profile chip — noir badge ---- */
+.profile-chip {
+  background: rgba(10, 10, 10, 0.8) !important;
+  border: 1px solid var(--sb-border) !important;
+  border-radius: 0 !important;
+  padding: var(--lumo-space-xs) var(--lumo-space-m) var(--lumo-space-xs) var(--lumo-space-xs) !important;
+  position: relative;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+.profile-chip-clickable:hover {
+  border-color: var(--sb-accent) !important;
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.5),
+    0 0 8px rgba(201, 169, 110, 0.2) !important;
+}
+
+.user-avatar {
+  background: linear-gradient(135deg, #c9a96e, #a0833d);
+  color: #0a0a0a;
+  border-radius: 0 !important;
+  box-shadow: 0 0 8px rgba(201, 169, 110, 0.3);
+}
+
+.profile-chip-clickable:hover .user-avatar {
+  box-shadow: 0 0 12px rgba(201, 169, 110, 0.5);
+}
+
+/* ---- Proposition cards — film strip effect ---- */
+.proposition-card {
+  background: rgba(17, 17, 17, 0.7);
+  border: 1px solid rgba(51, 51, 51, 0.7);
+  border-radius: 0;
+  border-left: 4px solid var(--sb-accent);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.proposition-card:hover {
+  border-color: var(--sb-accent);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Film strip perforations on left edge */
+.proposition-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    var(--sb-accent) 0px,
+    var(--sb-accent) 6px,
+    transparent 6px,
+    transparent 10px
+  );
+}
+
+/* ---- Entity badges ---- */
+.entity-type-badge {
+  background: rgba(201, 169, 110, 0.15);
+  color: var(--sb-accent);
+  border-radius: 0;
+}
+
+.entity-card {
+  background: rgba(17, 17, 17, 0.7);
+  border: 1px solid rgba(51, 51, 51, 0.7);
+  border-radius: 0;
+}
+
+.entity-card:hover {
+  border-color: var(--sb-accent);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.entity-name {
+  color: var(--sb-heading);
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ---- Mention badges ---- */
+.mention-badge {
+  background: rgba(10, 10, 10, 0.6);
+  border: 1px solid rgba(51, 51, 51, 0.5);
+  border-radius: 0;
+}
+
+.mention-badge.clickable {
+  border-color: var(--sb-accent);
+  color: var(--sb-accent-light);
+}
+
+.mention-badge.clickable:hover {
+  background: var(--sb-accent);
+  color: #0a0a0a;
+  border-color: transparent;
+}
+
+/* ---- Schema ---- */
+.schema-type-card {
+  background: rgba(17, 17, 17, 0.7);
+  border: 1px solid rgba(51, 51, 51, 0.7);
+  border-radius: 0;
+}
+
+.schema-type-card:hover {
+  border-color: var(--sb-accent);
+}
+
+.schema-type-label {
+  color: var(--sb-heading);
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+}
+
+.schema-rel {
+  background: rgba(201, 169, 110, 0.12);
+  border: 1px solid var(--sb-accent);
+  color: var(--sb-accent-light);
+  border-radius: 0;
+}
+
+.schema-prop {
+  background: rgba(10, 10, 10, 0.5);
+  border: 1px solid rgba(51, 51, 51, 0.5);
+  border-radius: 0;
+}
+
+/* ---- Confidence badges ---- */
+.proposition-confidence.high {
+  background: rgba(102, 170, 102, 0.2);
+  color: var(--sb-success);
+}
+
+.proposition-confidence.medium {
+  background: rgba(201, 169, 110, 0.2);
+  color: var(--sb-accent);
+}
+
+.proposition-confidence.low {
+  background: rgba(204, 68, 68, 0.2);
+  color: var(--sb-error);
+}
+
+/* ---- Context badge ---- */
+.context-badge {
+  background: var(--sb-accent);
+  color: #0a0a0a;
+  border-radius: 0;
+}
+
+/* ---- Stats container ---- */
+.stats-container {
+  background: rgba(17, 17, 17, 0.7);
+  border: 1px solid rgba(51, 51, 51, 0.7);
+  border-radius: 0;
+}
+
+.stat-row {
+  border-bottom-color: rgba(51, 51, 51, 0.3);
+}
+
+/* ---- Login — noir portal ---- */
+.login-view {
+  background: #0a0a0a;
+}
+
+.login-title {
+  color: var(--sb-heading);
+  font-family: 'Bebas Neue', cursive;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-shadow:
+    2px 2px 0px #000000,
+    4px 4px 8px rgba(0, 0, 0, 0.8);
+}
+
+vaadin-login-form-wrapper {
+  background: rgba(17, 17, 17, 0.9);
+  border: 1px solid var(--sb-border);
+  border-radius: 0;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.8);
+}
+
+.login-legend {
+  background: rgba(17, 17, 17, 0.8);
+  border: 1px solid var(--sb-border);
+  border-radius: 0;
+}
+
+/* ---- Upload ---- */
+.side-panel vaadin-upload {
+  border: 2px dashed var(--sb-border);
+  border-radius: 0;
+  background: rgba(17, 17, 17, 0.4);
+}
+
+.side-panel vaadin-upload:hover {
+  border-color: var(--sb-accent);
+  box-shadow: 0 0 12px rgba(201, 169, 110, 0.15);
+}
+
+/* ---- Tool call — spotlight indicator ---- */
+.tool-call-indicator {
+  background: rgba(17, 17, 17, 0.6) !important;
+  border-left: 3px solid var(--sb-accent) !important;
+  border: 1px solid rgba(201, 169, 110, 0.3) !important;
+  border-left: 3px solid var(--sb-accent) !important;
+  border-radius: 0 !important;
+  padding: var(--lumo-space-s) var(--lumo-space-l) !important;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Oswald', sans-serif;
+  font-style: normal;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sb-accent-light) !important;
+}
+
+/* Spotlight sweep across tool call */
+.tool-call-indicator::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(201, 169, 110, 0.06),
+    rgba(201, 169, 110, 0.1),
+    transparent
+  );
+  animation: tool-spotlight-sweep 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes tool-spotlight-sweep {
+  0%   { left: -40%; }
+  100% { left: 120%; }
+}
+
+/* ---- Tabs ---- */
+.side-panel vaadin-tab[selected] {
+  color: var(--sb-accent);
+}
+
+/* ---- Scrollbar — noir ---- */
+::-webkit-scrollbar-thumb {
+  background: rgba(51, 51, 51, 0.6);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sb-accent);
+}
+
+/* ---- Markdown in assistant bubbles ---- */
+.chat-bubble.assistant .chat-bubble-text code {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #333333;
+  border-radius: 0;
+  font-family: 'Courier New', monospace;
+}
+
+.chat-bubble.assistant .chat-bubble-text pre {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #333333;
+  border-radius: 0;
+}
+
+.chat-bubble.assistant .chat-bubble-text blockquote {
+  border-left-color: var(--sb-accent);
+}
+
+.chat-bubble.assistant .chat-bubble-text a {
+  color: var(--sb-link);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(232, 232, 232, 0.3);
+  transition: all 0.3s ease;
+}
+
+.chat-bubble.assistant .chat-bubble-text a:hover {
+  color: var(--sb-link-hover);
+  border-bottom-color: var(--sb-link-hover);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}

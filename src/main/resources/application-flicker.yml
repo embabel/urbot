@@ -1,0 +1,6 @@
+flicker:
+  omdb:
+    api-key: ${OMDB_API_KEY:}
+  streaming:
+    rapid-api-key: ${X_RAPIDAPI_KEY:}
+    default-country: ${FLICKER_COUNTRY:us}
