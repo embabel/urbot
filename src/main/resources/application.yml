@@ -61,6 +61,11 @@ urbot:
     show-prompts: false
     show-responses: false
 
+management:
+  health:
+    neo4j:
+      enabled: false  # Drivine manages its own Neo4j connection; disable Spring's default health check
+
 spring:
   servlet:
     multipart:
