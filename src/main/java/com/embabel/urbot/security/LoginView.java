@@ -34,7 +34,10 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
         loginForm.setAction("login");
 
-        var logo = new Image("images/weltenchronik.jpg", "Urbot");
+        var logoFile = (properties.stylesheet() != null && !properties.stylesheet().isBlank())
+                ? "images/" + properties.stylesheet() + ".jpg"
+                : "images/weltenchronik.jpg";
+        var logo = new Image(logoFile, "Urbot");
         logo.setWidth("80px");
         logo.addClassName("login-logo");
 

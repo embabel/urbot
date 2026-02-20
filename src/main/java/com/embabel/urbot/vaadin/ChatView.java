@@ -101,7 +101,10 @@ public class ChatView extends VerticalLayout {
         titleSection.setSpacing(true);
         titleSection.setAlignItems(Alignment.CENTER);
 
-        var logo = new Image("images/weltenchronik.jpg", "Urbot");
+        var logoFile = (properties.stylesheet() != null && !properties.stylesheet().isBlank())
+                ? "images/" + properties.stylesheet() + ".jpg"
+                : "images/weltenchronik.jpg";
+        var logo = new Image(logoFile, persona);
         logo.setWidth("48px");
         logo.addClassName("chat-logo");
 
