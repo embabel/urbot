@@ -47,6 +47,7 @@ public class PropositionView {
                 p.getGrounding(),
                 p.getCreated(),
                 p.getRevised(),
+                p.getLastAccessed(),
                 p.getStatus(),
                 p.getUri(),
                 p.getSourceIds()
@@ -73,6 +74,7 @@ public class PropositionView {
                 proposition.getGrounding(),
                 proposition.getCreated(),
                 proposition.getRevised(),
+                proposition.getLastAccessed(),
                 proposition.getStatus(),
                 0,
                 proposition.getSourceIds(),

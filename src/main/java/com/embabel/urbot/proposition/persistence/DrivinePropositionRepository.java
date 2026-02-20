@@ -264,6 +264,14 @@ public class DrivinePropositionRepository implements PropositionRepository {
             whereConditions.add("p.revisedAt <= $revisedBefore");
             params.put("revisedBefore", query.getRevisedBefore().toEpochMilli());
         }
+        if (query.getAccessedAfter() != null) {
+            whereConditions.add("p.lastAccessedAt >= $accessedAfter");
+            params.put("accessedAfter", query.getAccessedAfter().toEpochMilli());
+        }
+        if (query.getAccessedBefore() != null) {
+            whereConditions.add("p.lastAccessedAt <= $accessedBefore");
+            params.put("accessedBefore", query.getAccessedBefore().toEpochMilli());
+        }
         if (query.getMinImportance() != null) {
             whereConditions.add("p.importance >= $minImportance");
             params.put("minImportance", query.getMinImportance());
@@ -299,6 +307,7 @@ public class DrivinePropositionRepository implements PropositionRepository {
             case EFFECTIVE_CONFIDENCE_DESC -> cypher.replace("RETURN", "ORDER BY p.confidence DESC RETURN");
             case CREATED_DESC -> cypher.replace("RETURN", "ORDER BY p.createdAt DESC RETURN");
             case REVISED_DESC -> cypher.replace("RETURN", "ORDER BY p.revisedAt DESC RETURN");
+            case LAST_ACCESSED_DESC -> cypher.replace("RETURN", "ORDER BY p.lastAccessedAt DESC RETURN");
             case REINFORCE_COUNT_DESC -> cypher.replace("RETURN", "ORDER BY p.reinforceCount DESC RETURN");
             case IMPORTANCE_DESC -> cypher.replace("RETURN", "ORDER BY p.importance DESC RETURN");
             case NONE -> cypher;

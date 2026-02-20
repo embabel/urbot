@@ -33,6 +33,7 @@ public class PropositionNode {
     private List<String> grounding;
     private Instant created;
     private Instant revised;
+    private Instant lastAccessed;
     private PropositionStatus status;
     private @Nullable String uri;
     private List<String> sourceIds;
@@ -50,6 +51,7 @@ public class PropositionNode {
             @JsonProperty("grounding") List<String> grounding,
             @JsonProperty("created") Instant created,
             @JsonProperty("revised") Instant revised,
+            @JsonProperty("lastAccessed") @Nullable Instant lastAccessed,
             @JsonProperty("status") PropositionStatus status,
             @JsonProperty("uri") @Nullable String uri,
             @JsonProperty("sourceIds") List<String> sourceIds) {
@@ -63,6 +65,7 @@ public class PropositionNode {
         this.grounding = grounding != null ? grounding : List.of();
         this.created = created != null ? created : Instant.now();
         this.revised = revised != null ? revised : Instant.now();
+        this.lastAccessed = lastAccessed != null ? lastAccessed : Instant.now();
         this.status = status != null ? status : PropositionStatus.ACTIVE;
         this.uri = uri;
         this.sourceIds = sourceIds != null ? sourceIds : List.of();
@@ -70,7 +73,7 @@ public class PropositionNode {
 
     public PropositionNode(String text, double confidence) {
         this(UUID.randomUUID().toString(), "default", text, confidence, 0.0, 0.5, null, List.of(),
-                Instant.now(), Instant.now(), PropositionStatus.ACTIVE, null, List.of());
+                Instant.now(), Instant.now(), Instant.now(), PropositionStatus.ACTIVE, null, List.of());
     }
 
     public String getId() { return id; }
@@ -102,6 +105,9 @@ public class PropositionNode {
 
     public Instant getRevised() { return revised; }
     public void setRevised(Instant revised) { this.revised = revised; }
+
+    public Instant getLastAccessed() { return lastAccessed; }
+    public void setLastAccessed(Instant lastAccessed) { this.lastAccessed = lastAccessed; }
 
     public PropositionStatus getStatus() { return status; }
     public void setStatus(PropositionStatus status) { this.status = status; }
