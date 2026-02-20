@@ -254,7 +254,7 @@ Each custom chatbot lives in its own package (e.g. `com.embabel.bot.astrid`) and
 | **Tools** | `@LlmTool` classes, `Subagent` beans, `ToolishRag` beans -- all auto-discovered via [Spring component scanning](https://docs.spring.io/spring-framework/reference/core/beans/classpath-scanning.html) | `AstrologyTools`, `DailyHoroscopeAgent` |
 | **ToolishRag** | Profile-specific `ToolishRag` bean replaces the default `globalDocuments` | `astrologyDocuments` scoped to global context |
 | **Users** | `@Primary UrbotUserService` bean overrides the default user list | Different demo users per bot |
-| **Stylesheet** | `urbot.stylesheet=<name>` loads `themes/urbot/<name>.css` | Custom color palette and branding |
+| **Stylesheet & Logo** | `urbot.stylesheet=<name>` loads `themes/urbot/<name>.css` and uses `images/<name>.jpg` as the logo on the chat and login pages | Custom color palette, branding, and logo |
 | **Docker services** | Profile-specific compose services (e.g. an astrology API container) | `docker compose --profile astrology up` |
 
 ### 1. Properties
@@ -272,7 +272,7 @@ Key properties:
 | `urbot.chat.max-words` | Soft response length limit | `80` |
 | `urbot.bot-packages` | Packages to scan for bot components | _(none)_ |
 | `urbot.memory.enabled` | Enable DICE memory extraction | `true` |
-| `urbot.stylesheet` | CSS override (`themes/urbot/<name>.css`) | _(none)_ |
+| `urbot.stylesheet` | CSS override (`themes/urbot/<name>.css`) + logo (`images/<name>.jpg`, displayed at 48px in chat, 80px on login) | _(none)_ |
 
 See [`UrbotProperties`](src/main/java/com/embabel/urbot/UrbotProperties.java) for the full configuration record.
 
@@ -454,6 +454,8 @@ src/main/java/
         └── domain/                     # NamedEntity subinterfaces for DICE extraction
 
 src/main/resources/
+├── META-INF/resources/images/
+│   └── <yourbot>.jpg                   # Logo image (required when urbot.stylesheet is set)
 ├── application.yml                     # Base config (server, LLM, Neo4j, chunking)
 ├── application-<profile>.properties    # Profile overrides (persona, objective, bot-packages)
 └── prompts/
