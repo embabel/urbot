@@ -18,9 +18,11 @@ import com.embabel.dice.projection.memory.support.DefaultMemoryProjector;
 import com.embabel.dice.projection.memory.support.RelationBasedKnowledgeTypeClassifier;
 import com.embabel.dice.proposition.PropositionExtractor;
 import com.embabel.dice.proposition.PropositionRepository;
+import com.embabel.dice.proposition.extraction.IncrementalPropositionExtraction;
 import com.embabel.dice.proposition.extraction.LlmPropositionExtractor;
 import com.embabel.dice.proposition.revision.LlmPropositionReviser;
 import com.embabel.dice.proposition.revision.PropositionReviser;
+import com.embabel.dice.incremental.ChunkHistoryStore;
 import com.embabel.urbot.UrbotProperties;
 import com.embabel.urbot.user.UrbotUser;
 import org.drivine.manager.GraphObjectManager;
@@ -58,7 +60,7 @@ class PropositionConfiguration {
      */
     @Bean
     DataDictionary urbotDomainSchema(UrbotProperties properties) {
-        var packages = properties.memory().entityPackages();
+        var packages = properties.memory().getEntityPackages();
         var schema = DataDictionary.fromClasses("urbot", UrbotUser.class)
                 .plus(NamedEntity.dataDictionaryFromPackages(
                         properties.botPackages().toArray(String[]::new)
@@ -100,14 +102,14 @@ class PropositionConfiguration {
     @Bean
     GraphProjector graphProjector(Relations relations, AiBuilder aiBuilder, UrbotProperties properties) {
         var extraction = properties.memory();
-        var projectionLlm = extraction.projectionLlm() != null
-                ? extraction.projectionLlm()
-                : extraction.classifyLlm() != null
-                        ? extraction.classifyLlm()
-                        : extraction.extractionLlm();
+        var projectionLlm = extraction.getProjectionLlm() != null
+                ? extraction.getProjectionLlm()
+                : extraction.getClassifyLlm() != null
+                        ? extraction.getClassifyLlm()
+                        : extraction.getExtractionLlm();
         var ai = aiBuilder
-                .withShowPrompts(extraction.showPrompts())
-                .withShowLlmResponses(extraction.showResponses())
+                .withShowPrompts(extraction.getShowPrompts())
+                .withShowLlmResponses(extraction.getShowResponses())
                 .ai();
         logger.info("Creating LlmGraphProjector with model: {}, {} relations",
                 projectionLlm.getModel(), relations.size());
@@ -138,15 +140,15 @@ class PropositionConfiguration {
             UrbotProperties properties) {
         var extraction = properties.memory();
         var ai = aiBuilder
-                .withShowPrompts(extraction.showPrompts())
-                .withShowLlmResponses(extraction.showResponses())
+                .withShowPrompts(extraction.getShowPrompts())
+                .withShowLlmResponses(extraction.getShowResponses())
                 .ai();
-        logger.info("Creating LlmPropositionExtractor with model: {}", extraction.extractionLlm());
+        logger.info("Creating LlmPropositionExtractor with model: {}", extraction.getExtractionLlm());
         return LlmPropositionExtractor
-                .withLlm(extraction.extractionLlm())
+                .withLlm(extraction.getExtractionLlm())
                 .withAi(ai)
                 .withPropositionRepository(propositionRepository)
-                .withExistingPropositionsToShow(extraction.existingPropositionsToShow())
+                .withExistingPropositionsToShow(extraction.getExistingPropositionsToShow())
                 .withSchemaAdherence(SchemaAdherence.DEFAULT)
                 .withTemplate("dice/extract_urbot_user_propositions");
     }
@@ -173,10 +175,10 @@ class PropositionConfiguration {
             AiBuilder aiBuilder,
             UrbotProperties properties) {
         var extraction = properties.memory();
-        var llmOptions = extraction.entityResolutionLlm();
+        var llmOptions = extraction.getEntityResolutionLlm();
         var ai = aiBuilder
-                .withShowPrompts(extraction.showPrompts())
-                .withShowLlmResponses(extraction.showResponses())
+                .withShowPrompts(extraction.getShowPrompts())
+                .withShowLlmResponses(extraction.getShowResponses())
                 .ai();
 
         var llmBakeoff = LlmCandidateBakeoff
@@ -205,16 +207,16 @@ class PropositionConfiguration {
             UrbotProperties properties) {
         var extraction = properties.memory();
         var ai = aiBuilder
-                .withShowPrompts(extraction.showPrompts())
-                .withShowLlmResponses(extraction.showResponses())
+                .withShowPrompts(extraction.getShowPrompts())
+                .withShowLlmResponses(extraction.getShowResponses())
                 .ai();
         var reviser = LlmPropositionReviser
-                .withLlm(extraction.extractionLlm())
+                .withLlm(extraction.getExtractionLlm())
                 .withAi(ai)
-                .withClassifyBatchSize(extraction.classifyBatchSize());
-        if (extraction.classifyLlm() != null) {
-            reviser = reviser.withClassifyLlm(extraction.classifyLlm());
-            logger.info("Using separate classification LLM: {}", extraction.classifyLlm().getModel());
+                .withClassifyBatchSize(extraction.getClassifyBatchSize());
+        if (extraction.getClassifyLlm() != null) {
+            reviser = reviser.withClassifyLlm(extraction.getClassifyLlm());
+            logger.info("Using separate classification LLM: {}", extraction.getClassifyLlm().getModel());
         }
         return reviser;
     }
@@ -223,5 +225,31 @@ class PropositionConfiguration {
     MemoryProjector memoryProjector(Relations relations) {
         return DefaultMemoryProjector
                 .withKnowledgeTypeClassifier(new RelationBasedKnowledgeTypeClassifier(relations));
+    }
+
+    @Bean
+    IncrementalPropositionExtraction incrementalPropositionExtraction(
+            PropositionPipeline pipeline,
+            ChunkHistoryStore chunkHistoryStore,
+            DataDictionary dataDictionary,
+            Relations relations,
+            PropositionRepository propositionRepository,
+            NamedEntityDataRepository entityRepository,
+            EntityResolver entityResolver,
+            GraphProjectionService graphProjectionService,
+            UrbotProperties properties) {
+        return new IncrementalPropositionExtraction(
+                pipeline,
+                chunkHistoryStore,
+                dataDictionary,
+                relations,
+                propositionRepository,
+                entityRepository,
+                entityResolver,
+                graphProjectionService,
+                properties.memory(),
+                user -> ((UrbotUser) user).currentContext(),
+                user -> java.util.Map.of("user", user)
+        );
     }
 }

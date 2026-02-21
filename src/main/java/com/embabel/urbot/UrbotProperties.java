@@ -2,7 +2,7 @@ package com.embabel.urbot;
 
 import com.embabel.agent.rag.ingestion.ContentChunker;
 import com.embabel.agent.rag.neo.drivine.NeoRagServiceProperties;
-import com.embabel.urbot.proposition.PropositionExtractionProperties;
+import com.embabel.dice.proposition.extraction.PropositionExtractionProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.boot.context.properties.bind.DefaultValue;

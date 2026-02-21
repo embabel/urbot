@@ -11,7 +11,7 @@ import com.embabel.chat.Message;
 import com.embabel.chat.UserMessage;
 import com.embabel.common.textio.template.JinjavaTemplateRenderer;
 import com.embabel.dice.proposition.Proposition;
-import com.embabel.urbot.proposition.extraction.IncrementalPropositionExtraction;
+import com.embabel.dice.proposition.extraction.IncrementalPropositionExtraction;
 import com.embabel.urbot.proposition.persistence.DrivinePropositionRepository;
 import com.embabel.urbot.user.UrbotUser;
 import com.fasterxml.jackson.databind.ObjectMapper;

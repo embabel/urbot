@@ -15,7 +15,7 @@ import com.embabel.common.core.types.Named;
 import com.embabel.dice.agent.Memory;
 import com.embabel.dice.projection.memory.MemoryProjector;
 import com.embabel.dice.proposition.PropositionRepository;
-import com.embabel.urbot.event.ConversationAnalysisRequestEvent;
+import com.embabel.dice.common.ConversationAnalysisRequestEvent;
 import com.embabel.urbot.user.UrbotUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +95,7 @@ public class ChatActions {
 
         var references = new LinkedList<>(globalReferences);
         references.add(user.personalDocs(searchOperations));
-        if (properties.memory().enabled()) {
+        if (properties.memory().getEnabled()) {
             references.add(Memory.forContext(user.currentContext())
                     .withRepository(propositionRepository)
                     .withProjector(memoryProjector)
@@ -115,7 +115,7 @@ public class ChatActions {
                 ));
         context.sendMessage(conversation.addMessage(assistantMessage));
 
-        if (properties.memory().enabled()) {
+        if (properties.memory().getEnabled()) {
             eventPublisher.publishEvent(new ConversationAnalysisRequestEvent(this, user, conversation));
         }
     }
