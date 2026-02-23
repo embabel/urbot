@@ -5,6 +5,11 @@ import com.embabel.agent.rag.service.NamedEntityDataRepository;
 import com.embabel.urbot.proposition.persistence.DrivinePropositionRepository;
 import com.embabel.urbot.rag.DocumentService;
 import com.embabel.urbot.user.UrbotUser;
+import com.embabel.vaadin.component.EntitiesSection;
+import com.embabel.vaadin.component.MemorySection;
+import com.embabel.vaadin.document.DocumentListSection;
+import com.embabel.vaadin.document.FileUploadSection;
+import com.embabel.vaadin.document.UrlIngestSection;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
@@ -82,7 +87,7 @@ public class UserDrawer extends Div {
         documentsSection = new DocumentListSection(documentService,
                 user::effectiveContext, onDocumentsChanged);
         memorySection = new MemorySection(propositionRepository, entityResolver,
-                user::effectiveContext, onAnalyze, onRemember);
+                user::effectiveContext, onAnalyze, onRemember, propositionRepository::clearByContext);
         entitiesSection = new EntitiesSection(entityRepository, user::effectiveContext);
 
         // Context selector section
@@ -151,15 +156,19 @@ public class UserDrawer extends Div {
         contentArea.setPadding(false);
         contentArea.setSizeFull();
 
-        var uploadSection = new FileUploadSection(documentService, personalContext, () -> {
-            documentsSection.refresh();
-            onDocumentsChanged.run();
-        });
+        var uploadSection = new FileUploadSection(
+                (is, fn) -> documentService.ingestStream(is, "upload://" + fn, fn, personalContext),
+                () -> {
+                    documentsSection.refresh();
+                    onDocumentsChanged.run();
+                });
 
-        var urlSection = new UrlIngestSection(documentService, personalContext, () -> {
-            documentsSection.refresh();
-            onDocumentsChanged.run();
-        });
+        var urlSection = new UrlIngestSection(
+                url -> documentService.ingestUrl(url, personalContext),
+                () -> {
+                    documentsSection.refresh();
+                    onDocumentsChanged.run();
+                });
 
         // Memory visible by default; others hidden
         entitiesSection.setVisible(false);

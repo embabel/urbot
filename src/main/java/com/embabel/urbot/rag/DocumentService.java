@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.embabel.vaadin.document.DocumentInfoProvider;
+
 import java.io.File;
 import java.io.InputStream;
 import java.time.Instant;
@@ -26,20 +28,14 @@ import java.util.stream.Collectors;
  * Service for managing document ingestion and retrieval.
  */
 @Service
-public class DocumentService {
+public class DocumentService implements DocumentInfoProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentService.class);
 
     private final ChunkingContentElementRepository contentRepository;
     private final TikaHierarchicalContentReader contentReader;
     private final UrbotProperties properties;
-    private final List<DocumentInfo> documents = new CopyOnWriteArrayList<>();
-
-    /**
-     * Summary info about an ingested document.
-     */
-    public record DocumentInfo(String uri, String title, String context, int chunkCount, Instant ingestedAt) {
-    }
+    private final List<DocumentInfoProvider.DocumentInfo> documents = new CopyOnWriteArrayList<>();
 
     public record Context(UrbotUser user, String overrideContext) {
 
@@ -79,7 +75,7 @@ public class DocumentService {
             for (var root : contentRepository.findAll(ContentRoot.class)) {
                 var context = (String) root.getMetadata().get(Context.CONTEXT_KEY);
                 if (context == null) continue;
-                documents.add(new DocumentInfo(
+                documents.add(new DocumentInfoProvider.DocumentInfo(
                         root.getUri(),
                         root.getTitle(),
                         context,
@@ -166,7 +162,7 @@ public class DocumentService {
     }
 
     private void trackDocument(NavigableDocument document, Context context, int chunkCount) {
-        documents.add(new DocumentInfo(
+        documents.add(new DocumentInfoProvider.DocumentInfo(
                 document.getUri(),
                 document.getTitle(),
                 context.effectiveContext(),
@@ -178,14 +174,14 @@ public class DocumentService {
     /**
      * Get list of all ingested documents.
      */
-    public List<DocumentInfo> getDocuments() {
+    public List<DocumentInfoProvider.DocumentInfo> getDocuments() {
         return List.copyOf(documents);
     }
 
     /**
      * Get documents filtered by the user's effective context.
      */
-    public List<DocumentInfo> getDocuments(String effectiveContext) {
+    public List<DocumentInfoProvider.DocumentInfo> getDocuments(String effectiveContext) {
         return documents.stream()
                 .filter(doc -> doc.context().equals(effectiveContext))
                 .toList();
@@ -196,7 +192,7 @@ public class DocumentService {
      */
     public List<String> contexts() {
         return documents.stream()
-                .map(DocumentInfo::context)
+                .map(DocumentInfoProvider.DocumentInfo::context)
                 .distinct()
                 .toList();
     }

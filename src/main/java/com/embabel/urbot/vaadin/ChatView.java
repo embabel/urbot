@@ -8,13 +8,17 @@ import com.embabel.agent.core.DataDictionary;
 import com.embabel.agent.rag.model.NamedEntity;
 import com.embabel.agent.rag.service.NamedEntityDataRepository;
 import com.embabel.chat.*;
-import com.embabel.urbot.UrbotProperties;
 import com.embabel.dice.common.ConversationAnalysisRequestEvent;
 import com.embabel.dice.proposition.extraction.IncrementalPropositionExtraction;
+import com.embabel.urbot.UrbotProperties;
 import com.embabel.urbot.proposition.persistence.DrivinePropositionRepository;
 import com.embabel.urbot.rag.DocumentService;
 import com.embabel.urbot.user.UrbotUser;
 import com.embabel.urbot.user.UrbotUserService;
+import com.embabel.vaadin.component.ChatMessageBubble;
+import com.embabel.vaadin.component.Footer;
+import com.embabel.vaadin.component.MemorySection;
+import com.embabel.vaadin.component.UserSection;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -122,7 +126,7 @@ public class ChatView extends VerticalLayout {
         titleSection.add(logo, titleText);
 
         // User section (right) - clickable to open personal documents drawer
-        userSection = new UserSection(currentUser);
+        userSection = new UserSection(currentUser, () -> {});
         headerRow.add(titleSection, userSection);
         add(headerRow);
 

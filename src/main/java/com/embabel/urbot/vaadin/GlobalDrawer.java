@@ -3,6 +3,10 @@ package com.embabel.urbot.vaadin;
 import com.embabel.agent.core.DataDictionary;
 import com.embabel.urbot.rag.DocumentService;
 import com.embabel.urbot.user.UrbotUser;
+import com.embabel.vaadin.component.SchemaSection;
+import com.embabel.vaadin.document.DocumentListSection;
+import com.embabel.vaadin.document.FileUploadSection;
+import com.embabel.vaadin.document.UrlIngestSection;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
@@ -78,15 +82,19 @@ public class GlobalDrawer extends Div {
         documentsSection = new DocumentListSection(documentService,
                 () -> DocumentService.Context.GLOBAL_CONTEXT, onDocumentsChanged);
 
-        uploadSection = new FileUploadSection(documentService, globalContext, () -> {
-            documentsSection.refresh();
-            onDocumentsChanged.run();
-        });
+        uploadSection = new FileUploadSection(
+                (is, fn) -> documentService.ingestStream(is, "upload://" + fn, fn, globalContext),
+                () -> {
+                    documentsSection.refresh();
+                    onDocumentsChanged.run();
+                });
 
-        urlSection = new UrlIngestSection(documentService, globalContext, () -> {
-            documentsSection.refresh();
-            onDocumentsChanged.run();
-        });
+        urlSection = new UrlIngestSection(
+                url -> documentService.ingestUrl(url, globalContext),
+                () -> {
+                    documentsSection.refresh();
+                    onDocumentsChanged.run();
+                });
 
         schemaSection = new SchemaSection(dataDictionary);
 
