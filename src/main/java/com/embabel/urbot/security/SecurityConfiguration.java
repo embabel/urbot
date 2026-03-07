@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
@@ -34,6 +35,15 @@ class SecurityConfiguration extends VaadinWebSecurity {
         setLoginView(http, LoginView.class);
 
         http.userDetailsService(userService);
+
+        // Disable the request cache to prevent phantom session creation.
+        // When a stale request (from a previous server run or expired push connection)
+        // arrives with an invalid JSESSIONID, Spring Security's default
+        // HttpSessionRequestCache calls getSession() to save the request, which
+        // creates a new empty session and sets a Set-Cookie that overwrites
+        // the authenticated session cookie. With Vaadin (a SPA), we don't need
+        // the request cache — the app always loads at "/".
+        http.requestCache(cache -> cache.requestCache(new NullRequestCache()));
 
         // Configure logout
         http.logout(logout -> logout
