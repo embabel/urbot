@@ -4,9 +4,7 @@ import com.embabel.agent.core.DataDictionary;
 import com.embabel.urbot.rag.DocumentService;
 import com.embabel.urbot.user.UrbotUser;
 import com.embabel.vaadin.component.SchemaSection;
-import com.embabel.vaadin.document.DocumentListSection;
-import com.embabel.vaadin.document.FileUploadSection;
-import com.embabel.vaadin.document.UrlIngestSection;
+import com.embabel.vaadin.document.DocumentsPanel;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
@@ -32,9 +30,7 @@ public class GlobalDrawer extends Div {
     private final Button toggleButton;
     private ShortcutRegistration escapeShortcut;
 
-    private final FileUploadSection uploadSection;
-    private final UrlIngestSection urlSection;
-    private final DocumentListSection documentsSection;
+    private final DocumentsPanel documentsPanel;
     private final SchemaSection schemaSection;
 
     public GlobalDrawer(DocumentService documentService, UrbotUser user, int neo4jHttpPort, int neo4jBoltPort,
@@ -62,13 +58,12 @@ public class GlobalDrawer extends Div {
         var header = getHorizontalLayout(neo4jHttpPort, neo4jBoltPort);
         sidePanel.add(header);
 
-        // Tabs - Documents first
-        var documentsTab = new Tab(VaadinIcon.FILE_TEXT.create(), new Span("Documents"));
-        var uploadTab = new Tab(VaadinIcon.UPLOAD.create(), new Span("Upload"));
-        var urlTab = new Tab(VaadinIcon.GLOBE.create(), new Span("URL"));
+        // Tabs
         var schemaTab = new Tab(VaadinIcon.SITEMAP.create(), new Span("Schema"));
+        var documentsTab = new Tab(VaadinIcon.FILE_TEXT.create(), new Span("Documents"));
+        var aboutTab = new Tab(VaadinIcon.INFO_CIRCLE.create(), new Span("About"));
 
-        var tabs = new Tabs(documentsTab, uploadTab, urlTab, schemaTab);
+        var tabs = new Tabs(schemaTab, documentsTab, aboutTab);
         tabs.setWidthFull();
         sidePanel.add(tabs);
 
@@ -78,44 +73,33 @@ public class GlobalDrawer extends Div {
         contentArea.setPadding(false);
         contentArea.setSizeFull();
 
-        // Create sections using global context
-        documentsSection = new DocumentListSection(documentService,
-                () -> DocumentService.Context.GLOBAL_CONTEXT, onDocumentsChanged);
-
-        uploadSection = new FileUploadSection(
-                (is, fn) -> documentService.ingestStream(is, "upload://" + fn, fn, globalContext),
-                () -> {
-                    documentsSection.refresh();
-                    onDocumentsChanged.run();
-                });
-
-        urlSection = new UrlIngestSection(
-                url -> documentService.ingestUrl(url, globalContext),
-                () -> {
-                    documentsSection.refresh();
-                    onDocumentsChanged.run();
-                });
-
+        // Sections
         schemaSection = new SchemaSection(dataDictionary);
 
-        // Documents visible by default; others hidden
-        uploadSection.setVisible(false);
-        urlSection.setVisible(false);
-        schemaSection.setVisible(false);
+        documentsPanel = new DocumentsPanel(documentService,
+                () -> DocumentService.Context.GLOBAL_CONTEXT,
+                (is, fn) -> documentService.ingestStream(is, "upload://" + fn, fn, globalContext),
+                url -> documentService.ingestUrl(url, globalContext),
+                onDocumentsChanged);
 
-        contentArea.add(documentsSection, uploadSection, urlSection, schemaSection);
+        var aboutSection = new AboutSection();
+
+        // Schema visible by default; others hidden
+        documentsPanel.setVisible(false);
+        aboutSection.setVisible(false);
+
+        contentArea.add(schemaSection, documentsPanel, aboutSection);
         sidePanel.add(contentArea);
         sidePanel.setFlexGrow(1, contentArea);
 
         // Tab switching
         tabs.addSelectedChangeListener(event -> {
             var selected = event.getSelectedTab();
-            documentsSection.setVisible(selected == documentsTab);
-            uploadSection.setVisible(selected == uploadTab);
-            urlSection.setVisible(selected == urlTab);
             schemaSection.setVisible(selected == schemaTab);
+            documentsPanel.setVisible(selected == documentsTab);
+            aboutSection.setVisible(selected == aboutTab);
             if (selected == documentsTab) {
-                documentsSection.refresh();
+                documentsPanel.refresh();
             }
         });
 
@@ -149,7 +133,7 @@ public class GlobalDrawer extends Div {
     }
 
     public void open() {
-        documentsSection.refresh();
+        documentsPanel.refresh();
         sidePanel.addClassName("open");
         backdrop.addClassName("visible");
         toggleButton.addClassName("hidden");
@@ -169,6 +153,6 @@ public class GlobalDrawer extends Div {
     }
 
     public void refresh() {
-        documentsSection.refresh();
+        documentsPanel.refresh();
     }
 }

@@ -7,9 +7,7 @@ import com.embabel.urbot.rag.DocumentService;
 import com.embabel.urbot.user.UrbotUser;
 import com.embabel.vaadin.component.EntitiesSection;
 import com.embabel.vaadin.component.MemorySection;
-import com.embabel.vaadin.document.DocumentListSection;
-import com.embabel.vaadin.document.FileUploadSection;
-import com.embabel.vaadin.document.UrlIngestSection;
+import com.embabel.vaadin.document.DocumentsPanel;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
@@ -40,7 +38,7 @@ public class UserDrawer extends Div {
     private ShortcutRegistration escapeShortcut;
 
     private final ComboBox<String> contextSelect;
-    private final DocumentListSection documentsSection;
+    private final DocumentsPanel documentsPanel;
     private final DocumentService documentService;
     private final UrbotUser user;
     private final MemorySection memorySection;
@@ -83,9 +81,12 @@ public class UserDrawer extends Div {
         header.setFlexGrow(1, title);
         sidePanel.add(header);
 
-        // Create documents section, memory section, and entities section early (referenced by context change listeners)
-        documentsSection = new DocumentListSection(documentService,
-                user::effectiveContext, onDocumentsChanged);
+        // Create documents panel, memory section, and entities section early (referenced by context change listeners)
+        documentsPanel = new DocumentsPanel(documentService,
+                user::effectiveContext,
+                (is, fn) -> documentService.ingestStream(is, "upload://" + fn, fn, personalContext),
+                url -> documentService.ingestUrl(url, personalContext),
+                onDocumentsChanged);
         memorySection = new MemorySection(propositionRepository, entityResolver,
                 user::effectiveContext, onAnalyze, onRemember, propositionRepository::clearByContext);
         entitiesSection = new EntitiesSection(entityRepository, user::effectiveContext);
@@ -110,7 +111,7 @@ public class UserDrawer extends Div {
             if (!newContext.isEmpty()) {
                 user.setCurrentContextName(newContext);
                 contextSelect.setValue(newContext);
-                documentsSection.refresh();
+                documentsPanel.refresh();
                 onDocumentsChanged.run();
                 memorySection.setContextId(user.effectiveContext());
                 memorySection.refresh();
@@ -120,7 +121,7 @@ public class UserDrawer extends Div {
         contextSelect.addValueChangeListener(e -> {
             if (e.getValue() != null) {
                 user.setCurrentContextName(e.getValue());
-                documentsSection.refresh();
+                documentsPanel.refresh();
                 onDocumentsChanged.run();
                 memorySection.setContextId(user.effectiveContext());
                 memorySection.refresh();
@@ -139,14 +140,12 @@ public class UserDrawer extends Div {
         contextSection.setFlexGrow(1, contextSelect);
         sidePanel.add(contextSection);
 
-        // Tabs - Memory, Entities, Documents, Upload, URL
+        // Tabs - Memory, Entities, Documents
         var memoryTab = new Tab(VaadinIcon.LIGHTBULB.create(), new Span("Memory"));
         var entitiesTab = new Tab(VaadinIcon.USER.create(), new Span("Entities"));
         var documentsTab = new Tab(VaadinIcon.FILE_TEXT.create(), new Span("Documents"));
-        var uploadTab = new Tab(VaadinIcon.UPLOAD.create(), new Span("Upload"));
-        var urlTab = new Tab(VaadinIcon.GLOBE.create(), new Span("URL"));
 
-        var tabs = new Tabs(memoryTab, entitiesTab, documentsTab, uploadTab, urlTab);
+        var tabs = new Tabs(memoryTab, entitiesTab, documentsTab);
         tabs.setWidthFull();
         sidePanel.add(tabs);
 
@@ -156,27 +155,11 @@ public class UserDrawer extends Div {
         contentArea.setPadding(false);
         contentArea.setSizeFull();
 
-        var uploadSection = new FileUploadSection(
-                (is, fn) -> documentService.ingestStream(is, "upload://" + fn, fn, personalContext),
-                () -> {
-                    documentsSection.refresh();
-                    onDocumentsChanged.run();
-                });
-
-        var urlSection = new UrlIngestSection(
-                url -> documentService.ingestUrl(url, personalContext),
-                () -> {
-                    documentsSection.refresh();
-                    onDocumentsChanged.run();
-                });
-
         // Memory visible by default; others hidden
         entitiesSection.setVisible(false);
-        documentsSection.setVisible(false);
-        uploadSection.setVisible(false);
-        urlSection.setVisible(false);
+        documentsPanel.setVisible(false);
 
-        contentArea.add(memorySection, entitiesSection, documentsSection, uploadSection, urlSection);
+        contentArea.add(memorySection, entitiesSection, documentsPanel);
         sidePanel.add(contentArea);
         sidePanel.setFlexGrow(1, contentArea);
 
@@ -184,9 +167,7 @@ public class UserDrawer extends Div {
         tabs.addSelectedChangeListener(event -> {
             memorySection.setVisible(event.getSelectedTab() == memoryTab);
             entitiesSection.setVisible(event.getSelectedTab() == entitiesTab);
-            documentsSection.setVisible(event.getSelectedTab() == documentsTab);
-            uploadSection.setVisible(event.getSelectedTab() == uploadTab);
-            urlSection.setVisible(event.getSelectedTab() == urlTab);
+            documentsPanel.setVisible(event.getSelectedTab() == documentsTab);
             if (event.getSelectedTab() == memoryTab) {
                 memorySection.refresh();
             }
@@ -194,7 +175,7 @@ public class UserDrawer extends Div {
                 entitiesSection.refresh();
             }
             if (event.getSelectedTab() == documentsTab) {
-                documentsSection.refresh();
+                documentsPanel.refresh();
             }
         });
 
