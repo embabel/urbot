@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Import;
 @Import(BotPackageScanConfiguration.class)
 @EnableDrivine
 @EnableDrivinePropertiesConfig
-class UrbotApplication {
+public class UrbotApplication {
     public static void main(String[] args) {
         SpringApplication.run(UrbotApplication.class, args);
     }
