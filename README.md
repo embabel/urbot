@@ -505,6 +505,31 @@ To run with a custom chatbot profile instead:
 mvn spring-boot:run -Dspring-boot.run.profiles=astrid
 ```
 
+### AOT / Project Leyden Build (Fast Startup)
+
+Urbot supports [Project Leyden](https://openjdk.org/projects/leyden/) AOT class data sharing for significantly faster JVM startup times. The `aot.sh` script automates the full preparation process:
+
+```bash
+./aot.sh
+```
+
+This script does the following:
+1. Builds the fat JAR with `mvn -DskipTests package`
+2. Extracts the JAR into layered form under `extracted/`
+3. Does a dry-run startup with `spring.context.exit=onRefresh` to warm the application context
+4. Generates the AOT cache file (`app.aot`) using `-XX:AOTCacheOutput`
+5. Moves `app.aot` into the `extracted/` directory alongside the application
+
+After `aot.sh` completes, run the Leyden-optimized application with:
+
+```bash
+java -XX:AOTCache=extracted/app.aot -jar extracted/application.jar
+```
+
+The `-XX:AOTCache` flag loads the pre-generated AOT cache, skipping class loading and JIT compilation work that would otherwise happen at startup. This is especially noticeable on first request latency.
+
+> **Note:** `aot.sh` requires Java 24+ (which ships with Project Leyden AOT cache support). Make sure `java -version` reports 24 or later before running the script.
+
 Open [http://localhost:8080](http://localhost:8080) and log in:
 
 | Username | Password | Roles |
