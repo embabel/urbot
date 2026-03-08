@@ -50,7 +50,7 @@ public class DummyUrbotUserService implements UrbotUserService {
         if (persistedUserIds.add(user.getId())) {
             entityRepository.save(new SimpleNamedEntityData(
                     user.getId(), null, user.getName(), user.getDescription(),
-                    user.labels(), Map.of(), Map.of(), null));
+                    user.labels(), user.propertiesToPersist(), Map.of(), null));
             logger.info("Persisted user entity to graph: {} ({})", user.getName(), user.getId());
         }
     }

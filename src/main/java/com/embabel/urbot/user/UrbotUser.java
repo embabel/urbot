@@ -118,6 +118,17 @@ public class UrbotUser implements User, NamedEntity, Person {
     }
 
     @NotNull
+    @Override
+    public Map<String, Object> propertiesToPersist() {
+        return Map.of(
+                "id", id,
+                "displayName", displayName,
+                "username", username,
+                "currentContextName", currentContextName
+        );
+    }
+
+    @NotNull
     private LlmReference personalDocs(SearchOperations searchOperations) {
         return new ToolishRag(
                 "user_docs",
