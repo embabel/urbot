@@ -34,7 +34,7 @@ public class LoginView extends BaseLoginView {
         var credentials = new ArrayList<String>();
         if (userService instanceof DummyUrbotUserService dummy) {
             for (var user : dummy.getUsers()) {
-                credentials.add(user.getUsername() + " / " + user.getUsername());
+                credentials.add(user.getUsername() + " / test");
             }
         }
         return credentials;

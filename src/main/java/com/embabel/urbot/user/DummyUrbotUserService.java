@@ -86,7 +86,7 @@ public class DummyUrbotUserService implements UrbotUserService {
         }
         return User.withDefaultPasswordEncoder()
                 .username(user.getUsername())
-                .password(user.getUsername())
+                .password("test")
                 .roles("USER")
                 .build();
     }
