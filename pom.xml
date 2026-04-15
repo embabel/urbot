@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.11</version>
+        <version>3.5.13</version>
         <relativePath/>
     </parent>
     <groupId>com.embabel</groupId>
@@ -18,7 +18,8 @@
 
     <properties>
         <java.version>21</java.version>
-        <embabel-agent.version>0.3.5-SNAPSHOT</embabel-agent.version>
+        <embabel-agent.version>0.3.5</embabel-agent.version>
+        <embabel-agent-experimental.version>0.3.4-SNAPSHOT</embabel-agent-experimental.version>
         <vaadin.version>24.6.4</vaadin.version>
     </properties>
 
@@ -36,7 +37,7 @@
 
     <dependencies>
 
-<!-- Main Dependencies -->
+        <!-- Main Dependencies -->
         <dependency>
             <groupId>com.embabel.agent</groupId>
             <artifactId>embabel-agent-starter</artifactId>
@@ -55,6 +56,12 @@
             <groupId>com.embabel.agent</groupId>
             <artifactId>embabel-agent-rag-neo-drivine</artifactId>
             <version>0.1.2-SNAPSHOT</version>
+        </dependency>
+        <!-- Override rag-core version: neo-drivine needs 0.4.0-SNAPSHOT for EmbeddingAwareChunkingContentElementRepository -->
+        <dependency>
+            <groupId>com.embabel.agent</groupId>
+            <artifactId>embabel-agent-rag-core</artifactId>
+            <version>0.4.0-SNAPSHOT</version>
         </dependency>
 
         <!-- DICE Semantic Memory -->
@@ -99,7 +106,7 @@
             <artifactId>vaadin-spring-boot-starter</artifactId>
         </dependency>
 
-<!-- Testing -->
+        <!-- Testing -->
         <dependency>
             <groupId>com.embabel.agent</groupId>
             <artifactId>embabel-agent-test</artifactId>
@@ -110,7 +117,7 @@
         <dependency>
             <groupId>com.embabel.agent</groupId>
             <artifactId>embabel-agent-eval</artifactId>
-            <version>${embabel-agent.version}</version>
+            <version>${embabel-agent-experimental.version}</version>
             <scope>test</scope>
         </dependency>
 
